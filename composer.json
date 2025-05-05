@@ -15,6 +15,7 @@
         "spatie/laravel-activitylog": "^4.10",
         "spatie/laravel-backup": "^9.3",
         "spatie/laravel-permission": "^6.17",
+        "spatie/laravel-sluggable": "^3.7",
         "spatie/laravel-translatable": "^6.11",
         "stevebauman/location": "^7.5"
     },

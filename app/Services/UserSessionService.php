@@ -8,13 +8,15 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
 use App\Models\Session as UserSession;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class UserSessionService
 {
     public function getSessionFromCookie(): array
     {
         try {
-            $decrypted = Cookie::get('laravel_session');
+            $cookieName = config('session.cookie');
+            $decrypted = Cookie::get($cookieName);
 
             if (!$decrypted) {
                 return [

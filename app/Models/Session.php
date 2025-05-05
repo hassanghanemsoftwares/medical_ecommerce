@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\UserSessionService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Laravel\Sanctum\PersonalAccessToken;
@@ -38,13 +39,13 @@ class Session extends Model
 
     public function isCurrentSession(): bool
     {
-        $sessionId = Cookie::get('laravel_session');
+        $service = app(UserSessionService::class);
+        $result = $service->getSessionFromCookie();
 
-        try {
-            $parts = explode('|', Crypt::decryptString($sessionId));
-            return $this->id === $parts[0] || $this->id === $parts[1];
-        } catch (\Exception $e) {
+        if (!$result['result'] || !$result['session']) {
             return false;
         }
+
+        return $this->id === $result['session']->id;
     }
 }

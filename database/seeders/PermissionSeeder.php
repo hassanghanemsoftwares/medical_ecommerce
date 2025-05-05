@@ -13,6 +13,7 @@ class PermissionSeeder extends Seeder
             'view-activity-logs',
             'view-profile',
             'view-settings',
+            'view-dashboard',
             'create-user',
             'edit-user',
             'delete-user',
@@ -21,7 +22,6 @@ class PermissionSeeder extends Seeder
             'edit-category',
             'delete-category',
             'view-category',
-            'view-dashboard',
         ];
 
         foreach ($permissions as $permission) {

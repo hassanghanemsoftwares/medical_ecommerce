@@ -1,12 +1,10 @@
 <?php
-
-// routes/api.php
-
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\V1\Admin\AuthController;
 use App\Http\Controllers\V1\Admin\SessionController;
 use App\Http\Controllers\V1\Admin\UserController;
 use App\Http\Controllers\V1\Admin\ActivityLogController;
+use App\Http\Controllers\V1\Admin\CategoryController;
 use App\Http\Controllers\V1\Admin\ProfileController;
 use App\Http\Controllers\V1\Admin\SettingsController;
 
@@ -36,6 +34,12 @@ Route::prefix('v1')->group(function () {
                 Route::middleware('can:create-user')->post('users', [UserController::class, 'create']);
                 Route::middleware('can:edit-user')->put('users/{user}', [UserController::class, 'update']);
                 Route::middleware('can:delete-user')->delete('users/{user}', [UserController::class, 'destroy']);
+
+                Route::middleware('can:view-category')->get('categories', [CategoryController::class, 'index']);
+                Route::middleware('can:view-category')->get('categories/{category}', [CategoryController::class, 'show']);
+                Route::middleware('can:create-category')->post('categories', [CategoryController::class, 'store']);
+                Route::middleware('can:edit-category')->put('categories/{category}', [CategoryController::class, 'update']);
+                Route::middleware('can:delete-category')->delete('categories/{category}', [CategoryController::class, 'destroy']);
             });
         });
     });

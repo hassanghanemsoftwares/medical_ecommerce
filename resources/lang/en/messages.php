@@ -112,5 +112,76 @@ return [
         'team_not_found' => 'Team not found.',
         'user_not_in_team' => 'Forbidden. User does not belong to this team.',
     ],
+    'order_status' => [
+        'Pending' => 'Pending',
+        'Pending_description' => 'The order has been placed and is awaiting confirmation.',
 
+        'Confirmed' => 'Confirmed',
+        'Confirmed_description' => 'The order has been verified and confirmed. Processing will begin soon.',
+
+        'Processing' => 'Processing',
+        'Processing_description' => 'The order is being prepared and packaged.',
+
+        'On Hold' => 'On Hold',
+        'On Hold_description' => 'The order is temporarily paused due to an issue that needs to be resolved.',
+
+        'Shipped' => 'Shipped',
+        'Shipped_description' => 'The order has been shipped and is on its way.',
+
+        'Delivered' => 'Delivered',
+        'Delivered_description' => 'The order has been successfully delivered to the customer.',
+
+        'Failed' => 'Failed',
+        'Failed_description' => 'An issue occurred, such as a payment failure or other critical error.',
+
+        'Cancelled By Admin' => 'Cancelled By Admin',
+        'Cancelled By Admin_description' => 'The order was cancelled by the store administration.',
+
+        'Cancelled By Customer' => 'Cancelled By Customer',
+        'Cancelled By Customer_description' => 'The customer has cancelled the order.',
+
+        'Returned' => 'Returned',
+        'Returned_description' => 'The customer has returned the order after delivery.',
+
+        'Completed' => 'Completed',
+        'Completed_description' => 'The order process is fully completed, and no further actions are needed.',
+    ],
+    'coupon_status' => [
+        'PENDING' => 'Pending',
+        'ACTIVE' => 'Active',
+        'INACTIVE' => 'Inactive',
+        'EXPIRED' => 'Expired',
+        'USED' => 'Used',
+        'CANCELED' => 'Canceled',
+    ],
+
+    'coupon_type' => [
+        'All clients' => 'All clients',
+        'Specific users' => 'Specific users',
+        'First time' => 'First time',
+        'Order amount' => 'Order amount',
+        'Free delivery' => 'Free delivery',
+    ],
+
+    'category' => [
+        'name_required' => 'Category name is required.',
+        'name_en_required' => 'English category name is required.',
+        'name_ar_required' => 'Arabic category name is required.',
+        'image_required' => 'Category image is required.',
+        'image_mimes' => 'The image must be a file of type: jpeg, png, jpg, webp.',
+        'image_max_size' => 'The image may not be greater than 2 MB.',
+        'image_dimensions' => 'The image must be at least 100x100 pixels and no larger than 2000x2000 pixels.',
+        'categories_retrieved' => 'Categories retrieved successfully.',
+        'category_found' => 'Category found.',
+        'category_created' => 'Category created successfully.',
+        'category_updated' => 'Category updated successfully.',
+        'category_deleted' => 'Category deleted successfully.',
+        'failed_to_create_category' => 'Failed to create category.',
+        'failed_to_update_category' => 'Failed to update category.',
+        'failed_to_delete_category' => 'Failed to delete category.',
+    ],
+    'general' => [
+        'failed_to_retrieve_data' => 'Failed to retrieve data.',
+        'general_error' => 'An error occurred. Please try again later.',
+    ],
 ];

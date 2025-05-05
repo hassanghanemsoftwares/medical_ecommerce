@@ -111,4 +111,76 @@ return [
         'team_not_found' => 'الفريق غير موجود.',
         'user_not_in_team' => 'ممنوع. المستخدم لا ينتمي إلى هذا الفريق.',
     ],
+
+    'order_status' => [
+        'Pending' => 'قيد الانتظار',
+        'Pending_description' => 'تم تقديم الطلب وهو في انتظار التأكيد.',
+
+        'Confirmed' => 'تم التأكيد',
+        'Confirmed_description' => 'تم التحقق من الطلب وتأكيده. ستبدأ المعالجة قريبًا.',
+
+        'Processing' => 'قيد المعالجة',
+        'Processing_description' => 'يتم تجهيز الطلب وتعبئته.',
+
+        'On Hold' => 'معلق',
+        'On Hold_description' => 'تم إيقاف الطلب مؤقتًا بسبب مشكلة تحتاج إلى حل.',
+
+        'Shipped' => 'تم الشحن',
+        'Shipped_description' => 'تم شحن الطلب وهو في الطريق.',
+
+        'Delivered' => 'تم التسليم',
+        'Delivered_description' => 'تم تسليم الطلب بنجاح إلى العميل.',
+
+        'Failed' => 'فشل',
+        'Failed_description' => 'حدثت مشكلة، مثل فشل الدفع أو خطأ حرج آخر.',
+
+        'Cancelled By Admin' => 'أُلغي بواسطة الإدارة',
+        'Cancelled By Admin_description' => 'تم إلغاء الطلب بواسطة إدارة المتجر.',
+
+        'Cancelled By Customer' => 'أُلغي بواسطة العميل',
+        'Cancelled By Customer_description' => 'قام العميل بإلغاء الطلب.',
+
+        'Returned' => 'تم الإرجاع',
+        'Returned_description' => 'قام العميل بإرجاع الطلب بعد التسليم.',
+
+        'Completed' => 'مكتمل',
+        'Completed_description' => 'تم إكمال عملية الطلب بالكامل ولا حاجة لاتخاذ أي إجراءات إضافية.',
+    ],
+    'coupon_status' => [
+        'PENDING' => 'قيد الانتظار',
+        'ACTIVE' => 'نشط',
+        'INACTIVE' => 'غير نشط',
+        'EXPIRED' => 'منتهي',
+        'USED' => 'مستخدم',
+        'CANCELED' => 'ملغي',
+    ],
+
+    'coupon_type' => [
+        'All clients' => 'جميع العملاء',
+        'Specific users' => 'مستخدمون محددون',
+        'First time' => 'المرة الأولى',
+        'Order amount' => 'مبلغ الطلب',
+        'Free delivery' => 'توصيل مجاني',
+    ],
+    'category' => [
+        'name_required' => 'اسم الفئة مطلوب.',
+        'name_en_required' => 'اسم الفئة بالإنجليزية مطلوب.',
+        'name_ar_required' => 'اسم الفئة بالعربية مطلوب.',
+        'image_required' => 'صورة الفئة مطلوبة.',
+        'image_mimes' => 'يجب أن تكون الصورة من نوع: jpeg، png، jpg، webp.',
+        'image_max_size' => 'يجب ألا تتجاوز الصورة 2 ميغابايت.',
+        'image_dimensions' => 'يجب أن تكون الصورة على الأقل 100x100 بكسل ولا تتجاوز 2000x2000 بكسل.',
+        'categories_retrieved' => 'تم استرجاع الفئات بنجاح.',
+        'category_found' => 'تم العثور على الفئة.',
+        'category_created' => 'تم إنشاء الفئة بنجاح.',
+        'category_updated' => 'تم تحديث الفئة بنجاح.',
+        'category_deleted' => 'تم حذف الفئة بنجاح.',
+        'failed_to_create_category' => 'فشل في إنشاء الفئة.',
+        'failed_to_update_category' => 'فشل في تحديث الفئة.',
+        'failed_to_delete_category' => 'فشل في حذف الفئة.',
+    ],
+    'general' => [
+        'failed_to_retrieve_data' => 'فشل في استرجاع البيانات.',
+        'general_error' => 'حدث خطأ. يرجى المحاولة لاحقًا.',
+    ],
 ];
