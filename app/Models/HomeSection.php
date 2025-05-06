@@ -20,7 +20,7 @@ class HomeSection extends Model
     ];
 
     protected $casts = [
-        'content' => 'array', // Cast content as a JSON array
+        'content' => 'array',
     ];
 
     public function getActivitylogOptions(): LogOptions

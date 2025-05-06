@@ -18,8 +18,6 @@ class CategoryController extends Controller
     public function index(Request $request)
     {
         try {
-            $user = $request->user();
-            // $user->revokePermissionTo(['view-category']);
             $validated = $request->validate([
                 'search' => 'nullable|string|max:255',
                 'sort' => 'nullable|in:created_at,name,arrangement,is_active',
