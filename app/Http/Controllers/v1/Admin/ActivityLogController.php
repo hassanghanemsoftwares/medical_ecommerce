@@ -65,11 +65,8 @@ class ActivityLogController extends Controller
                 'pagination' => new PaginationResource($logs),
             ]);
         } catch (Exception $e) {
-            return response()->json([
-                'result' => false,
-                'message' => __('messages.logs.failed_to_retrieve'),
-                'error' => config('app.debug') ? $e->getMessage() : __('messages.general_error'),
-            ]);
+      
+             return $this->errorResponse('messages.logs.failed_to_retrieve', $e);
         }
     }
 }

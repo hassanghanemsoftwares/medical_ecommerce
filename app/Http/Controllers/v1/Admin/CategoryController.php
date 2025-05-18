@@ -8,10 +8,8 @@ use App\Http\Resources\V1\CategoryResource;
 use App\Http\Resources\V1\PaginationResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Exception;
-
+use Illuminate\Support\Facades\DB;
 
 class CategoryController extends Controller
 {
@@ -67,11 +65,11 @@ class CategoryController extends Controller
             $category = new Category([
                 'name' => $request->input('name'),
                 'is_active' => $request->boolean('is_active', true),
-                'arrangement' => $this->getNextArrangement(),
+                'arrangement' => Category::getNextArrangement(),
             ]);
 
             if ($request->hasFile('image')) {
-                $category->image = $this->storeImage($request->file('image'));
+                $category->image = Category::storeImage($request->file('image'));
             }
 
             $category->save();
@@ -85,7 +83,7 @@ class CategoryController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('failed_to_create_category', $e);
+            return $this->errorResponse('messages.category.failed_to_create_category', $e);
         }
     }
 
@@ -98,12 +96,12 @@ class CategoryController extends Controller
             $category->fill([
                 'name' => $request->input('name'),
                 'is_active' => $request->boolean('is_active', $category->is_active),
-                'arrangement' => $this->updateArrangement($category, $request->input('arrangement', $category->arrangement)),
+                'arrangement' => Category::updateArrangement($category, $request->input('arrangement', $category->arrangement)),
             ]);
 
             if ($request->hasFile('image')) {
-                $this->deleteImage($category->getRawOriginal('image'));
-                $category->image = $this->storeImage($request->file('image'));
+                Category::deleteImage($category->getRawOriginal('image'));
+                $category->image = Category::storeImage($request->file('image'));
             }
 
             $category->save();
@@ -117,7 +115,7 @@ class CategoryController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('failed_to_update_category', $e);
+            return $this->errorResponse('messages.category.failed_to_update_category', $e);
         }
     }
 
@@ -126,9 +124,9 @@ class CategoryController extends Controller
         try {
             DB::beginTransaction();
 
-            $this->rearrangeAfterDelete($category->arrangement);
+            Category::rearrangeAfterDelete($category->arrangement);
 
-            $this->deleteImage($category->getRawOriginal('image'));
+            Category::deleteImage($category->getRawOriginal('image'));
 
             $category->delete();
 
@@ -140,52 +138,9 @@ class CategoryController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('failed_to_delete_category', $e);
+            return $this->errorResponse('messages.category.failed_to_delete_category', $e);
         }
     }
 
-    private function getNextArrangement()
-    {
-        $maxArrangement = Category::max('arrangement') ?? 0;
 
-
-
-        return $maxArrangement + 1;
-    }
-
-    private function updateArrangement(Category $category, $newArrangement)
-    {
-        if ($category->arrangement != $newArrangement) {
-            Category::where('arrangement', $newArrangement)->update(['arrangement' => $category->arrangement]);
-            return $newArrangement;
-        }
-        return $category->arrangement;
-    }
-
-    private function rearrangeAfterDelete($deletedArrangement)
-    {
-        Category::where('arrangement', '>', $deletedArrangement)
-            ->decrement('arrangement');
-    }
-
-    private function storeImage($imageFile)
-    {
-        return $imageFile->store('categories', 'public');
-    }
-
-    private function deleteImage($imagePath)
-    {
-        if ($imagePath && Storage::disk('public')->exists($imagePath)) {
-            Storage::disk('public')->delete($imagePath);
-        }
-    }
-
-    private function errorResponse($messageKey, Exception $e)
-    {
-        return response()->json([
-            'result' => false,
-            'message' => __('messages.category.' . $messageKey),
-            'error' => config('app.debug') ? $e->getMessage() : __('messages.general_error'),
-        ]);
-    }
 }

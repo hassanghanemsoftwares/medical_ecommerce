@@ -14,6 +14,9 @@ return new class extends Migration
         Schema::create('clients', function (Blueprint $table) {
             $table->id();
             $table->string('name', 100);
+            $table->unsignedBigInteger('occupation_id');
+
+             $table->foreign('occupation_id')->references('id')->on('occupations')->cascadeOnDelete();
             $table->string('phone', 100)->nullable();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();

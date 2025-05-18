@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\V1\Admin;
 
 use App\Http\Controllers\Controller;
@@ -22,8 +23,12 @@ class SizeController extends Controller
                 'per_page' => 'nullable|integer|min:1|max:100',
             ]);
 
-            $sizes = Size::when($validated['search'] ?? null, fn($q, $search) =>
-                    $q->where('name', 'like', "%$search%")
+            $sizes = Size::query()
+                ->when(
+                    $validated['search'] ?? null,
+                    fn($q, $search) =>
+                    $q->where('name->en', 'like', "%$search%")
+                        ->orWhere('name->ar', 'like', "%$search%")
                 )
                 ->orderBy($validated['sort'] ?? 'created_at', $validated['order'] ?? 'desc')
                 ->paginate($validated['per_page'] ?? 10);
@@ -35,7 +40,7 @@ class SizeController extends Controller
                 'pagination' => new PaginationResource($sizes),
             ]);
         } catch (Exception $e) {
-            return $this->errorResponse('failed_to_retrieve_data', $e);
+            return $this->errorResponse('messages.size.failed_to_retrieve_data', $e);
         }
     }
 
@@ -64,7 +69,7 @@ class SizeController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('failed_to_create_size', $e);
+            return $this->errorResponse('messages.size.failed_to_create_size', $e);
         }
     }
 
@@ -85,7 +90,7 @@ class SizeController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('failed_to_update_size', $e);
+            return $this->errorResponse('messages.size.failed_to_update_size', $e);
         }
     }
 
@@ -93,27 +98,15 @@ class SizeController extends Controller
     {
         try {
             DB::beginTransaction();
-
             $size->delete();
-
             DB::commit();
-
             return response()->json([
                 'result' => true,
                 'message' => __('messages.size.size_deleted'),
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('failed_to_delete_size', $e);
+            return $this->errorResponse('messages.size.failed_to_delete_size', $e);
         }
-    }
-
-    private function errorResponse($messageKey, Exception $e)
-    {
-        return response()->json([
-            'result' => false,
-            'message' => __('messages.size.' . $messageKey),
-            'error' => config('app.debug') ? $e->getMessage() : __('messages.general_error'),
-        ]);
     }
 }

@@ -15,17 +15,23 @@ return new class extends Migration
             $table->id();
             $table->string('barcode', 50)->unique();
             $table->string('slug')->unique();
-            $table->boolean('is_active')->default(true);
+            $table->enum('availability_status', [
+                'available',          // Product is available and can be purchased
+                'coming_soon',        // Product is coming soon
+                'discontinued',       // Product is permanently no longer sold
+                'pre_order',          // Can be ordered before official release
+            ]);
             $table->unsignedBigInteger('category_id');
             $table->foreign('category_id')->references('id')->on('categories')->restrictOnDelete();
             $table->unsignedBigInteger('brand_id');
             $table->foreign('brand_id')->references('id')->on('brands')->restrictOnDelete();
             $table->string('name', 100);
+            $table->string('short_description')->nullable();
             $table->text('description')->nullable();
             $table->decimal('price', 10, 2);
             $table->integer('discount')->default(0);
-            $table->integer('min_quantity')->default(1);
-            $table->integer('max_quantity')->nullable();
+            $table->integer('min_order_quantity')->default(1);
+            $table->integer('max_order_quantity')->nullable();
             $table->timestamps();
         });
     }

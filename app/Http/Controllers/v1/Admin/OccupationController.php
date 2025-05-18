@@ -1,16 +1,17 @@
 <?php
+
 namespace App\Http\Controllers\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\V1\ColorSeasonRequest;
-use App\Http\Resources\V1\ColorSeasonResource;
+use App\Http\Requests\V1\OccupationRequest;
+use App\Http\Resources\V1\OccupationResource;
 use App\Http\Resources\V1\PaginationResource;
-use App\Models\ColorSeason;
+use App\Models\Occupation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Exception;
 
-class ColorSeasonController extends Controller
+class OccupationController extends Controller
 {
     public function index(Request $request)
     {
@@ -22,7 +23,7 @@ class ColorSeasonController extends Controller
                 'per_page' => 'nullable|integer|min:1|max:100',
             ]);
 
-            $colorSeasons = ColorSeason::query()
+            $occupations = Occupation::query()
                 ->when($validated['search'] ?? null, fn($q, $search) =>
                     $q->where('name->en', 'like', "%$search%")
                       ->orWhere('name->ar', 'like', "%$search%")
@@ -32,30 +33,30 @@ class ColorSeasonController extends Controller
 
             return response()->json([
                 'result' => true,
-                'message' => __('messages.color_season.color_seasons_retrieved'),
-                'color_seasons' => ColorSeasonResource::collection($colorSeasons),
-                'pagination' => new PaginationResource($colorSeasons),
+                'message' => __('messages.occupation.occupations_retrieved'),
+                'occupations' => OccupationResource::collection($occupations),
+                'pagination' => new PaginationResource($occupations),
             ]);
         } catch (Exception $e) {
-            return $this->errorResponse('messages.color_season.failed_to_retrieve_data', $e);
+            return $this->errorResponse('messages.learning_video.failed_to_retrieve_data', $e);
         }
     }
 
-    public function show(ColorSeason $colorSeason)
+    public function show(Occupation $occupation)
     {
         return response()->json([
             'result' => true,
-            'message' => __('messages.color_season.color_season_found'),
-            'color_season' => new ColorSeasonResource($colorSeason),
+            'message' => __('messages.occupation.occupation_found'),
+            'occupation' => new OccupationResource($occupation),
         ]);
     }
 
-    public function store(ColorSeasonRequest $request)
+    public function store(OccupationRequest $request)
     {
         try {
             DB::beginTransaction();
 
-            $colorSeason = ColorSeason::create([
+            $occupation = Occupation::create([
                 'name' => $request->input('name'),
             ]);
 
@@ -63,22 +64,22 @@ class ColorSeasonController extends Controller
 
             return response()->json([
                 'result' => true,
-                'message' => __('messages.color_season.color_season_created'),
-                'color_season' => new ColorSeasonResource($colorSeason),
+                'message' => __('messages.occupation.occupation_created'),
+                'occupation' => new OccupationResource($occupation),
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.color_season.failed_to_create_color_season', $e);
+            return $this->errorResponse('messages.learning_video.failed_to_create_occupation', $e);
         }
     }
 
-    public function update(ColorSeasonRequest $request, $id)
+    public function update(OccupationRequest $request, $id)
     {
         try {
             DB::beginTransaction();
-            $colorSeason = ColorSeason::findOrFail($id);
+            $occupation = Occupation::findOrFail($id);
 
-            $colorSeason->update([
+            $occupation->update([
                 'name' => $request->input('name'),
             ]);
 
@@ -86,33 +87,33 @@ class ColorSeasonController extends Controller
 
             return response()->json([
                 'result' => true,
-                'message' => __('messages.color_season.color_season_updated'),
-                'color_season' => new ColorSeasonResource($colorSeason),
+                'message' => __('messages.occupation.occupation_updated'),
+                'occupation' => new OccupationResource($occupation),
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.color_season.failed_to_update_color_season', $e);
+            return $this->errorResponse('messages.learning_video.failed_to_update_occupation', $e);
         }
     }
 
-    public function destroy(ColorSeason $colorSeason)
+    public function destroy(Occupation $occupation)
     {
         try {
             DB::beginTransaction();
 
-            $colorSeason->delete();
+            $occupation->delete();
 
             DB::commit();
 
             return response()->json([
                 'result' => true,
-                'message' => __('messages.color_season.color_season_deleted'),
+                'message' => __('messages.occupation.occupation_deleted'),
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.color_season.failed_to_delete_color_season', $e);
+            return $this->errorResponse('messages.learning_video.failed_to_delete_occupation', $e);
         }
     }
 
-  
+
 }

@@ -21,7 +21,7 @@ class HomeSectionController extends Controller
                 'home_sections' => HomeSectionResource::collection($homeSections),
             ]);
         } catch (Exception $e) {
-            return $this->errorResponse('failed_to_fetch_home_sections', $e);
+            return $this->errorResponse('messages.home_section.failed_to_fetch_home_sections', $e);
         }
     }
 
@@ -37,7 +37,7 @@ class HomeSectionController extends Controller
                 'home_section' => new HomeSectionResource($homeSection),
             ]);
         } catch (Exception $e) {
-            return $this->errorResponse('failed_to_create_home_section', $e);
+            return $this->errorResponse('messages.home_section.failed_to_create_home_section', $e);
         }
     }
 
@@ -51,7 +51,7 @@ class HomeSectionController extends Controller
                 'home_section' => new HomeSectionResource($homeSection),
             ]);
         } catch (Exception $e) {
-            return $this->errorResponse('failed_to_fetch_home_section', $e);
+            return $this->errorResponse('messages.home_section.failed_to_fetch_home_section', $e);
         }
     }
 
@@ -68,7 +68,7 @@ class HomeSectionController extends Controller
                 'home_section' => new HomeSectionResource($homeSection),
             ]);
         } catch (Exception $e) {
-            return $this->errorResponse('failed_to_update_home_section', $e);
+            return $this->errorResponse('messages.home_section.failed_to_update_home_section', $e);
         }
     }
 
@@ -83,16 +83,9 @@ class HomeSectionController extends Controller
                 'message' => __('messages.home_section.home_section_deleted'),
             ]);
         } catch (Exception $e) {
-            return $this->errorResponse('failed_to_delete_home_section', $e);
+            return $this->errorResponse('messages.home_section.failed_to_delete_home_section', $e);
         }
     }
 
-    private function errorResponse($messageKey, Exception $e)
-    {
-        return response()->json([
-            'result' => false,
-            'message' => __('messages.home_section.' . $messageKey),
-            'error' => config('app.debug') ? $e->getMessage() : __('messages.general_error'),
-        ]);
-    }
+ 
 }

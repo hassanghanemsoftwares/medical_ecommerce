@@ -3,13 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
-class ProductTag extends Pivot
+class ProductTag extends Model
 {
     use HasFactory, LogsActivity;
+
+    protected $table = 'product_tags'; 
+    public $timestamps = true;
 
     protected $fillable = [
         'product_id',
@@ -25,6 +28,7 @@ class ProductTag extends Pivot
     {
         return $this->belongsTo(Tag::class);
     }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

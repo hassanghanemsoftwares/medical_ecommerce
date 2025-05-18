@@ -15,8 +15,6 @@ class Variant extends Model
         'product_id',
         'size_id',
         'color_id',
-        'arrangement',
-        'is_active',
     ];
 
     public function product()
@@ -42,7 +40,7 @@ class Variant extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['product_id', 'size_id', 'color_id', 'arrangement', 'is_active'])
+            ->logOnly(['product_id', 'size_id', 'color_id'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('variant');

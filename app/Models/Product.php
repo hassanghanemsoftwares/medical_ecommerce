@@ -9,40 +9,52 @@ use Spatie\Activitylog\LogOptions;
 use Illuminate\Support\Facades\DB;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
+use Spatie\Translatable\HasTranslations;
+
 class Product extends Model
 {
-    use HasFactory, LogsActivity;
-
+    use HasFactory, LogsActivity, HasSlug,HasTranslations;
+  
     protected $fillable = [
         'barcode',
         'slug',
-        'is_active',
+        'availability_status',
         'category_id',
         'brand_id',
         'name',
+        'short_description',
         'description',
         'price',
         'discount',
-        'min_quantity',
-        'max_quantity',
+        'min_order_quantity',
+        'max_order_quantity',
+    ];
+    public $translatable = [
+        'name',
+        'short_description',
+        'description',
     ];
 
     public function category()
     {
         return $this->belongsTo(Category::class);
     }
+
     public function brand()
     {
         return $this->belongsTo(Brand::class);
     }
+
     public function tags()
     {
         return $this->belongsToMany(Tag::class, 'product_tags');
     }
+
     public function images()
     {
         return $this->hasMany(ProductImage::class);
     }
+
     public function clicks()
     {
         return $this->hasMany(ProductClick::class);
@@ -53,6 +65,14 @@ class Product extends Model
         return $this->hasMany(Variant::class);
     }
 
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom(function ($model) {
+                return $model->barcode . ' ' . $model->name;
+            })
+            ->saveSlugsTo('slug');
+    }
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -60,15 +80,16 @@ class Product extends Model
             ->logOnly([
                 'barcode',
                 'slug',
-                'is_active',
+                'availability_status',
                 'category_id',
                 'brand_id',
                 'name',
+                'short_description',
                 'description',
                 'price',
                 'discount',
-                'min_quantity',
-                'max_quantity',
+                'min_order_quantity',
+                'max_order_quantity',
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
@@ -80,25 +101,16 @@ class Product extends Model
         return strtolower(class_basename($this)) . '.' . $eventName;
     }
 
-    public function getSlugOptions(): SlugOptions
+    public static function generateBarcode(): string
     {
-        return SlugOptions::create()
-            ->generateSlugsFrom(function ($model) {
-                return $model->barcode . ' ' . $model->name_en;
-            })
-            ->saveSlugsTo('slug');
-    }
-
-    public static function generateBarcode()
-    {
-        $prefix = '990'; // Starting prefix
+        $prefix = '990';
         $lastBarcode = DB::table('products')
             ->where('barcode', 'like', $prefix . '%')
             ->orderBy('barcode', 'desc')
             ->value('barcode');
 
         if ($lastBarcode) {
-            $nextNumber = intval(substr($lastBarcode, 3)) + 1;
+            $nextNumber = intval(substr($lastBarcode, strlen($prefix))) + 1;
         } else {
             $nextNumber = 0;
         }

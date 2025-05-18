@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Validation\ValidationException;
 
-class SizeRequest extends FormRequest
+class OccupationRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -15,21 +15,21 @@ class SizeRequest extends FormRequest
 
     public function rules(): array
     {
-        $sizeId = $this->route('size');
+        $occupationId = $this->route('occupation');
 
         return [
-             'name' => 'required|array',
+            'name' => 'required|array',
             'name.en' => [
                 'required',
                 'string',
                 'max:255',
-                'unique:categories,name->en,' . ($sizeId ? $sizeId : 'NULL') 
+                'unique:occupations,name->en,' . ($occupationId ?: 'NULL'),
             ],
             'name.ar' => [
                 'required',
                 'string',
                 'max:255',
-                'unique:categories,name->ar,' . ($sizeId ? $sizeId : 'NULL') 
+                'unique:occupations,name->ar,' . ($occupationId ?: 'NULL'),
             ],
         ];
     }

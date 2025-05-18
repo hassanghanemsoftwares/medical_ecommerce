@@ -20,7 +20,7 @@ class ConfigurationController extends Controller
                 'configurations' => ConfigurationResource::collection($configs),
             ]);
         } catch (Exception $e) {
-            return $this->errorResponse('failed_to_fetch_configuration', $e);
+            return $this->errorResponse('messages.configuration.failed_to_fetch_configuration', $e);
         }
     }
 
@@ -41,16 +41,9 @@ class ConfigurationController extends Controller
                 'message' => __('messages.configuration.configuration_updated'),
             ]);
         } catch (Exception $e) {
-            return $this->errorResponse('failed_to_update_configuration', $e);
+            return $this->errorResponse('messages.configuration.failed_to_update_configuration', $e);
         }
     }
 
-    private function errorResponse($messageKey, Exception $e)
-    {
-        return response()->json([
-            'result' => false,
-            'message' => __('messages.configuration.' . $messageKey),
-            'error' => config('app.debug') ? $e->getMessage() : __('messages.general_error'),
-        ]);
-    }
+
 }

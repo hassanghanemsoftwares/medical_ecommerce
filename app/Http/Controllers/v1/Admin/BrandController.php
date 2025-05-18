@@ -39,7 +39,7 @@ class BrandController extends Controller
                 'pagination' => new PaginationResource($brands),
             ]);
         } catch (Exception $e) {
-            return $this->errorResponse('failed_to_retrieve_data', $e);
+            return $this->errorResponse('messages.logs.failed_to_retrieve_data', $e);
         }
     }
 
@@ -71,7 +71,7 @@ class BrandController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('failed_to_create_brand', $e);
+            return $this->errorResponse('messages.logs.failed_to_create_brand', $e);
         }
     }
 
@@ -95,7 +95,7 @@ class BrandController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('failed_to_update_brand', $e);
+            return $this->errorResponse('messages.logs.failed_to_update_brand', $e);
         }
     }
 
@@ -109,16 +109,10 @@ class BrandController extends Controller
                 'message' => __('messages.brand.brand_deleted'),
             ]);
         } catch (Exception $e) {
-            return $this->errorResponse('failed_to_delete_brand', $e);
+            return $this->errorResponse('messages.logs.failed_to_delete_brand', $e);
+            
         }
     }
 
-    private function errorResponse($messageKey, Exception $e)
-    {
-        return response()->json([
-            'result' => false,
-            'message' => __('messages.brand.' . $messageKey),
-            'error' => config('app.debug') ? $e->getMessage() : __('messages.general_error'),
-        ]);
-    }
+
 }

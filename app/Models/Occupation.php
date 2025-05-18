@@ -8,15 +8,13 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Translatable\HasTranslations;
 
-
-class Size extends Model
+class Occupation extends Model
 {
     use HasFactory, LogsActivity, HasTranslations;
 
     public $translatable = ['name'];
-    protected $fillable = [
-        'name',
-    ];
+
+    protected $fillable = ['name'];
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -24,7 +22,7 @@ class Size extends Model
             ->logOnly(['name'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName('size');
+            ->useLogName('occupation');
     }
 
     public function getDescriptionForEvent(string $eventName): string

@@ -8,6 +8,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Facades\Storage;
+
 class ProductImage extends Model
 {
     use HasFactory, LogsActivity;
@@ -18,10 +19,7 @@ class ProductImage extends Model
         'is_active',
         'arrangement',
     ];
-    protected $image_path = "products/";
 
-
- 
     public function product()
     {
         return $this->belongsTo(Product::class);
@@ -50,8 +48,38 @@ class ProductImage extends Model
     {
         return new Attribute(
             get: function () {
-                return Storage::url($this->image_path . $this->attributes['image']);
+                 return asset(Storage::url($this->attributes['image']));
             }
         );
+    }
+    public static function getNextArrangement()
+    {
+        $maxArrangement = self::max('arrangement') ?? 0;
+        return $maxArrangement + 1;
+    }
+
+    public static function updateArrangement(ProductImage $productImage, $newArrangement)
+    {
+        if ($productImage->arrangement != $newArrangement) {
+            self::where('arrangement', $newArrangement)->update(['arrangement' => $productImage->arrangement]);
+            return $newArrangement;
+        }
+        return $productImage->arrangement;
+    }
+    public static function rearrangeAfterDelete($deletedArrangement)
+    {
+        self::where('arrangement', '>', $deletedArrangement)
+            ->decrement('arrangement');
+    }
+
+    public static function storeImage($imageFile)
+    {
+        return $imageFile->store('products', 'public');
+    }
+    public static function deleteImage($imagePath)
+    {
+        if ($imagePath && Storage::disk('public')->exists($imagePath)) {
+            Storage::disk('public')->delete($imagePath);
+        }
     }
 }

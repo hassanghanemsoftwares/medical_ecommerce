@@ -6,18 +6,20 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('stock_adjustments', function (Blueprint $table) {
             $table->id();
+
+            // Link to product (for products without variants)
+            $table->unsignedBigInteger('product_id')->nullable();
+            $table->foreign('product_id')->references('id')->on('products')->restrictOnDelete();
+
+            // Link to variant (for products with variants)
             $table->unsignedBigInteger('variant_id')->nullable();
             $table->foreign('variant_id')->references('id')->on('variants')->restrictOnDelete();
 
             $table->foreignId('warehouse_id')->constrained()->restrictOnDelete();
-
             $table->foreignId('shelf_id')->constrained()->restrictOnDelete();
 
             $table->tinyInteger('adjustment_type');
@@ -25,25 +27,24 @@ return new class extends Migration
             $table->unsignedInteger('quantity');
             $table->decimal('cost_per_item', 10, 2);
             $table->string('reason')->nullable();
-            $table->foreignId('adjusted_by')->nullable()->constrained('users')->nullOnDelete();
+
+            $table->foreignId('adjusted_by')->nullable()->constrained('users')->restrictOnDelete();
 
             $table->enum('reference_type', [
-                'purchase_order', // Stock increase from supplier purchase +
-                'sales_order', //Stock decrease due to customer sale -
-                'return_from_customer', // Stock increase from customer returns +
-                'return_to_supplier', // Stock decrease when returning goods to supplier -
-                'transfer_order', // Stock moved between warehouses or shelves + -
-                'inventory_count', //Stock corrected after physical inventory check +
-                'adjustment_note' //Manual adjustment, e.g., due to damage, loss, or administrative correction -
+                'purchase_order',
+                'sales_order',
+                'return_from_customer',
+                'return_to_supplier',
+                'transfer_order',
+                'inventory_count',
+                'adjustment_note'
             ]);
             $table->unsignedBigInteger('reference_id')->nullable();
+
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('stock_adjustments');

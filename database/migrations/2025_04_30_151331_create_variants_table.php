@@ -19,8 +19,6 @@ return new class extends Migration
             $table->foreign('size_id')->references('id')->on('sizes')->restrictOnDelete();
             $table->unsignedBigInteger('color_id')->nullable();
             $table->foreign('color_id')->references('id')->on('colors')->restrictOnDelete();
-            $table->tinyInteger('arrangement');
-            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

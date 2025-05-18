@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\V1\Admin;
 
 use App\Http\Controllers\Controller;
@@ -22,10 +23,12 @@ class WarehouseController extends Controller
                 'per_page' => 'nullable|integer|min:1|max:100',
             ]);
 
-            $warehouses = Warehouse::when($validated['search'] ?? null, fn($q, $search) =>
-                    $q->where('name', 'like', "%$search%")
-                      ->orWhere('location', 'like', "%$search%")
-                )
+            $warehouses = Warehouse::when(
+                $validated['search'] ?? null,
+                fn($q, $search) =>
+                $q->where('name', 'like', "%$search%")
+                    ->orWhere('location', 'like', "%$search%")
+            )
                 ->orderBy($validated['sort'] ?? 'created_at', $validated['order'] ?? 'desc')
                 ->paginate($validated['per_page'] ?? 10);
 
@@ -36,7 +39,7 @@ class WarehouseController extends Controller
                 'pagination' => new PaginationResource($warehouses),
             ]);
         } catch (Exception $e) {
-            return $this->errorResponse('failed_to_retrieve_data', $e);
+            return $this->errorResponse('messages.warehouse.failed_to_retrieve_data', $e);
         }
     }
 
@@ -65,7 +68,7 @@ class WarehouseController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('failed_to_create_warehouse', $e);
+            return $this->errorResponse('messages.warehouse.failed_to_create_warehouse', $e);
         }
     }
 
@@ -86,7 +89,7 @@ class WarehouseController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('failed_to_update_warehouse', $e);
+            return $this->errorResponse('messages.warehouse.failed_to_update_warehouse', $e);
         }
     }
 
@@ -105,16 +108,7 @@ class WarehouseController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('failed_to_delete_warehouse', $e);
+            return $this->errorResponse('messages.warehouse.failed_to_delete_warehouse', $e);
         }
-    }
-
-    private function errorResponse($messageKey, Exception $e)
-    {
-        return response()->json([
-            'result' => false,
-            'message' => __('messages.warehouse.' . $messageKey),
-            'error' => config('app.debug') ? $e->getMessage() : __('messages.general_error'),
-        ]);
     }
 }

@@ -199,11 +199,8 @@ class UserController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return response()->json([
-                'result' => false,
-                'message' => __('messages.user.failed_to_update_user'),
-                'error' => config('app.debug') ? $e->getMessage() : __('messages.general_error'),
-            ]);
+            return $this->errorResponse('messages.user.failed_to_update_user', $e);
+
         }
     }
 }
