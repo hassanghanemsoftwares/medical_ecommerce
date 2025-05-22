@@ -166,6 +166,11 @@ return [
         'failed_to_retrieve_data' => 'Failed to retrieve data.',
         'general_error' => 'An error occurred. Please try again later.',
     ],
+    'common' => [
+    'no_color' => 'No color',
+    'no_size' => 'No size',
+    'no_product' => 'No product',
+],
     'category' => [
         'name_required' => 'Category name is required.',
         'name_en_required' => 'English category name is required.',
@@ -331,6 +336,42 @@ return [
         'image_mimes' => 'The product image must be a file of type: jpeg, jpg, png, gif.',
         'image_max_size' => 'The product image must not exceed 2MB.',
         'image_dimensions' => 'The product image must be between 100x100 and 2000x2000 pixels.',
+        'success_barcode_generate' => 'Barcode generated successfully',
+
+
+
     ],
+    'stock_adjustment' => [
+        'retrieved' => 'Stock adjustments retrieved successfully.',
+        'found' => 'Stock adjustment found.',
+        'created' => 'Stock adjustment created successfully.',
+        'updated' => 'Stock adjustment updated successfully.',
+        'deleted' => 'Stock adjustment deleted successfully.',
+        'warehouse_required' => 'The warehouse field is required.',
+        'shelf_required' => 'The shelf field is required.',
+        'quantity_required' => 'The quantity field is required.',
+        'cost_required' => 'The cost per item field is required.',
+        'reference_type_required' => 'The reference type field is required.',
+        'failed_to_retrieve_data' => 'Failed to retrieve data.',
+        'failed_to_create_adjustment' => 'Failed to create stock adjustment.',
+        'failed_to_update_adjustment' => 'Failed to update stock adjustment.',
+        'failed_to_delete_adjustment' => 'Failed to delete stock adjustment.',
+    ],
+'stock_adjustment' => [
+    'retrieved' => 'Stock adjustments retrieved successfully.',
+    'found' => 'Stock adjustment found.',
+    'deleted' => 'Stock adjustment deleted successfully.',
+    'failed_to_retrieve_data' => 'Failed to retrieve stock adjustment data.',
+    'failed_to_delete_adjustment' => 'Failed to delete stock adjustment.',
+    'warehouse_required' => 'The warehouse is required.',
+    'shelf_required' => 'The shelf is required.',
+    'quantity_required' => 'The quantity is required.',
+    'cost_required' => 'The cost per item is required.',
+    'direction_required' => 'The adjustment direction is required.',
+],
+'stocks' => [
+    'retrieved' => 'Stock data retrieved successfully.',
+    'failed_to_retrieve_data' => 'Failed to retrieve stock data.',
+],
 
 ];

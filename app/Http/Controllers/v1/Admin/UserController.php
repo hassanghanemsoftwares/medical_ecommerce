@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\v1\UserRequest;
+use App\Http\Requests\V1\UserRequest;
 use App\Http\Resources\V1\PaginationResource;
 use Illuminate\Http\Request;
 use App\Models\User;

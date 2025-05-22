@@ -3,16 +3,16 @@
 namespace App\Http\Controllers\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\v1\ProductRequest;
+use App\Http\Requests\V1\ProductRequest;
 use App\Http\Resources\V1\ProductResource;
 use App\Http\Resources\V1\PaginationResource;
+use App\Http\Resources\V1\ProductsVariantsResource;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductTag;
 use App\Models\Variant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Exception;
 
 class ProductController extends Controller
@@ -106,12 +106,14 @@ class ProductController extends Controller
 
             if ($request->filled('variants')) {
                 foreach ($request->variants as $variantData) {
-                    Variant::create([
+                    $variant = new Variant([
                         'product_id' => $product->id,
-                        'size_id' => $variantData['size_id'],
-                        'color_id' => $variantData['color_id'],
-                       
+                        'size_id' => $variantData['size_id'] ?? null,
+                        'color_id' => $variantData['color_id'] ?? null,
                     ]);
+
+                    $variant->sku = Variant::generateSku($product, $variant->color_id, $variant->size_id);
+                    $variant->save();
                 }
             }
             $product->load([
@@ -179,12 +181,14 @@ class ProductController extends Controller
             // $product->variants()->delete();
             if ($request->filled('variants')) {
                 foreach ($request->variants as $variantData) {
-                    Variant::create([
+                    $variant = new Variant([
                         'product_id' => $product->id,
-                        'size_id' => $variantData['size_id'],
-                        'color_id' => $variantData['color_id'],
-                        
+                        'size_id' => $variantData['size_id'] ?? null,
+                        'color_id' => $variantData['color_id'] ?? null,
                     ]);
+
+                    $variant->sku = Variant::generateSku($product, $variant->color_id, $variant->size_id);
+                    $variant->save();
                 }
             }
 
@@ -218,6 +222,36 @@ class ProductController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             return $this->errorResponse('messages.product.failed_to_delete_product', $e);
+        }
+    }
+
+    public function generateBarcode()
+    {
+
+        $barcode = Product::generateBarcode();
+
+        return response()->json([
+            'result' => true,
+            'message' =>  __('messages.product.success_barcode_generate'),
+            'barcode' => $barcode,
+        ]);
+    }
+    public function getAllProductsVariants(Request $request)
+    {
+        try {
+            $variants = Variant::with([
+                'product',
+                'size',
+                'color',
+            ])->get();
+
+            return response()->json([
+                'result' => true,
+                'message' => __('messages.product.products_retrieved'),
+                'productVariants' => ProductsVariantsResource::collection($variants),
+            ]);
+        } catch (Exception $e) {
+            return $this->errorResponse('messages.product.failed_to_retrieve_data', $e);
         }
     }
 }

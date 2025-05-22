@@ -5,6 +5,8 @@ use App\Http\Middleware\ManageAuthSession;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
+
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -33,5 +35,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: ['api/*',]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->shouldRenderJsonWhen(function (Request $request, Throwable $e) {
+            // Custom logic for when exceptions should be rendered as JSON
+            if ($request->is('api/*')) {
+                return true; // Always render JSON for 'api/*' routes
+            }
+            return $request->expectsJson();
+        });
     })->create();

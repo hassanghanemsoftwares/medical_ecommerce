@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
 use App\Models\Session as UserSession;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class UserSessionService
 {
@@ -16,22 +15,36 @@ class UserSessionService
     {
         try {
             $cookieName = config('session.cookie');
-            $decrypted = Cookie::get($cookieName);
+            $cookieValue = Cookie::get($cookieName);
 
-            if (!$decrypted) {
+            if (!$cookieValue) {
                 return [
                     'result' => false,
-                    'message' => __('messages.session.session_required'),
+                    'message' => __('messages.session.session_required') . ' (cookie missing)',
                     'session' => null,
                 ];
             }
-            $parts = explode('|', Crypt::decryptString($decrypted));
-            $possibleSessionIds = array_filter([$parts[0] ?? null, $parts[1] ?? null]);
-            $session = UserSession::whereIn('id', $possibleSessionIds)->first();
+
+            // Attempt to decrypt session ID (some Laravel setups don't encrypt this)
+            try {
+                $sessionId = Crypt::decryptString($cookieValue);
+            } catch (DecryptException) {
+                $sessionId = $cookieValue; // Use raw if not encrypted
+            }
+
+            if (str_contains($sessionId, '|')) {
+                $parts = explode('|', $sessionId);
+                $possibleSessionIds = array_filter([$parts[0] ?? null, $parts[1] ?? null]);
+                $session = UserSession::whereIn('id', $possibleSessionIds)->first();
+            } else {
+                $session = UserSession::where('id', $sessionId)->first();
+            }
+
+
             if (!$session) {
                 return [
                     'result' => false,
-                    'message' => __('messages.session.session_required'),
+                    'message' => __('messages.session.session_required') . ' (session not found)' . $sessionId,
                     'session' => null,
                 ];
             }
@@ -41,20 +54,28 @@ class UserSessionService
                 'message' => null,
                 'session' => $session,
             ];
-        } catch (DecryptException $e) {
+        } catch (\Throwable $e) {
             return [
                 'result' => false,
-                'message' => __('messages.session.session_required'),
+                'message' => __('messages.session.session_required') . ' (error)',
                 'session' => null,
             ];
         }
     }
+
     public function logSessionActivity(Request $request, string $event, array $extra = [], $causer = null, $subject = null): void
     {
-        $session = $this->getSessionFromCookie()['session'];
+        $sessionResult = $this->getSessionFromCookie();
+
+        if (!$sessionResult['result'] || !$sessionResult['session']) {
+            return; // Optionally, log failure
+        }
+
+        $session = $sessionResult['session'];
         $data = (new SessionResource($session))->toArray($request);
+
         $properties = array_merge([
-            'email'        => $request->email,
+            'email'        => $request->email ?? null,
             'ip'           => $data['ip_address'],
             'browser'      => $data['browser'],
             'platform'     => $data['platform'],
@@ -66,7 +87,9 @@ class UserSessionService
             'location'     => $data['location'],
         ], $extra);
 
-        $activity = activity()->inLog('login')->withProperties(['session' => $properties]);
+        $activity = activity()
+            ->inLog('login')
+            ->withProperties(['session' => $properties]);
 
         if ($causer) {
             $activity->causedBy($causer);

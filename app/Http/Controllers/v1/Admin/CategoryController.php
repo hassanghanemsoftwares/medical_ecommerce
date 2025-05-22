@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\v1\CategoryRequest;
+use App\Http\Requests\V1\CategoryRequest;
 use App\Http\Resources\V1\CategoryResource;
 use App\Http\Resources\V1\PaginationResource;
 use App\Models\Category;

@@ -18,26 +18,26 @@ class SessionResource extends JsonResource
     public function toArray(Request $request): array
     {
         $agent = new Agent();
-        $agent->setUserAgent($this->user_agent);
-        // $location = Location::get($this->ip_address);
-        $location = Location::get('91.232.100.54');
-   
+        $agent->setUserAgent($this->user_agent ?? '');
+
+        $location = $this->ip_address ? Location::get($this->ip_address) : null;
+        $lastActivity = $this->last_activity ?? now()->timestamp;
+
         return [
             'id' => $this->id,
-            'ip_address' => $this->ip_address,
-            'user_agent' => $this->user_agent,
-            'last_activity' => $this->last_activity,
-            'last_activity_human' => Carbon::createFromTimestamp($this->last_activity)->diffForHumans(),
-            'browser' => $agent->browser(),
-            'platform' => $agent->platform(),
-            'device' => $agent->device(),
+            'ip_address' => $this->ip_address ?? 'Unknown',
+            'user_agent' => $this->user_agent ?? 'Unknown',
+            'last_activity' => $lastActivity,
+            'last_activity_human' => Carbon::createFromTimestamp($lastActivity)->diffForHumans(),
+            'browser' => $agent->browser() ?? 'Unknown',
+            'platform' => $agent->platform() ?? 'Unknown',
+            'device' => $agent->device() ?? 'Unknown',
             'is_mobile' => $agent->isMobile(),
             'is_tablet' => $agent->isTablet(),
             'is_desktop' => $agent->isDesktop(),
             'is_robot' => $agent->isRobot(),
-            'is_current_device' =>  $this->isCurrentSession(),
-
-            'location'   => ($location->countryName ?? 'Unknown') . "-" . ($location->cityName ?? 'Unknown'),
+            'is_current_device' => method_exists($this, 'isCurrentSession') ? $this->isCurrentSession() : false,
+            'location' => ($location->countryName ?? 'Unknown') . ' - ' . ($location->cityName ?? 'Unknown'),
         ];
     }
 }

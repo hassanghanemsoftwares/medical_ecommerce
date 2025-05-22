@@ -1,11 +1,13 @@
 <?php
 
 namespace App\Http\Middleware;
+
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Services\UserSessionService;
 use Carbon\Carbon;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class ManageAuthSession
 {
@@ -28,16 +30,14 @@ class ManageAuthSession
         }
 
         $session = $sessionCheck['session']; 
-
         $user = $request->user();
 
         if ($user) {
-            $userId = $user->id;
             $token = $user->currentAccessToken();
-            $tokenId = $token ? $token->id : null;
+            $tokenId = $token instanceof PersonalAccessToken ? $token->id : null;
 
             $session->update([
-                'user_id' => $userId,
+                'user_id' => $user->id,
                 'token_id' => $tokenId,
                 'last_activity' => Carbon::now()->timestamp,
             ]);

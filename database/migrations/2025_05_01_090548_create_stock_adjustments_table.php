@@ -10,38 +10,30 @@ return new class extends Migration
     {
         Schema::create('stock_adjustments', function (Blueprint $table) {
             $table->id();
-
-            // Link to product (for products without variants)
-            $table->unsignedBigInteger('product_id')->nullable();
-            $table->foreign('product_id')->references('id')->on('products')->restrictOnDelete();
-
-            // Link to variant (for products with variants)
-            $table->unsignedBigInteger('variant_id')->nullable();
-            $table->foreign('variant_id')->references('id')->on('variants')->restrictOnDelete();
-
+            $table->foreignId('variant_id')->constrained()->restrictOnDelete();
             $table->foreignId('warehouse_id')->constrained()->restrictOnDelete();
-            $table->foreignId('shelf_id')->constrained()->restrictOnDelete();
+            $table->foreignId('shelf_id')->nullable()->constrained()->restrictOnDelete();
+            $table->enum('type', [
+                'manual',
+                'purchase',
+                'sale',
+                'return',
+                'transfer',          // stock moved between locations
+                'damage',            // damaged or lost stock
+                'supplier_return',   // stock returned to supplier
+            ])->default('manual')->index();
 
-            $table->tinyInteger('adjustment_type');
-
-            $table->unsignedInteger('quantity');
-            $table->decimal('cost_per_item', 10, 2);
+            $table->integer('quantity');
+            $table->decimal('cost_per_item', 10, 2)->nullable();
             $table->string('reason')->nullable();
-
             $table->foreignId('adjusted_by')->nullable()->constrained('users')->restrictOnDelete();
-
-            $table->enum('reference_type', [
-                'purchase_order',
-                'sales_order',
-                'return_from_customer',
-                'return_to_supplier',
-                'transfer_order',
-                'inventory_count',
-                'adjustment_note'
-            ]);
-            $table->unsignedBigInteger('reference_id')->nullable();
-
+            $table->unsignedBigInteger('reference_id')->nullable()->index();
+            $table->string('reference_type')->nullable()->index();
             $table->timestamps();
+            $table->index('variant_id');
+            $table->index('warehouse_id');
+            $table->index('shelf_id');
+            $table->index('adjusted_by');
         });
     }
 

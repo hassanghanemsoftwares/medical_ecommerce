@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use Illuminate\Support\Str;
 
 class Variant extends Model
 {
@@ -15,6 +16,8 @@ class Variant extends Model
         'product_id',
         'size_id',
         'color_id',
+        'sku',
+        'is_active',
     ];
 
     public function product()
@@ -31,8 +34,8 @@ class Variant extends Model
     {
         return $this->belongsTo(Color::class);
     }
-    
-    public function transactions()
+
+    public function stockAdjustments()
     {
         return $this->hasMany(StockAdjustment::class);
     }
@@ -49,5 +52,23 @@ class Variant extends Model
     public function getDescriptionForEvent(string $eventName): string
     {
         return strtolower(class_basename($this)) . '.' . $eventName;
+    }
+
+    public static function generateSku($product, $colorId, $sizeId): string
+    {
+        // Decode JSON if it's a string
+        $name = $product->name;
+        if (is_string($name)) {
+            $name = json_decode($name, true);
+        }
+
+        $sku = strtoupper(Str::slug($name['en'] ?? $name['ar'] ?? $product->name));
+        if ($colorId) {
+            $sku .= '-C' . $colorId;
+        }
+        if ($sizeId) {
+            $sku .= '-S' . $sizeId;
+        }
+        return $sku . '-' . uniqid();
     }
 }

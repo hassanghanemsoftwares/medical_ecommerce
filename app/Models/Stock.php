@@ -2,59 +2,41 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Activitylog\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
-class StockAdjustment extends Model
+class Stock extends Model
 {
     use HasFactory, LogsActivity;
-
 
     protected $fillable = [
         'variant_id',
         'warehouse_id',
         'shelf_id',
-        'type',
         'quantity',
-        'cost_per_item',
-        'reason',
-        'adjusted_by',
-        'reference_id',
-        'reference_type',
+    ];
+    protected $attributes = [
+        'quantity' => 0,
     ];
 
-    public function product()
-    {
-        return $this->belongsTo(Product::class);
-    }
-
-    public function variant()
+    public function variant(): BelongsTo
     {
         return $this->belongsTo(Variant::class);
     }
 
-    public function warehouse()
+    public function warehouse(): BelongsTo
     {
         return $this->belongsTo(Warehouse::class);
     }
 
-    public function shelf()
+    public function shelf(): BelongsTo
     {
         return $this->belongsTo(Shelf::class);
     }
 
-    public function adjustedBy()
-    {
-        return $this->belongsTo(User::class, 'adjusted_by');
-    }
-
-
-    public function reference()
-    {
-        return $this->morphTo();
-    }
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -62,13 +44,7 @@ class StockAdjustment extends Model
                 'variant_id',
                 'warehouse_id',
                 'shelf_id',
-                'type',
                 'quantity',
-                'cost_per_item',
-                'reason',
-                'adjusted_by',
-                'reference_id',
-                'reference_type',
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()

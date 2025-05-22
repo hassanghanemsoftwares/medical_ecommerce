@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\v1;
+namespace App\Http\Requests\V1;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
@@ -72,22 +72,65 @@ class ProductRequest extends FormRequest
             ],
             'images.*.is_active' => 'required|boolean',
             'images.*.arrangement' => 'required|integer|min:1',
-            'tags' => 'required|array',
-            'tags.*' => 'required|exists:tags,id',
-            'variants' => ['nullable', 'array', function ($attribute, $value, $fail) {
+            'tags' => 'nullable|array',
+            'tags.*' => 'nullable|exists:tags,id',
+            'variants' => ['nullable', 'array', function ($attribute, $value, $fail) use ($productId) {
                 $unique = [];
 
                 foreach ($value as $index => $variant) {
-                    $key = $variant['size_id'] . '-' . $variant['color_id'];
-                    if (in_array($key, $unique)) {
+                    $sizeKey = (isset($variant['size_id']) && $variant['size_id'] !== null && $variant['size_id'] !== '' && $variant['size_id'] !== 'null')
+                        ? (int)$variant['size_id']
+                        : null;
+
+                    $colorKey = (isset($variant['color_id']) && $variant['color_id'] !== null && $variant['color_id'] !== '' && $variant['color_id'] !== 'null')
+                        ? (int)$variant['color_id']
+                        : null;
+
+                    $key = ($sizeKey === null ? 'null' : $sizeKey) . '-' . ($colorKey === null ? 'null' : $colorKey);
+
+                    if (in_array($key, $unique, true)) {
                         return $fail(__('messages.product.duplicate_variant', ['index' => $index + 1]));
                     }
                     $unique[] = $key;
                 }
+
+                // Optional: check against DB for duplicates on this product (excluding variants being updated)
+                $submittedKeys = array_map(function ($variant) {
+                    $sizeKey = (isset($variant['size_id']) && $variant['size_id'] !== null && $variant['size_id'] !== '' && $variant['size_id'] !== 'null')
+                        ? (int)$variant['size_id']
+                        : null;
+                    $colorKey = (isset($variant['color_id']) && $variant['color_id'] !== null && $variant['color_id'] !== '' && $variant['color_id'] !== 'null')
+                        ? (int)$variant['color_id']
+                        : null;
+                    return ($sizeKey === null ? 'null' : $sizeKey) . '-' . ($colorKey === null ? 'null' : $colorKey);
+                }, $value);
+
+                $variantIds = array_filter(array_map(fn($v) => $v['id'] ?? null, $value));
+
+                $existingVariants = \App\Models\Variant::where('product_id', $productId)
+                    ->when(count($variantIds) > 0, function ($query) use ($variantIds) {
+                        $query->whereNotIn('id', $variantIds);
+                    })
+                    ->get(['size_id', 'color_id'])
+                    ->map(function ($variant) {
+                        return ($variant->size_id === null ? 'null' : $variant->size_id)
+                            . '-' .
+                            ($variant->color_id === null ? 'null' : $variant->color_id);
+                    })
+                    ->toArray();
+
+                foreach ($submittedKeys as $index => $key) {
+                    if (in_array($key, $existingVariants, true)) {
+                        return $fail(__('messages.product.duplicate_variant', ['index' => $index + 1]));
+                    }
+                }
             }],
-            'variants.*.size_id' => 'required|exists:sizes,id',
-            'variants.*.color_id' => 'required|exists:colors,id',
-         
+            'variants.*.size_id' => 'nullable|exists:sizes,id',
+            'variants.*.color_id' => 'nullable|exists:colors,id',
+
+
+
+
         ];
     }
 

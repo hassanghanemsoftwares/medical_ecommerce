@@ -16,6 +16,7 @@ class AppMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
+        $request->headers->set('Accept', 'application/json');
         $app_key = $request->header('App-key');
         if ($app_key == env("FRONTEND_APP_KEY")) {
             $lang = $request->header('Accept-Language', 'en');

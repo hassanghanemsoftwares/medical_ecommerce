@@ -1,5 +1,6 @@
 <?php
 
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\V1\Admin\AuthController;
 use App\Http\Controllers\V1\Admin\SessionController;
@@ -23,6 +24,8 @@ use App\Http\Controllers\V1\Admin\OccupationController;
 use App\Http\Controllers\V1\Admin\ProductController;
 use App\Http\Controllers\V1\Admin\ProductImageController;
 use App\Http\Controllers\V1\Admin\ProductVariantController;
+use App\Http\Controllers\V1\Admin\StockAdjustmentController;
+use App\Http\Controllers\V1\Admin\StockController;
 
 Route::prefix('v1')->group(function () {
     Route::prefix('admin')->group(function () {
@@ -39,6 +42,9 @@ Route::prefix('v1')->group(function () {
                 Route::post('logout', [ProfileController::class, 'logout']);
                 Route::get('allSettings', [SettingsController::class, 'index']);
                 Route::middleware('can:view-activity-logs')->get('activity-logs', [ActivityLogController::class, 'index']);
+
+
+                Route::get('getAllProductsVariants', [ProductController::class, 'getAllProductsVariants']);
 
                 Route::middleware('can:view-profile')->post('changePassword', [ProfileController::class, 'changePassword']);
                 Route::middleware('can:view-profile')->get('sessions', [SessionController::class, 'getAllSessions']);
@@ -57,81 +63,8 @@ Route::prefix('v1')->group(function () {
                 Route::middleware('can:edit-category')->put('categories/{category}', [CategoryController::class, 'update']);
                 Route::middleware('can:delete-category')->delete('categories/{category}', [CategoryController::class, 'destroy']);
 
-                // // Brand Routes
-                // Route::middleware('can:view-brand')->get('brands', [BrandController::class, 'index']);
-                // Route::middleware('can:view-brand')->get('brands/{brand}', [BrandController::class, 'show']);
-                // Route::middleware('can:create-brand')->post('brands', [BrandController::class, 'store']);
-                // Route::middleware('can:edit-brand')->put('brands/{brand}', [BrandController::class, 'update']);
-                // Route::middleware('can:delete-brand')->delete('brands/{brand}', [BrandController::class, 'destroy']);
-
-                // // ColorSeason Routes
-                // Route::middleware('can:view-color-season')->get('color-seasons', [ColorSeasonController::class, 'index']);
-                // Route::middleware('can:view-color-season')->get('color-seasons/{colorSeason}', [ColorSeasonController::class, 'show']);
-                // Route::middleware('can:create-color-season')->post('color-seasons', [ColorSeasonController::class, 'store']);
-                // Route::middleware('can:edit-color-season')->put('color-seasons/{colorSeason}', [ColorSeasonController::class, 'update']);
-                // Route::middleware('can:delete-color-season')->delete('color-seasons/{colorSeason}', [ColorSeasonController::class, 'destroy']);
-
-                // // Color Routes
-                // Route::middleware('can:view-color')->get('colors', [ColorController::class, 'index']);
-                // Route::middleware('can:view-color')->get('colors/{color}', [ColorController::class, 'show']);
-                // Route::middleware('can:create-color')->post('colors', [ColorController::class, 'store']);
-                // Route::middleware('can:edit-color')->put('colors/{color}', [ColorController::class, 'update']);
-                // Route::middleware('can:delete-color')->delete('colors/{color}', [ColorController::class, 'destroy']);
-
-                // // Warehouse Routes
-                // Route::middleware('can:view-warehouse')->get('warehouses', [WarehouseController::class, 'index']);
-                // Route::middleware('can:view-warehouse')->get('warehouses/{warehouse}', [WarehouseController::class, 'show']);
-                // Route::middleware('can:create-warehouse')->post('warehouses', [WarehouseController::class, 'store']);
-                // Route::middleware('can:edit-warehouse')->put('warehouses/{warehouse}', [WarehouseController::class, 'update']);
-                // Route::middleware('can:delete-warehouse')->delete('warehouses/{warehouse}', [WarehouseController::class, 'destroy']);
-
-                // // Shelf Routes
-                // Route::middleware('can:view-shelf')->get('shelves', [ShelfController::class, 'index']);
-                // Route::middleware('can:view-shelf')->get('shelves/{shelf}', [ShelfController::class, 'show']);
-                // Route::middleware('can:create-shelf')->post('shelves', [ShelfController::class, 'store']);
-                // Route::middleware('can:edit-shelf')->put('shelves/{shelf}', [ShelfController::class, 'update']);
-                // Route::middleware('can:delete-shelf')->delete('shelves/{shelf}', [ShelfController::class, 'destroy']);
-
-                // // Size Routes
-                // Route::middleware('can:view-size')->get('sizes', [SizeController::class, 'index']);
-                // Route::middleware('can:view-size')->get('sizes/{size}', [SizeController::class, 'show']);
-                // Route::middleware('can:create-size')->post('sizes', [SizeController::class, 'store']);
-                // Route::middleware('can:edit-size')->put('sizes/{size}', [SizeController::class, 'update']);
-                // Route::middleware('can:delete-size')->delete('sizes/{size}', [SizeController::class, 'destroy']);
-
-                // // Tag Routes
-                // Route::middleware('can:view-tag')->get('tags', [TagController::class, 'index']);
-                // Route::middleware('can:view-tag')->get('tags/{tag}', [TagController::class, 'show']);
-                // Route::middleware('can:create-tag')->post('tags', [TagController::class, 'store']);
-                // Route::middleware('can:edit-tag')->put('tags/{tag}', [TagController::class, 'update']);
-                // Route::middleware('can:delete-tag')->delete('tags/{tag}', [TagController::class, 'destroy']);
-
-                // // Configuration Routes
-                // Route::middleware('can:view-configuration')->get('configurations', [ConfigurationController::class, 'index']);
-                // Route::middleware('can:edit-configuration')->put('configurations', [ConfigurationController::class, 'update']);
-
-                // // Learning Video Routes
-                // Route::middleware('can:view-learning-video')->get('learning-videos', [LearningVideoController::class, 'index']);
-                // Route::middleware('can:view-learning-video')->get('learning-videos/{learning_video}', [LearningVideoController::class, 'show']);
-                // Route::middleware('can:create-learning-video')->post('learning-videos', [LearningVideoController::class, 'store']);
-                // Route::middleware('can:edit-learning-video')->put('learning-videos/{learning_video}', [LearningVideoController::class, 'update']);
-                // Route::middleware('can:delete-learning-video')->delete('learning-videos/{learning_video}', [LearningVideoController::class, 'destroy']);
-
-                // // Home Section Routes
-                // Route::middleware('can:view-home-section')->get('home-sections', [HomeSectionController::class, 'index']);
-                // Route::middleware('can:view-home-section')->get('home-sections/{home_section}', [HomeSectionController::class, 'show']);
-                // Route::middleware('can:create-home-section')->post('home-sections', [HomeSectionController::class, 'store']);
-                // Route::middleware('can:edit-home-section')->put('home-sections/{home_section}', [HomeSectionController::class, 'update']);
-                // Route::middleware('can:delete-home-section')->delete('home-sections/{home_section}', [HomeSectionController::class, 'destroy']);
-
-                // //Occupations Routes
-                // Route::middleware('can:view-occupation')->get('occupations', [OccupationController::class, 'index']);
-                // Route::middleware('can:view-occupation')->get('occupations/{occupation}', [OccupationController::class, 'show']);
-                // Route::middleware('can:create-occupation')->post('occupations', [OccupationController::class, 'store']);
-                // Route::middleware('can:edit-occupation')->put('occupations/{occupation}', [OccupationController::class, 'update']);
-                // Route::middleware('can:delete-occupation')->delete('occupations/{occupation}', [OccupationController::class, 'destroy']);
-
                 //product Routes
+                Route::middleware('can:edit-product')->get('products/generate-barcode', [ProductController::class, 'generateBarcode']);
                 Route::middleware('can:view-product')->get('products', [ProductController::class, 'index']);
                 Route::middleware('can:view-product')->get('products/{product}', [ProductController::class, 'show']);
                 Route::middleware('can:create-product')->post('products', [ProductController::class, 'store']);
@@ -142,7 +75,21 @@ Route::prefix('v1')->group(function () {
                     Route::delete('product_image/{product_image}', [ProductImageController::class, 'destroy']);
                     Route::delete('product_variant/{product_variant}', [ProductVariantController::class, 'destroy']);
                 });
+                Route::get('/stocks', [StockController::class, 'index'])
+                    ->middleware('can:view-stock');
 
+                // StockAdjustment routes
+                Route::get('/stock-adjustments', [StockAdjustmentController::class, 'index'])
+                    ->middleware('can:view-stock-adjustment');
+
+                Route::get('/stock-adjustments/{stockAdjustment}', [StockAdjustmentController::class, 'show'])
+                    ->middleware('can:view-stock-adjustment');
+
+                Route::post('/stock-adjustments/manual', [StockAdjustmentController::class, 'manualAdjustWithDirection'])
+                    ->middleware('can:create-stock-adjustment');
+
+                Route::delete('/stock-adjustments/{stockAdjustment}', [StockAdjustmentController::class, 'destroy'])
+                    ->middleware('can:delete-stock-adjustment');
 
                 Route::middleware('can:view-settings')->group(function () {
                     // Brand Routes

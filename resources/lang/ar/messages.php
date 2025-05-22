@@ -332,5 +332,41 @@ return [
         'image_mimes' => 'يجب أن تكون صورة المنتج من نوع: jpeg، jpg، png، gif.',
         'image_max_size' => 'يجب ألا تتجاوز صورة المنتج 2MB.',
         'image_dimensions' => 'يجب أن تكون أبعاد صورة المنتج بين 100x100 و 2000x2000 بكسل.',
+        'success_barcode_generate' => 'تم إنشاء الباركود بنجاح',
+
     ],
+
+    'stock_adjustment' => [
+        'retrieved' => 'تم استرجاع تعديلات المخزون بنجاح.',
+        'found' => 'تم العثور على تعديل المخزون.',
+        'created' => 'تم إنشاء تعديل المخزون بنجاح.',
+        'updated' => 'تم تحديث تعديل المخزون بنجاح.',
+        'deleted' => 'تم حذف تعديل المخزون بنجاح.',
+        'warehouse_required' => 'حقل المستودع مطلوب.',
+        'shelf_required' => 'حقل الرف مطلوب.',
+        'quantity_required' => 'حقل الكمية مطلوب.',
+        'cost_required' => 'حقل تكلفة العنصر مطلوب.',
+        'reference_type_required' => 'حقل نوع المرجع مطلوب.',
+        'failed_to_retrieve_data' => 'فشل في استرجاع البيانات.',
+        'failed_to_create_adjustment' => 'فشل في إنشاء تعديل المخزون.',
+        'failed_to_update_adjustment' => 'فشل في تحديث تعديل المخزون.',
+        'failed_to_delete_adjustment' => 'فشل في حذف تعديل المخزون.',
+    ],
+    'stock_adjustment' => [
+        'retrieved' => 'تم جلب تعديلات المخزون بنجاح.',
+        'found' => 'تم العثور على تعديل المخزون.',
+        'deleted' => 'تم حذف تعديل المخزون بنجاح.',
+        'failed_to_retrieve_data' => 'فشل في جلب بيانات تعديل المخزون.',
+        'failed_to_delete_adjustment' => 'فشل في حذف تعديل المخزون.',
+        'warehouse_required' => 'المستودع مطلوب.',
+        'shelf_required' => 'الرف مطلوب.',
+        'quantity_required' => 'الكمية مطلوبة.',
+        'cost_required' => 'سعر القطعة مطلوب.',
+        'direction_required' => 'اتجاه التعديل مطلوب.',
+    ],
+    'stocks' => [
+        'retrieved' => 'تم جلب بيانات المخزون بنجاح.',
+        'failed_to_retrieve_data' => 'فشل في جلب بيانات المخزون.',
+    ],
+
 ];

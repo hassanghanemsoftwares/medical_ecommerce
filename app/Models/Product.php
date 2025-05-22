@@ -13,8 +13,8 @@ use Spatie\Translatable\HasTranslations;
 
 class Product extends Model
 {
-    use HasFactory, LogsActivity, HasSlug,HasTranslations;
-  
+    use HasFactory, LogsActivity, HasSlug, HasTranslations;
+
     protected $fillable = [
         'barcode',
         'slug',
@@ -64,6 +64,10 @@ class Product extends Model
     {
         return $this->hasMany(Variant::class);
     }
+    public function stockAdjustments()
+    {
+        return $this->hasMany(StockAdjustment::class);
+    }
 
     public function getSlugOptions(): SlugOptions
     {
@@ -96,14 +100,15 @@ class Product extends Model
             ->useLogName('product');
     }
 
+
     public function getDescriptionForEvent(string $eventName): string
     {
         return strtolower(class_basename($this)) . '.' . $eventName;
     }
-
     public static function generateBarcode(): string
     {
         $prefix = '990';
+
         $lastBarcode = DB::table('products')
             ->where('barcode', 'like', $prefix . '%')
             ->orderBy('barcode', 'desc')
@@ -112,7 +117,7 @@ class Product extends Model
         if ($lastBarcode) {
             $nextNumber = intval(substr($lastBarcode, strlen($prefix))) + 1;
         } else {
-            $nextNumber = 0;
+            $nextNumber = 1;
         }
 
         return $prefix . str_pad($nextNumber, 6, '0', STR_PAD_LEFT);

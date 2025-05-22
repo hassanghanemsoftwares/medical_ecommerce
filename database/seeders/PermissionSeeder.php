@@ -93,11 +93,17 @@ class PermissionSeeder extends Seeder
             // 'delete-occupation',
 
             // product Permissions
-
             'view-product',
             'create-product',
             'edit-product',
             'delete-product',
+
+
+            // stock Permissions
+            'view-stock',
+            'view-stock-adjustment',
+            'create-stock-adjustment',
+            'delete-stock-adjustment',
         ];
 
         foreach ($permissions as $permission) {
