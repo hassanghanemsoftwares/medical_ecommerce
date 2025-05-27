@@ -15,12 +15,11 @@ return new class extends Migration
             $table->foreignId('shelf_id')->nullable()->constrained()->restrictOnDelete();
             $table->enum('type', [
                 'manual',
-                'purchase',
+                // 'purchase',
                 'sale',
                 'return',
-                'transfer',          // stock moved between locations
-                'damage',            // damaged or lost stock
-                'supplier_return',   // stock returned to supplier
+                // 'transfer',          // stock moved between locations
+                // 'supplier_return',   // stock returned to supplier
             ])->default('manual')->index();
 
             $table->integer('quantity');

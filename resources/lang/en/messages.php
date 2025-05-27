@@ -167,10 +167,10 @@ return [
         'general_error' => 'An error occurred. Please try again later.',
     ],
     'common' => [
-    'no_color' => 'No color',
-    'no_size' => 'No size',
-    'no_product' => 'No product',
-],
+        'no_color' => 'No color',
+        'no_size' => 'No size',
+        'no_product' => 'No product',
+    ],
     'category' => [
         'name_required' => 'Category name is required.',
         'name_en_required' => 'English category name is required.',
@@ -357,21 +357,30 @@ return [
         'failed_to_update_adjustment' => 'Failed to update stock adjustment.',
         'failed_to_delete_adjustment' => 'Failed to delete stock adjustment.',
     ],
-'stock_adjustment' => [
-    'retrieved' => 'Stock adjustments retrieved successfully.',
-    'found' => 'Stock adjustment found.',
-    'deleted' => 'Stock adjustment deleted successfully.',
-    'failed_to_retrieve_data' => 'Failed to retrieve stock adjustment data.',
-    'failed_to_delete_adjustment' => 'Failed to delete stock adjustment.',
-    'warehouse_required' => 'The warehouse is required.',
-    'shelf_required' => 'The shelf is required.',
-    'quantity_required' => 'The quantity is required.',
-    'cost_required' => 'The cost per item is required.',
-    'direction_required' => 'The adjustment direction is required.',
-],
-'stocks' => [
-    'retrieved' => 'Stock data retrieved successfully.',
-    'failed_to_retrieve_data' => 'Failed to retrieve stock data.',
-],
+    'stock_adjustment' => [
+        'retrieved' => 'Stock adjustments retrieved successfully.',
+        'found' => 'Stock adjustment found.',
+        'deleted' => 'Stock adjustment deleted successfully.',
+        'failed_to_retrieve_data' => 'Failed to retrieve stock adjustment data.',
+        'failed_to_delete_adjustment' => 'Failed to delete stock adjustment.',
+        'warehouse_required' => 'The warehouse is required.',
+        'shelf_required' => 'The shelf is required.',
+        'quantity_required' => 'The quantity is required.',
+        'cost_required' => 'The cost per item is required.',
+        'direction_required' => 'The adjustment direction is required.',
+        
+        'failed_to_adjust' => 'Failed to adjust stock.',
+        'adjusted' => 'Stock adjusted successfully.',
+        'invalid_direction' => 'Invalid adjustment direction.',
+        'not_found' => 'Related stock record not found.',
+        'negative_stock_error' => 'Cannot delete adjustment because it would cause negative stock.',
+        'invalid_type' => 'Invalid stock adjustment type.',
+        'insufficient_stock' => 'Insufficient stock for this adjustment.',
+
+    ],
+    'stocks' => [
+        'retrieved' => 'Stock data retrieved successfully.',
+        'failed_to_retrieve_data' => 'Failed to retrieve stock data.',
+    ],
 
 ];

@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Exception;
 use Illuminate\Support\Facades\Auth;
+use InvalidArgumentException;
 
 class StockAdjustmentController extends Controller
 {
@@ -59,114 +60,105 @@ class StockAdjustmentController extends Controller
 
     public function manualAdjustWithDirection(StockAdjustmentRequest $request)
     {
-        $request->validate([
-            'direction' => ['required', 'in:increase,decrease'],
-        ]);
+        $data = $request->validated();
+        $data['type'] = "manual";
+        if (!in_array($data['direction'], ['increase', 'decrease'])) {
+            return response()->json([
+                'result' => false,
+                'message' => __('messages.stock_adjustment.invalid_direction'),
+            ]);
+        }
+
+        $quantityChange = $data['direction'] === 'increase'
+            ? $data['quantity']
+            : -$data['quantity'];
 
         try {
             DB::beginTransaction();
 
-            $data = $request->validated();
+            if ($data['direction'] === 'decrease') {
+                $existingStock = Stock::where([
+                    'variant_id' => $data['variant_id'],
+                    'warehouse_id' => $data['warehouse_id'],
+                    'shelf_id' => $data['shelf_id'] ?? null,
+                ])->first();
 
-            // Determine signed quantity change
-            $quantityChange = ($data['direction'] === 'increase')
-                ? $data['quantity']
-                : -$data['quantity'];
-
-            $stock = Stock::firstOrNew([
-                'variant_id' => $data['variant_id'],
-                'warehouse_id' => $data['warehouse_id'],
-                'shelf_id' => $data['shelf_id'] ?? null,
-            ]);
-
-            // Defensive: ensure quantity is numeric and defaults to 0
-            $currentQty = $stock->quantity ?? 0;
-            $newQuantity = $currentQty + $quantityChange;
-
-            if ($newQuantity < 0) {
-                DB::rollBack();
-                return response()->json([
-                    'message' => 'Insufficient stock to perform this operation.'
-                ], 422);
+                if (!$existingStock || $existingStock->quantity < abs($quantityChange)) {
+                    return response()->json([
+                        'result' => false,
+                        'message' => __('messages.stock_adjustment.insufficient_stock'),
+                    ]);
+                }
             }
 
-            $stock->quantity = $newQuantity;
-            $stock->save();
+            $stock = StockAdjustment::updateStockQuantity(
+                $data['variant_id'],
+                $data['warehouse_id'],
+                $data['shelf_id'] ?? null,
+                $quantityChange
+            );
 
-            $adjustment = new StockAdjustment();
-            $adjustment->variant_id    = $data['variant_id'];
-            $adjustment->warehouse_id  = $data['warehouse_id'];
-            $adjustment->shelf_id      = $data['shelf_id'] ?? null;
-            $adjustment->type          = $data['type'];
-            $adjustment->quantity      = $quantityChange; // signed quantity
-            $adjustment->cost_per_item = $data['cost_per_item'] ?? null;
-            $adjustment->reason        = $data['reason'] ?? null;
-            $adjustment->adjusted_by   = Auth::id();
-            $adjustment->save();
+            $adjustment = StockAdjustment::createAdjustment(array_merge($data, [
+                'quantity' => $quantityChange,
+                'adjusted_by' => Auth::id(),
+            ]));
 
             DB::commit();
 
             return response()->json([
                 'result' => true,
-                'message' => 'Stock adjusted successfully',
+                'message' => __('messages.stock_adjustment.adjusted'),
                 'stock' => $stock,
                 'adjustment' => $adjustment,
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.stock.failed_to_adjust', $e);
+            return $this->errorResponse(__('messages.stock_adjustment.failed_to_retrieve_data'), $e);
         }
     }
 
-public function destroy(StockAdjustment $stockAdjustment)
-{
-    try {
-        DB::beginTransaction();
+    public function destroy(StockAdjustment $adjustment)
+    {
+        try {
+            DB::beginTransaction();
 
-        // Load related stock record
-        $stock = Stock::where('variant_id', $stockAdjustment->variant_id)
-            ->where('warehouse_id', $stockAdjustment->warehouse_id)
-            ->where('shelf_id', $stockAdjustment->shelf_id)
-            ->first();
+            $stock = Stock::where([
+                'variant_id' => $adjustment->variant_id,
+                'warehouse_id' => $adjustment->warehouse_id,
+                'shelf_id' => $adjustment->shelf_id,
+            ])->first();
 
-        if (!$stock) {
-            DB::rollBack();
+            if (!$stock) {
+                return response()->json([
+                    'result' => false,
+                    'message' => __('messages.stock_adjustment.not_found'),
+                ]);
+            }
+
+            $revertedQty = $stock->quantity - $adjustment->quantity;
+
+            if ($revertedQty < 0) {
+                return response()->json([
+                    'result' => false,
+                    'message' => __('messages.stock_adjustment.negative_stock_error'),
+                ]);
+            }
+
+            $stock->quantity = $revertedQty;
+            $stock->save();
+            $adjustment->delete();
+
+            DB::commit();
+
             return response()->json([
-                'result' => false,
-                'message' => 'Related stock record not found.'
-            ], 404);
-        }
-
-        // Calculate reverted quantity (undo the adjustment)
-        $revertedQuantity = $stock->quantity - $stockAdjustment->quantity;
-
-        // Make sure reverted quantity is not negative
-        if ($revertedQuantity < 0) {
+                'result' => true,
+                'message' => __('messages.stock_adjustment.deleted'),
+            ]);
+        } catch (Exception $e) {
             DB::rollBack();
-            return response()->json([
-                'result' => false,
-                'message' => 'Cannot delete adjustment because it would cause negative stock.'
-            ], 422);
+            return $this->errorResponse('messages.stock_adjustment.failed_to_delete_adjustment', $e);
         }
-
-        // Update stock quantity
-        $stock->quantity = $revertedQuantity;
-        $stock->save();
-
-        // Delete the adjustment record
-        $stockAdjustment->delete();
-
-        DB::commit();
-
-        return response()->json([
-            'result' => true,
-            'message' => __('messages.stock_adjustment.deleted'),
-        ]);
-    } catch (Exception $e) {
-        DB::rollBack();
-        return $this->errorResponse('messages.stock_adjustment.failed_to_delete_adjustment', $e);
     }
-}
 
 
     /**
@@ -179,50 +171,32 @@ public function destroy(StockAdjustment $stockAdjustment)
         // variant_id, warehouse_id, shelf_id (nullable), type,
         // quantity (positive integer), cost_per_item (nullable),
         // reason (nullable), reference_id, reference_type
+        $typeMap = [
+            'return' => 1,
+            'sale' => -1,
+        ];
 
-        $increaseTypes = ['purchase', 'return', 'transfer'];
-        $decreaseTypes = ['sale', 'damage', 'supplier_return'];
-
-        if (in_array($data['type'], $increaseTypes)) {
-            $quantityChange = abs($data['quantity']);
-        } elseif (in_array($data['type'], $decreaseTypes)) {
-            $quantityChange = -abs($data['quantity']);
-        } else {
-            throw new \InvalidArgumentException('Invalid stock adjustment type for system adjustment.');
+        if (!isset($typeMap[$data['type']])) {
+            throw new InvalidArgumentException(__('messages.stock_adjustment.invalid_type'));
         }
 
-        return DB::transaction(function () use ($data, $quantityChange) {
+        $quantityChange = $typeMap[$data['type']] * abs($data['quantity']);
+        try {
+            return DB::transaction(function () use ($data, $quantityChange) {
+                StockAdjustment::updateStockQuantity(
+                    $data['variant_id'],
+                    $data['warehouse_id'],
+                    $data['shelf_id'] ?? null,
+                    $quantityChange
+                );
 
-            $stock = Stock::firstOrNew([
-                'variant_id' => $data['variant_id'],
-                'warehouse_id' => $data['warehouse_id'],
-                'shelf_id' => $data['shelf_id'] ?? null,
-            ]);
-
-            $currentQty = $stock->quantity ?? 0;
-            $newQuantity = $currentQty + $quantityChange;
-
-            if ($newQuantity < 0) {
-                throw new \Exception('Insufficient stock for system adjustment.');
-            }
-
-            $stock->quantity = $newQuantity;
-            $stock->save();
-
-            $adjustment = new StockAdjustment();
-            $adjustment->variant_id    = $data['variant_id'];
-            $adjustment->warehouse_id  = $data['warehouse_id'];
-            $adjustment->shelf_id      = $data['shelf_id'] ?? null;
-            $adjustment->type          = $data['type'];
-            $adjustment->quantity      = $quantityChange;
-            $adjustment->cost_per_item = $data['cost_per_item'] ?? null;
-            $adjustment->reason        = $data['reason'] ?? null;
-            $adjustment->adjusted_by   = $data['adjusted_by'] ?? null; // system or user id
-            $adjustment->reference_id  = $data['reference_id'] ?? null;
-            $adjustment->reference_type = $data['reference_type'] ?? null;
-            $adjustment->save();
-
-            return $adjustment;
-        });
+                return StockAdjustment::createAdjustment(array_merge($data, [
+                    'quantity' => $quantityChange,
+                    'adjusted_by' => $data['adjusted_by'] ?? Auth::id(),
+                ]));
+            });
+        } catch (Exception $e) {
+            throw new Exception(__('messages.stock_adjustment.failed_to_adjust'), 500, $e);
+        }
     }
 }

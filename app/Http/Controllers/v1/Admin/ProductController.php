@@ -239,16 +239,56 @@ class ProductController extends Controller
     public function getAllProductsVariants(Request $request)
     {
         try {
-            $variants = Variant::with([
+            $perPage = $request->input('limit', 20);
+            $page = $request->input('page', 1);
+            $searchTerm = $request->input('search', '');
+
+            $query = Variant::with([
                 'product',
+                'product.category', // Includes product and its category
                 'size',
                 'color',
-            ])->get();
+            ]);
+
+            if ($searchTerm) {
+                $locale = app()->getLocale();
+
+                $query->where(function ($q) use ($searchTerm, $locale) {
+
+
+                    // Search by translated product name
+                    $q->orWhereHas('product', function ($productQuery) use ($searchTerm, $locale) {
+                        $productQuery->where('barcode', 'like', '%' . $searchTerm . '%')
+                            ->orWhere("name->{$locale}", 'like', '%' . $searchTerm . '%');
+                    });
+
+                    // Search by translated category name
+                    $q->orWhereHas('product.category', function ($categoryQuery) use ($searchTerm, $locale) {
+                        $categoryQuery->where("name->{$locale}", 'like', '%' . $searchTerm . '%');
+                    });
+
+                    // Search by translated color name
+                    $q->orWhereHas('color', function ($colorQuery) use ($searchTerm, $locale) {
+                        $colorQuery->where("name->{$locale}", 'like', '%' . $searchTerm . '%');
+                    });
+
+                    // Search by translated size name
+                    $q->orWhereHas('size', function ($sizeQuery) use ($searchTerm, $locale) {
+                        $sizeQuery->where("name->{$locale}", 'like', '%' . $searchTerm . '%');
+                    });
+                });
+            }
+
+            $variants = $query->paginate($perPage, ['*'], 'page', $page);
 
             return response()->json([
                 'result' => true,
                 'message' => __('messages.product.products_retrieved'),
                 'productVariants' => ProductsVariantsResource::collection($variants),
+                'total' => $variants->total(),
+                'page' => $variants->currentPage(),
+                'limit' => $variants->perPage(),
+                'last_page' => $variants->lastPage(),
             ]);
         } catch (Exception $e) {
             return $this->errorResponse('messages.product.failed_to_retrieve_data', $e);

@@ -20,9 +20,6 @@ class StockAdjustmentRequest extends FormRequest
             'warehouse_id'  => ['required', 'exists:warehouses,id'],
             'shelf_id'      => ['nullable', 'exists:shelves,id'],
 
-            // Only allow manual or damage adjustments for manual admin API
-            'type'          => ['required', 'in:manual,damage'],
-
             'quantity'      => ['required', 'integer', 'min:1'],
 
             'direction'     => ['required', 'in:increase,decrease'],

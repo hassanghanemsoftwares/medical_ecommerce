@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -78,5 +79,41 @@ class StockAdjustment extends Model
     public function getDescriptionForEvent(string $eventName): string
     {
         return strtolower(class_basename($this)) . '.' . $eventName;
+    }
+
+    public static function updateStockQuantity($variantId, $warehouseId, $shelfId, $quantityChange): Stock
+    {
+        $stock = Stock::firstOrNew([
+            'variant_id' => $variantId,
+            'warehouse_id' => $warehouseId,
+            'shelf_id' => $shelfId,
+        ]);
+
+        $newQty = ($stock->exists ? $stock->quantity : 0) + $quantityChange;
+        if ($newQty < 0) {
+            throw new Exception(__('messages.stock_adjustment.insufficient_stock'));
+        }
+
+        $stock->quantity = $newQty;
+        $stock->save();
+
+        return $stock;
+    }
+
+
+    public static function createAdjustment(array $data): StockAdjustment
+    {
+        return StockAdjustment::create([
+            'variant_id'    => $data['variant_id'],
+            'warehouse_id'  => $data['warehouse_id'],
+            'shelf_id'      => $data['shelf_id'] ?? null,
+            'type'          => $data['type'],
+            'quantity'      => $data['quantity'],
+            'cost_per_item' => $data['cost_per_item'] ?? null,
+            'reason'        => $data['reason'] ?? null,
+            'adjusted_by'   => $data['adjusted_by'] ?? null,
+            'reference_id'  => $data['reference_id'] ?? null,
+            'reference_type' => $data['reference_type'] ?? null,
+        ]);
     }
 }
