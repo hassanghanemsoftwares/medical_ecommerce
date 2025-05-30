@@ -14,17 +14,20 @@ return new class extends Migration
         Schema::create('clients', function (Blueprint $table) {
             $table->id();
             $table->string('name', 100);
+            $table->enum('gender', ['male', 'female', 'other'])->nullable();
+            $table->date('birthdate')->nullable();
             $table->unsignedBigInteger('occupation_id');
-
-             $table->foreign('occupation_id')->references('id')->on('occupations')->cascadeOnDelete();
-            $table->string('phone', 100)->nullable();
-            $table->string('email')->unique();
+            $table->foreign('occupation_id')->references('id')->on('occupations')->cascadeOnDelete();
+            $table->string('phone', 20)->nullable();
+            $table->timestamp('phone_verified_at')->nullable();
+            $table->string('email', 150)->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->string('uid', 255);
-            $table->tinyInteger('gender')->nullable();
+            // $table->string('password', 255)->nullable();  // for hashed password length
+            $table->string('social_provider', 50)->nullable();
+            $table->string('social_id', 100)->nullable();
             $table->boolean('is_active')->default(true);
-            $table->dateTime('last_login');
+            $table->dateTime('last_login')->nullable();
+            $table->rememberToken(); 
             $table->timestamps();
         });
     }

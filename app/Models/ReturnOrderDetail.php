@@ -7,23 +7,21 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
-class OrderDetail extends Model
+class ReturnOrderDetail extends Model
 {
     use HasFactory, LogsActivity;
 
     protected $fillable = [
-        'order_id',
+        'return_order_id',
         'variant_id',
         'quantity',
         'price',
-        'discount',
-        'cost',
-
+        'refund_amount',
     ];
 
-    public function order()
+    public function returnOrder()
     {
-        return $this->belongsTo(Order::class);
+        return $this->belongsTo(ReturnOrder::class);
     }
 
     public function variant()
@@ -34,10 +32,10 @@ class OrderDetail extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['order_id', 'variant_id', 'quantity', 'price', 'discount'])
+            ->logOnly(['return_order_id', 'variant_id', 'quantity', 'price', 'refund_amount'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName('order_detail');
+            ->useLogName('return_order_detail');
     }
 
     public function getDescriptionForEvent(string $eventName): string
@@ -47,10 +45,6 @@ class OrderDetail extends Model
 
     public function getTotalAttribute()
     {
-        $total = $this->price * $this->quantity;
-        if ($this->discount) {
-            $total -= ($this->discount / 100) * $total;
-        }
-        return $total;
+        return $this->price * $this->quantity;
     }
 }

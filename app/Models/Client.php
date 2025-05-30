@@ -13,22 +13,29 @@ class Client extends Model
 
     protected $fillable = [
         'name',
-        'phone',
-        'email',
-        'password',
-        'uid',
         'gender',
+        'birthdate',
+        'occupation_id',
+        'phone',
+        'phone_verified_at',
+        'email',
+        'email_verified_at',
+        'social_provider',
+        'social_id',
         'is_active',
         'last_login',
+        'remember_token',
     ];
 
     protected $hidden = [
-        'password',
         'remember_token',
     ];
 
     protected $casts = [
+        'birthdate' => 'date',
+        'phone_verified_at' => 'datetime',
         'email_verified_at' => 'datetime',
+        'is_active' => 'boolean',
         'last_login' => 'datetime',
     ];
     public function addresses()
@@ -58,7 +65,7 @@ class Client extends Model
     {
         return $this->hasMany(Wishlist::class);
     }
- 
+
     public function notification_user()
     {
         return $this->hasMany(Notification::class);
@@ -67,11 +74,22 @@ class Client extends Model
     {
         return $this->hasMany(AccessToken::class);
     }
-
+    public function occupation()
+    {
+        return $this->belongsTo(Occupation::class);
+    }
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['name', 'phone', 'email', 'is_active'])
+            ->logOnly([
+                'name',
+                'gender',
+                'birthdate',
+                'occupation_id',
+                'phone',
+                'email',
+                'is_active',
+            ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('client');

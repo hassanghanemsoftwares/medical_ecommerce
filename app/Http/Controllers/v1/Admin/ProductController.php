@@ -9,6 +9,7 @@ use App\Http\Resources\V1\PaginationResource;
 use App\Http\Resources\V1\ProductsVariantsResource;
 use App\Models\Product;
 use App\Models\ProductImage;
+use App\Models\ProductSpecification;
 use App\Models\ProductTag;
 use App\Models\Variant;
 use Illuminate\Http\Request;
@@ -17,33 +18,51 @@ use Exception;
 
 class ProductController extends Controller
 {
+
+
     public function index(Request $request)
     {
         try {
             $validated = $request->validate([
                 'search' => 'nullable|string|max:255',
-                'sort' => 'nullable|in:created_at,name,price,discount',
+                'sort' => 'nullable|in:created_at,name,price,discount,is_active,barcode,availability_status,category_name',
                 'order' => 'nullable|in:asc,desc',
                 'per_page' => 'nullable|integer|min:1|max:100',
             ]);
 
-            $products = Product::query()
+            $query = Product::query()
                 ->with([
                     'category',
                     'brand',
-                    'images',
-                    'variants.size',
-                    'variants.color',
-                    'tags'
+                    'images' => function ($query) {
+                        $query->orderBy('arrangement', 'asc');
+                    },
+                    'variants' => function ($query) {
+                        $query->where(function ($q) {
+                            $q->whereNotNull('size_id')
+                                ->orWhereNotNull('color_id');
+                        })->with(['size', 'color']);
+                    },
+                    'tags',
+                    'specifications',
                 ])
-                ->when(
-                    $validated['search'] ?? null,
-                    fn($q, $search) =>
-                    $q->where('name', 'like', "%$search%")
-                        ->orWhere('barcode', 'like', "%$search%")
-                )
-                ->orderBy($validated['sort'] ?? 'created_at', $validated['order'] ?? 'desc')
-                ->paginate($validated['per_page'] ?? 10);
+                ->leftJoin('categories', 'products.category_id', '=', 'categories.id')
+                ->select('products.*');
+
+            if (!empty($validated['search'])) {
+                $query->where(function ($q) use ($validated) {
+                    $q->where('products.name', 'like', '%' . $validated['search'] . '%')
+                        ->orWhere('products.barcode', 'like', '%' . $validated['search'] . '%');
+                });
+            }
+
+            if (($validated['sort'] ?? null) === 'category_name') {
+                $query->orderBy('categories.name', $validated['order'] ?? 'desc');
+            } else {
+                $query->orderBy($validated['sort'] ?? 'products.created_at', $validated['order'] ?? 'desc');
+            }
+
+            $products = $query->paginate($validated['per_page'] ?? 10);
 
             return response()->json([
                 'result' => true,
@@ -64,10 +83,17 @@ class ProductController extends Controller
             'product' => new ProductResource($product->load([
                 'category',
                 'brand',
-                'images',
-                'variants.size',
-                'variants.color',
-                'tags'
+                'images' => function ($query) {
+                    $query->orderBy('arrangement', 'asc');
+                },
+                'variants' => function ($query) {
+                    $query->where(function ($q) {
+                        $q->whereNotNull('size_id')
+                            ->orWhereNotNull('color_id');
+                    })->with(['size', 'color']);
+                },
+                'tags',
+                'specifications',
             ])),
         ]);
     }
@@ -76,7 +102,7 @@ class ProductController extends Controller
     {
         try {
             DB::beginTransaction();
-            $product = new Product($request->except(['tags', 'images', 'variants']));
+            $product = new Product($request->except(['tags', 'images', 'variants', 'specifications']));
             $product->slug = null;
             $product->save();
 
@@ -90,7 +116,6 @@ class ProductController extends Controller
             }
             if ($request->has('images')) {
                 foreach ($request->input('images') as $index => $imageData) {
-                    // Only handle if an actual file was uploaded
                     if ($request->hasFile("images.$index.image")) {
                         $file = $request->file("images.$index.image");
 
@@ -116,13 +141,29 @@ class ProductController extends Controller
                     $variant->save();
                 }
             }
+            if ($request->filled('specifications')) {
+                foreach ($request->specifications as $spec) {
+                    ProductSpecification::create([
+                        'product_id' => $product->id,
+                        'description' => $spec['description'],
+                    ]);
+                }
+            }
+
             $product->load([
                 'category',
                 'brand',
-                'images',
+                'images' => function ($query) {
+                    $query->orderBy('arrangement', 'asc');
+                },
+                'variants' => function ($query) {
+                    $query->where(function ($q) {
+                        $q->whereNotNull('size_id')
+                            ->orWhereNotNull('color_id');
+                    })->with(['size', 'color']);
+                },
                 'tags',
-                'variants.size',
-                'variants.color'
+                'specifications',
             ]);
             DB::commit();
 
@@ -143,12 +184,10 @@ class ProductController extends Controller
             DB::beginTransaction();
             $product = Product::findOrFail($id);
 
-            // Update core fields
-            $product->fill($request->except(['tags', 'images', 'variants']));
-            $product->slug = null; // force re-slugging
+            $product->fill($request->except(['tags', 'images', 'variants', 'specifications']));
+            $product->slug = null;
             $product->save();
 
-            // Sync tags (delete old and insert new)
             ProductTag::where("product_id", $product->id)->delete();
             if ($request->filled('tags')) {
                 foreach ($request->tags as $tagId) {
@@ -159,26 +198,21 @@ class ProductController extends Controller
                 }
             }
 
-            // Optional: Replace images if new ones are uploaded
             if ($request->has('images')) {
                 foreach ($request->input('images') as $index => $imageData) {
-                    // Only handle if an actual file was uploaded
                     if ($request->hasFile("images.$index.image")) {
-                        $file = $request->file("images.$index.image");
-
+                        $arrangement = $imageData['arrangement'] ?? ProductImage::getNextArrangement();
+                        ProductImage::shiftArrangementsForNewImage($product->id, $arrangement);
                         ProductImage::create([
                             'product_id' => $product->id,
-                            'image' => ProductImage::storeImage($file),
-                            'arrangement' => $imageData['arrangement'] ?? ProductImage::getNextArrangement(),
+                            'image' => ProductImage::storeImage($request->file("images.$index.image")),
+                            'arrangement' => $arrangement,
                             'is_active' => $imageData['is_active'] ?? true,
                         ]);
                     }
                 }
             }
 
-
-            // Replace variants
-            // $product->variants()->delete();
             if ($request->filled('variants')) {
                 foreach ($request->variants as $variantData) {
                     $variant = new Variant([
@@ -191,12 +225,36 @@ class ProductController extends Controller
                     $variant->save();
                 }
             }
+            ProductSpecification::where('product_id', $product->id)->delete();
+
+            if ($request->filled('specifications')) {
+                foreach ($request->specifications as $spec) {
+                    ProductSpecification::create([
+                        'product_id' => $product->id,
+                        'description' => $spec['description'],
+                    ]);
+                }
+            }
 
             DB::commit();
             return response()->json([
                 'result' => true,
                 'message' => __('messages.product.product_updated'),
-                'product' => new ProductResource($product),
+                'product' => new ProductResource($product->load([
+                    'category',
+                    'brand',
+                    'images' => function ($query) {
+                        $query->orderBy('arrangement', 'asc');
+                    },
+                    'variants' => function ($query) {
+                        $query->where(function ($q) {
+                            $q->whereNotNull('size_id')
+                                ->orWhereNotNull('color_id');
+                        })->with(['size', 'color']);
+                    },
+                    'tags',
+                    'specifications',
+                ])),
             ]);
         } catch (Exception $e) {
             DB::rollBack();
@@ -235,63 +293,5 @@ class ProductController extends Controller
             'message' =>  __('messages.product.success_barcode_generate'),
             'barcode' => $barcode,
         ]);
-    }
-    public function getAllProductsVariants(Request $request)
-    {
-        try {
-            $perPage = $request->input('limit', 20);
-            $page = $request->input('page', 1);
-            $searchTerm = $request->input('search', '');
-
-            $query = Variant::with([
-                'product',
-                'product.category', // Includes product and its category
-                'size',
-                'color',
-            ]);
-
-            if ($searchTerm) {
-                $locale = app()->getLocale();
-
-                $query->where(function ($q) use ($searchTerm, $locale) {
-
-
-                    // Search by translated product name
-                    $q->orWhereHas('product', function ($productQuery) use ($searchTerm, $locale) {
-                        $productQuery->where('barcode', 'like', '%' . $searchTerm . '%')
-                            ->orWhere("name->{$locale}", 'like', '%' . $searchTerm . '%');
-                    });
-
-                    // Search by translated category name
-                    $q->orWhereHas('product.category', function ($categoryQuery) use ($searchTerm, $locale) {
-                        $categoryQuery->where("name->{$locale}", 'like', '%' . $searchTerm . '%');
-                    });
-
-                    // Search by translated color name
-                    $q->orWhereHas('color', function ($colorQuery) use ($searchTerm, $locale) {
-                        $colorQuery->where("name->{$locale}", 'like', '%' . $searchTerm . '%');
-                    });
-
-                    // Search by translated size name
-                    $q->orWhereHas('size', function ($sizeQuery) use ($searchTerm, $locale) {
-                        $sizeQuery->where("name->{$locale}", 'like', '%' . $searchTerm . '%');
-                    });
-                });
-            }
-
-            $variants = $query->paginate($perPage, ['*'], 'page', $page);
-
-            return response()->json([
-                'result' => true,
-                'message' => __('messages.product.products_retrieved'),
-                'productVariants' => ProductsVariantsResource::collection($variants),
-                'total' => $variants->total(),
-                'page' => $variants->currentPage(),
-                'limit' => $variants->perPage(),
-                'last_page' => $variants->lastPage(),
-            ]);
-        } catch (Exception $e) {
-            return $this->errorResponse('messages.product.failed_to_retrieve_data', $e);
-        }
     }
 }

@@ -50,24 +50,19 @@ class Coupon extends Model
     {
         return strtolower(class_basename($this)) . '.' . $eventName;
     }
-    protected function coupon_type(): Attribute
+
+    public static function getAllCouponTypes($key = null)
     {
-        return new Attribute(
-            get: fn($value) => $this->getAllCouponTypes()[$value],
-        );
-    }
-    public static function getAllCouponTypes()
-    {
-        return [
+        $types = [
             __('messages.coupon_type.All clients'),
             __('messages.coupon_type.Specific users'),
             __('messages.coupon_type.First time'),
             __('messages.coupon_type.Order amount'),
             __('messages.coupon_type.Free delivery'),
         ];
+
+        return is_null($key) ? $types : ($types[$key] ?? null);
     }
-
-
     protected function status(): Attribute
     {
         return new Attribute(
@@ -82,31 +77,37 @@ class Coupon extends Model
     {
         return [
             [
+                'key' => "0",
                 'name' => __('messages.coupon_status.PENDING'),
                 'color' => '#ffc107',
                 'class' => 'warning',
             ],
             [
+                'key' => "1",
                 'name' => __('messages.coupon_status.ACTIVE'),
                 'color' => '#198754',
                 'class' => 'success',
             ],
             [
+                'key' => "2",
                 'name' => __('messages.coupon_status.INACTIVE'),
                 'color' => '#6c757d',
                 'class' => 'secondary',
             ],
             [
+                'key' => "3",
                 'name' => __('messages.coupon_status.EXPIRED'),
                 'color' => '#dc3545',
                 'class' => 'danger',
             ],
             [
+                'key' => "4",
                 'name' => __('messages.coupon_status.USED'),
                 'color' => '#0d6efd',
                 'class' => 'primary',
             ],
             [
+                'key' => "5",
                 'name' => __('messages.coupon_status.CANCELED'),
                 'color' => '#6f42c1',
                 'class' => 'dark',
@@ -119,94 +120,57 @@ class Coupon extends Model
         $statuses = self::getAllCouponStatus();
         return array_search($statusValue, array_column($statuses, 'name'));
     }
-    private static function getStatusTransitions()
-    {
-        return [
-            0 => [0, 1, 2, 5],
-            1 => [1, 2, 5],
-            2 => [0, 1, 2],
-            3 => [3],
-            4 => [4],
-            5 => [5],
-        ];
-    }
 
-    public static function getEnabledStatuses($currentStatus)
-    {
-        $allStatuses = self::getAllCouponStatus();
-        $transitions = self::getStatusTransitions();
-
-        $enabledStatuses = [];
-        if (isset($transitions[$currentStatus])) {
-            $enabledStatuses = array_filter($allStatuses, function ($status) use ($transitions, $currentStatus) {
-                return in_array(self::getStatusKey($status['name']), $transitions[$currentStatus]);
-            });
-        }
-        return $enabledStatuses;
-    }
 
     public function canBeUsed()
     {
         $currentDate = Carbon::now();
 
-        // Check if coupon is active
-        if ($this->status != 1) {
-            return false;
+        if ($this->status['key'] != 1) {
+            return [false, 'Coupon is inactive'];
         }
 
-        // Check date range
         if ($this->valid_from && $this->valid_from > $currentDate) {
-            return false;
-        }
-        if ($this->valid_to && $this->valid_to < $currentDate) {
-            return false;
+            return [false, 'Coupon is not yet valid'];
         }
 
-        // Check usage limit
+        if ($this->valid_to && $this->valid_to->toDateString() < now()->toDateString()) {
+            return [false, 'Coupon has expired'];
+        }
+
         if ($this->usage_limit !== null && $this->usage_count >= $this->usage_limit) {
-            return false;
+            return [false, 'Coupon usage limit reached'];
         }
 
-        // Additional checks based on coupon types or other logic can be added here
+        // Add other checks here if needed
 
-        return true;
+        return [true, 'Coupon is valid'];
     }
 
-    public static function autoUpdateCouponsStatus()
+
+    public static function autoUpdateCouponsStatus(): void
     {
-        $currentDate = Carbon::now();
-        $coupons = Coupon::where("status", "<", 3)->get();
+        $now = Carbon::now();
+        $coupons = Coupon::all();
         foreach ($coupons as $coupon) {
-            if ($coupon->valid_to && $coupon->valid_to < $currentDate) {
-                $coupon->status = 3;
+            $currentStatus = (int) self::getStatusKey($coupon->status);
+            $newStatus = $currentStatus;
+            if ($coupon->valid_to && $coupon->valid_to->lt($now)) {
+                $newStatus = 3; // EXPIRED
+            } elseif ($coupon->usage_limit !== null && $coupon->usage_count >= $coupon->usage_limit) {
+                $newStatus = 4; // USED
+            } elseif (
+                in_array($currentStatus, [3, 4]) &&
+                (!$coupon->valid_to || $coupon->valid_to->gt($now)) &&
+                ($coupon->usage_limit === null || $coupon->usage_count < $coupon->usage_limit)
+            ) {
+                $newStatus = 0; // PENDING
             }
-            if ($coupon->usage_limit !== null && $coupon->usage_count >= $coupon->usage_limit) {
-                $coupon->status = 4;
+            if ($newStatus !== $currentStatus) {
+                $coupon->status = $newStatus;
+                $coupon->save();
+                activity('coupon')->performedOn($coupon)->log("Status auto-updated to " . $newStatus);
             }
-            $coupon->save();
-        }
-
-        $coupons = Coupon::where("status", "=", 3)->get();
-        foreach ($coupons as $coupon) {
-            if ($coupon->valid_to && $coupon->valid_to > $currentDate) {
-                $coupon->status = 0;
-            }
-            if ($coupon->usage_limit == null && $coupon->usage_count < $coupon->usage_limit) {
-                $coupon->status = 0;
-            }
-            $coupon->save();
-        }
-
-
-        $coupons = Coupon::where("status", "=", 4)->get();
-        foreach ($coupons as $coupon) {
-            if ($coupon->valid_to && $coupon->valid_to > $currentDate) {
-                $coupon->status = 0;
-            }
-            if ($coupon->usage_limit == null && $coupon->usage_count < $coupon->usage_limit) {
-                $coupon->status = 0;
-            }
-            $coupon->save();
         }
     }
 }

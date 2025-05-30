@@ -18,10 +18,12 @@ class Order extends Model
         'is_cart',
         'address_id',
         'coupon_id',
-        'coupon_discount',
+        'coupon_value',
+        'coupon_type',
         'address_info',
         'notes',
         'payment_method',
+        'payment_status',
         'delivery_amount',
         'status',
         'is_view',
@@ -45,11 +47,14 @@ class Order extends Model
     {
         return $this->belongsTo(Coupon::class);
     }
-
+    public function orderDetails()
+    {
+        return $this->hasMany(OrderDetail::class);
+    }
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['order_number', 'client_id', 'is_cart', 'address_id', 'coupon_id', 'coupon_discount', 'address_info', 'notes', 'payment_method', 'delivery_amount', 'status', 'is_view'])
+            ->logOnly(['order_number', 'client_id', 'is_cart', 'address_id', 'coupon_id', 'coupon_value', 'coupon_type', 'address_info', 'notes', 'payment_method', 'payment_status', 'delivery_amount', 'status', 'is_view'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('order');
@@ -62,21 +67,24 @@ class Order extends Model
     public function getSubtotalAttribute()
     {
         return $this->orderDetails->sum(function ($orderDetail) {
-            return $orderDetail->quantity * $orderDetail->price;
+            return $orderDetail->getTotalAttribute();
         });
     }
 
+
     public function getGrandTotalAttribute()
     {
-
-        $subtotal = $this->subtotal;
-
-
-        $discount = $this->coupon_discount ?? 0;
+        $subtotal = $this->subtotal ?? 0;
         $delivery_amount = $this->delivery_amount ?? 0;
-
+        $discount = 0;
+        if ($this->coupon_value && $this->coupon_type) {
+            if ($this->coupon_type === 'fixed') {
+                $discount = $this->coupon_value;
+            } elseif ($this->coupon_type === 'percentage') {
+                $discount = ($subtotal * $this->coupon_value) / 100;
+            }
+        }
         $grandTotal = $subtotal - $discount + $delivery_amount;
-
         return $grandTotal > 0 ? $grandTotal : 0;
     }
 
@@ -165,39 +173,36 @@ class Order extends Model
         ];
     }
 
+    public static function getPaymentStatus($key = null)
+    {
+        $statuses = [
+            __('messages.payment_status.Pending'),
+            __('messages.payment_status.Paid'),
+            __('messages.payment_status.Failed'),
+            __('messages.payment_status.Refunded'),
+        ];
+
+        return is_null($key) ? $statuses : ($statuses[$key] ?? null);
+    }
+    public static function getPaymentMethods($key = null)
+    {
+        $paymentMethods = [
+            __('messages.payment_methods.COD'),
+        ];
+
+        return is_null($key) ? $paymentMethods : ($paymentMethods[$key] ?? null);
+    }
     public static function getStatusKey($statusValue)
     {
         $statuses = self::getAllOrderStatus();
         return array_search($statusValue, array_column($statuses, 'name'));
     }
-    private static function getStatusTransitions()
+    public static function generateOrderNumber(): int
     {
-        return [
-            0 => [0, 1, 7],
-            1 => [1, 2, 3, 7],
-            2 => [2, 3, 4, 7],
-            3 => [3, 2, 7],
-            4 => [4, 5, 6, 7],
-            5 => [5, 10],
-            6 => [6],
-            7 => [7],
-            8 => [8],
-            9 => [9],
-            10 => [10],
-        ];
-    }
+        // Get the max order_number from existing orders
+        $maxOrderNumber = Order::max('order_number');
 
-    public static function getEnabledStatuses($currentStatus)
-    {
-        $allStatuses = self::getAllOrderStatus();
-        $transitions = self::getStatusTransitions();
-
-        $enabledStatuses = [];
-        if (isset($transitions[$currentStatus])) {
-            $enabledStatuses = array_filter($allStatuses, function ($status) use ($transitions, $currentStatus) {
-                return in_array(self::getStatusKey($status['name']), $transitions[$currentStatus]);
-            });
-        }
-        return $enabledStatuses;
+        // If no orders yet, start from 1, else increment
+        return $maxOrderNumber ? $maxOrderNumber + 1 : 1;
     }
 }

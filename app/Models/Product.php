@@ -68,6 +68,10 @@ class Product extends Model
     {
         return $this->hasMany(StockAdjustment::class);
     }
+    public function specifications()
+    {
+        return $this->hasMany(ProductSpecification::class);
+    }
 
     public function getSlugOptions(): SlugOptions
     {

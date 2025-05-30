@@ -30,7 +30,6 @@ return [
             'is_active' => 'حالة التفعيل',
         ],
     ],
-
     'otp_sent' => 'تم إرسال رمز التحقق إلى بريدك الإلكتروني.',
     'invalid_credentials' => 'بيانات الاعتماد المدخلة غير صحيحة.',
     'otp_verified' => 'تم التحقق من رمز التحقق بنجاح.',
@@ -43,7 +42,6 @@ return [
     'invalid_current_password' => 'كلمة المرور الحالية غير صحيحة.',
     'failed_to_retrieve_current_user' => 'فشل في استرجاع معلومات المستخدم الحالي.',
     'retrieved_successfully' => 'تم الاسترجاع بنجاح',
-
     'password_reset' => [
         'password_reset_subject' => 'طلب إعادة تعيين كلمة المرور',
         'hello' => 'مرحبًا،',
@@ -92,7 +90,6 @@ return [
         'roles_updated' => 'تم تحديث الأدوار بنجاح.',
         'permissions_updated' => 'تم تحديث الصلاحيات بنجاح.',
     ],
-
     'session' => [
         'session_retrieved' => 'تم استرجاع الجلسات بنجاح.',
         'sessionCreateOrUpdate' => 'تم إنشاء أو تحديث الجلسة بنجاح.',
@@ -111,7 +108,6 @@ return [
         'team_not_found' => 'الفريق غير موجود.',
         'user_not_in_team' => 'ممنوع. المستخدم لا ينتمي إلى هذا الفريق.',
     ],
-
     'order_status' => [
         'Pending' => 'قيد الانتظار',
         'Pending_description' => 'تم تقديم الطلب وهو في انتظار التأكيد.',
@@ -154,12 +150,11 @@ return [
         'USED' => 'مستخدم',
         'CANCELED' => 'ملغي',
     ],
-
     'coupon_type' => [
         'All clients' => 'جميع العملاء',
-        'Specific users' => 'مستخدمون محددون',
-        'First time' => 'المرة الأولى',
-        'Order amount' => 'مبلغ الطلب',
+        'Specific users' => 'عملاء محددين',
+        'First time' => 'الشراء لأول مرة',
+        'Order amount' => 'قيمة الطلب',
         'Free delivery' => 'توصيل مجاني',
     ],
     'general' => [
@@ -333,9 +328,9 @@ return [
         'image_max_size' => 'يجب ألا تتجاوز صورة المنتج 2MB.',
         'image_dimensions' => 'يجب أن تكون أبعاد صورة المنتج بين 100x100 و 2000x2000 بكسل.',
         'success_barcode_generate' => 'تم إنشاء الباركود بنجاح',
-
+        'specification_en_required' => 'وصف المواصفات باللغة الإنجليزية مطلوب.',
+        'specification_ar_required' => 'وصف المواصفات باللغة العربية مطلوب.',
     ],
-
     'stock_adjustment' => [
         'retrieved' => 'تم استرجاع تعديلات المخزون بنجاح.',
         'found' => 'تم العثور على تعديل المخزون.',
@@ -375,5 +370,39 @@ return [
         'retrieved' => 'تم جلب بيانات المخزون بنجاح.',
         'failed_to_retrieve_data' => 'فشل في جلب بيانات المخزون.',
     ],
-
+    'coupon' => [
+        'coupons_retrieved' => 'تم استرجاع القسائم بنجاح.',
+        'coupon_found' => 'تم العثور على القسيمة بنجاح.',
+        'coupon_created' => 'تم إنشاء القسيمة بنجاح.',
+        'coupon_updated' => 'تم تحديث القسيمة بنجاح.',
+        'coupon_deleted' => 'تم حذف القسيمة بنجاح.',
+        'bulk_deleted' => 'تم حذف القسائم المحددة بنجاح.',
+        'cannot_be_used' => 'لا يمكن استخدام هذه القسيمة حالياً.',
+        'can_be_used' => 'هذه القسيمة صالحة ويمكن استخدامها.',
+        'statuses_updated' => 'تم تحديث حالات القسائم بنجاح.',
+        'name_required' => 'اسم القسيمة مطلوب.',
+        'code_required' => 'رمز القسيمة مطلوب.',
+        'code_unique' => 'رمز القسيمة يجب أن يكون فريدًا.',
+        'failed_to_retrieve_data' => 'فشل في استرجاع البيانات.',
+        'failed_to_create_coupon' => 'فشل في إنشاء القسيمة.',
+        'failed_to_update_coupon' => 'فشل في تحديث القسيمة.',
+        'failed_to_delete_coupon' => 'فشل في حذف القسيمة.',
+        'failed_to_update_statuses' => 'فشل في تحديث حالات القسائم.',
+    ],
+    'order' => [
+        'orders_retrieved' => 'تم جلب الطلبات بنجاح.',
+        'failed_to_retrieve_data' => 'فشل في جلب الطلبات.',
+        'order_found' => 'تم العثور على الطلب بنجاح.',
+        'order_created' => 'تم إنشاء الطلب بنجاح.',
+        'failed_to_create_order' => 'فشل في إنشاء الطلب.',
+        'invalid_variant' => 'معرّف الصنف غير صالح: :sku',
+        'insufficient_stock' => 'لا توجد كمية كافية من الصنف: :sku. المتوفر: :available',
+        'invalid_coupon' => 'رمز القسيمة غير صالح أو منتهي الصلاحية.',
+        'min_amount_not_met' => 'إجمالي الطلب لا يفي بالحد الأدنى المطلوب للقسيمة: :amount.',
+        'status_updated' => 'تم تحديث حالة الطلب بنجاح.',
+        'failed_to_update_status' => 'فشل في تحديث حالة الطلب.',
+        'invalid_status_transition' => 'الانتقال إلى الحالة الجديدة غير صالح لحالة الطلب الحالية.',
+        'updated_successfully' => 'تم تحديث الطلب بنجاح.',
+        'failed_to_update_order' => 'فشل في تحديث الطلب.',
+    ],
 ];

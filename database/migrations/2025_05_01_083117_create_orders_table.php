@@ -13,21 +13,25 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->integer('order_number')->unique();
+            $table->unsignedBigInteger('order_number')->unique();
             $table->unsignedBigInteger('client_id');
             $table->foreign('client_id')->references('id')->on('clients')->restrictOnDelete();
-            $table->tinyInteger('is_cart')->default(1);
+            $table->boolean('is_cart')->default(true);
             $table->unsignedBigInteger('address_id')->nullable();
             $table->foreign('address_id')->references('id')->on('addresses')->restrictOnDelete();
             $table->unsignedBigInteger('coupon_id')->nullable();
             $table->foreign('coupon_id')->references('id')->on('coupons')->restrictOnDelete();
-            $table->integer('coupon_discount')->nullable();
+            $table->enum('coupon_type', ['fixed', 'percentage'])->nullable();
+            $table->decimal('coupon_value', 10, 2)->nullable();
             $table->json('address_info')->nullable();
-            $table->string('notes',255)->nullable();
-            $table->string('payment_method',50)->nullable();
+            $table->string('notes', 255)->nullable();
             $table->decimal('delivery_amount', 10, 2)->nullable();
-            $table->unsignedInteger('status')->default(0);
-            $table->boolean('is_view')->default(true);
+            $table->unsignedTinyInteger('payment_method')->nullable();
+            $table->unsignedTinyInteger('payment_status')->nullable();
+            $table->unsignedTinyInteger('status')->default(0);
+            $table->boolean('is_view')->default(false);
+            $table->unsignedBigInteger('created_by')->nullable();
+            $table->foreign('created_by')->references('id')->on('users')->nullOnDelete();
             $table->timestamps();
         });
     }

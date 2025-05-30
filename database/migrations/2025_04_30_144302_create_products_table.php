@@ -29,7 +29,7 @@ return new class extends Migration
             $table->string('short_description')->nullable();
             $table->text('description')->nullable();
             $table->decimal('price', 10, 2);
-            $table->integer('discount')->default(0);
+            $table->unsignedInteger('discount')->default(0);
             $table->integer('min_order_quantity')->default(1);
             $table->integer('max_order_quantity')->nullable();
             $table->timestamps();

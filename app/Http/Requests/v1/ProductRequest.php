@@ -128,9 +128,10 @@ class ProductRequest extends FormRequest
             'variants.*.size_id' => 'nullable|exists:sizes,id',
             'variants.*.color_id' => 'nullable|exists:colors,id',
 
-
-
-
+            'specifications' => 'nullable|array',
+            'specifications.*.description' => 'required|array',
+            'specifications.*.description.en' => 'required|string|max:1000',
+            'specifications.*.description.ar' => 'required|string|max:1000',
         ];
     }
 
@@ -165,6 +166,9 @@ class ProductRequest extends FormRequest
             'variants.*.color_id.required' => __('messages.variant.color_required'),
             'variants.*.color_id.exists' => __('messages.variant.color_exists'),
             'duplicate_variant' => 'Duplicate variant found at row #:index (same size and color).',
+            'specifications.*.description.en.required' => __('messages.product.specification_en_required'),
+            'specifications.*.description.ar.required' => __('messages.product.specification_ar_required'),
+
         ];
     }
 

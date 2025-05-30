@@ -20,6 +20,13 @@ class DatabaseSeeder extends Seeder
             PermissionSeeder::class,
             UserSeeder::class,
             ConfigurationSeeder::class,
+            SizeSeeder::class,
+            ColorSeasonSeeder::class,
+            ColorSeeder::class,
+            TagSeeder::class,
+            OccupationSeeder::class,
+            WarehouseSeeder::class,
+            ShelfSeeder::class,
         ]);
     }
 }

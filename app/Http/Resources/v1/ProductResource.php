@@ -33,6 +33,10 @@ class ProductResource extends JsonResource
             'images' => ProductImageResource::collection($this->images),
             'variants' => VariantResource::collection($this->variants),
             'tags' => TagResource::collection($this->tags),
+            'specifications' => $this->specifications->map(fn($spec) => [
+                'description' => $spec->getTranslations('description'),
+                'id' => $spec->id,
+            ]),
             'created_at' => $this->created_at ? $this->created_at->toDateTimeString() : null,
             'updated_at' => $this->updated_at ? $this->updated_at->toDateTimeString() : null,
 

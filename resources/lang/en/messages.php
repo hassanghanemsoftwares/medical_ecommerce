@@ -7,7 +7,6 @@ return [
         'string' => ':attribute must be a string.',
         'numeric' => ':attribute must be a number.',
         'array' => ':attribute must be an array.',
-
         'max' => [
             'string' => ':attribute must not be greater than :max characters.',
         ],
@@ -16,7 +15,6 @@ return [
         ],
         'confirmed' => ':attribute confirmation does not match.',
         'unique' => ':attribute has already been taken.',
-
         'attributes' => [
             'name' => 'Name',
             'email' => 'Email',
@@ -93,7 +91,6 @@ return [
         'roles_updated' => 'Roles successfully updated.',
         'permissions_updated' => 'Permissions successfully updated.',
     ],
-
     'session' => [
         'session_retrieved' => 'Sessions retrieved successfully.',
         'sessionCreateOrUpdate' => 'Session created or updated successfully.',
@@ -154,12 +151,11 @@ return [
         'USED' => 'Used',
         'CANCELED' => 'Canceled',
     ],
-
     'coupon_type' => [
         'All clients' => 'All clients',
         'Specific users' => 'Specific users',
-        'First time' => 'First time',
-        'Order amount' => 'Order amount',
+        'First time' => 'First time users',
+        'Order amount' => 'Order amount threshold',
         'Free delivery' => 'Free delivery',
     ],
     'general' => [
@@ -337,9 +333,8 @@ return [
         'image_max_size' => 'The product image must not exceed 2MB.',
         'image_dimensions' => 'The product image must be between 100x100 and 2000x2000 pixels.',
         'success_barcode_generate' => 'Barcode generated successfully',
-
-
-
+        'specification_en_required' => 'The English specification description is required.',
+        'specification_ar_required' => 'The Arabic specification description is required.',
     ],
     'stock_adjustment' => [
         'retrieved' => 'Stock adjustments retrieved successfully.',
@@ -368,7 +363,7 @@ return [
         'quantity_required' => 'The quantity is required.',
         'cost_required' => 'The cost per item is required.',
         'direction_required' => 'The adjustment direction is required.',
-        
+
         'failed_to_adjust' => 'Failed to adjust stock.',
         'adjusted' => 'Stock adjusted successfully.',
         'invalid_direction' => 'Invalid adjustment direction.',
@@ -381,6 +376,41 @@ return [
     'stocks' => [
         'retrieved' => 'Stock data retrieved successfully.',
         'failed_to_retrieve_data' => 'Failed to retrieve stock data.',
+    ],
+    'coupon' => [
+        'coupons_retrieved' => 'Coupons retrieved successfully.',
+        'coupon_found' => 'Coupon found successfully.',
+        'coupon_created' => 'Coupon created successfully.',
+        'coupon_updated' => 'Coupon updated successfully.',
+        'coupon_deleted' => 'Coupon deleted successfully.',
+        'bulk_deleted' => 'Selected coupons have been deleted successfully.',
+        'cannot_be_used' => 'This coupon cannot be used at the moment.',
+        'can_be_used' => 'This coupon is valid and can be used.',
+        'statuses_updated' => 'Coupon statuses updated successfully.',
+        'name_required' => 'Coupon name is required.',
+        'code_required' => 'Coupon code is required.',
+        'code_unique' => 'Coupon code must be unique.',
+        'failed_to_retrieve_data' => 'Failed to retrieve data.',
+        'failed_to_create_coupon' => 'Failed to create coupon.',
+        'failed_to_update_coupon' => 'Failed to update coupon.',
+        'failed_to_delete_coupon' => 'Failed to delete coupon.',
+        'failed_to_update_statuses' => 'Failed to update coupon statuses.',
+    ],
+    'order' => [
+        'orders_retrieved' => 'Orders retrieved successfully.',
+        'failed_to_retrieve_data' => 'Failed to retrieve orders.',
+        'order_found' => 'Order found successfully.',
+        'order_created' => 'Order created successfully.',
+        'failed_to_create_order' => 'Failed to create order.',
+        'invalid_variant' => 'Invalid variant ID: :sku',
+        'insufficient_stock' => 'Not enough stock for variant: :sku. Available: :available',
+        'invalid_coupon' => 'Coupon is not valid or expired.',
+        'min_amount_not_met' => 'Order total does not meet the minimum amount of :amount required for this coupon.',
+        'status_updated' => 'Order status updated successfully.',
+        'failed_to_update_status' => 'Failed to update order status.',
+        'invalid_status_transition' => 'Invalid status transition for the current order status.',
+        'updated_successfully' => 'Order updated successfully.',
+        'failed_to_update_order' => 'Failed to update the order.',
     ],
 
 ];

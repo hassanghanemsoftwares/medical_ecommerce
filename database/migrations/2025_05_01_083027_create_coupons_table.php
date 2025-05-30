@@ -20,11 +20,10 @@ return new class extends Migration
             $table->integer('usage_count')->default(0);
             $table->decimal('min_order_amount', 10, 2)->nullable();
             $table->tinyInteger('status')->default(0);
-
             $table->tinyInteger('coupon_type')->default(0);
             $table->unsignedBigInteger('client_id')->nullable(); // For specific users
-            $table->timestamp('valid_from')->nullable();
-            $table->timestamp('valid_to')->nullable();
+            $table->date('valid_from')->nullable();
+            $table->date('valid_to')->nullable();
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
             $table->timestamps();
         });

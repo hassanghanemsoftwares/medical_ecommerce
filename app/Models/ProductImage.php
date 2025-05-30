@@ -48,7 +48,7 @@ class ProductImage extends Model
     {
         return new Attribute(
             get: function () {
-                 return asset(Storage::url($this->attributes['image']));
+                return asset(Storage::url($this->attributes['image']));
             }
         );
     }
@@ -81,5 +81,11 @@ class ProductImage extends Model
         if ($imagePath && Storage::disk('public')->exists($imagePath)) {
             Storage::disk('public')->delete($imagePath);
         }
+    }
+    public static function shiftArrangementsForNewImage($productId, $startArrangement)
+    {
+        self::where('product_id', $productId)
+            ->where('arrangement', '>=', $startArrangement)
+            ->increment('arrangement');
     }
 }

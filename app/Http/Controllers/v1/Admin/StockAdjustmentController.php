@@ -159,44 +159,4 @@ class StockAdjustmentController extends Controller
             return $this->errorResponse('messages.stock_adjustment.failed_to_delete_adjustment', $e);
         }
     }
-
-
-    /**
-     * Internal method for system triggered stock adjustments
-     * (e.g. purchase, sale, return, transfer, supplier_return)
-     */
-    public function systemAdjust(array $data): StockAdjustment
-    {
-        // $data must include:
-        // variant_id, warehouse_id, shelf_id (nullable), type,
-        // quantity (positive integer), cost_per_item (nullable),
-        // reason (nullable), reference_id, reference_type
-        $typeMap = [
-            'return' => 1,
-            'sale' => -1,
-        ];
-
-        if (!isset($typeMap[$data['type']])) {
-            throw new InvalidArgumentException(__('messages.stock_adjustment.invalid_type'));
-        }
-
-        $quantityChange = $typeMap[$data['type']] * abs($data['quantity']);
-        try {
-            return DB::transaction(function () use ($data, $quantityChange) {
-                StockAdjustment::updateStockQuantity(
-                    $data['variant_id'],
-                    $data['warehouse_id'],
-                    $data['shelf_id'] ?? null,
-                    $quantityChange
-                );
-
-                return StockAdjustment::createAdjustment(array_merge($data, [
-                    'quantity' => $quantityChange,
-                    'adjusted_by' => $data['adjusted_by'] ?? Auth::id(),
-                ]));
-            });
-        } catch (Exception $e) {
-            throw new Exception(__('messages.stock_adjustment.failed_to_adjust'), 500, $e);
-        }
-    }
 }

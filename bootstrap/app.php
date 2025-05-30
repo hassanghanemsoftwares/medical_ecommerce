@@ -1,12 +1,13 @@
 <?php
 
+use App\Console\Commands\UpdateCouponsStatus;
 use App\Http\Middleware\AppMiddleware;
 use App\Http\Middleware\ManageAuthSession;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
-
+use Illuminate\Console\Scheduling\Schedule;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -42,4 +43,6 @@ return Application::configure(basePath: dirname(__DIR__))
             }
             return $request->expectsJson();
         });
+    })->withSchedule(function (Schedule $schedule) {
+        $schedule->command('coupons:update-status')->daily();
     })->create();

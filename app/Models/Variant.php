@@ -39,6 +39,10 @@ class Variant extends Model
     {
         return $this->hasMany(StockAdjustment::class);
     }
+    public function stocks()
+    {
+        return $this->hasMany(Stock::class);
+    }
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -54,21 +58,57 @@ class Variant extends Model
         return strtolower(class_basename($this)) . '.' . $eventName;
     }
 
-    public static function generateSku($product, $colorId, $sizeId): string
+
+
+    public static function generateSku($product, $colorId = null, $sizeId = null): string
     {
-        // Decode JSON if it's a string
-        $name = $product->name;
-        if (is_string($name)) {
-            $name = json_decode($name, true);
+        $name = is_string($product->name) ? json_decode($product->name, true) : $product->name;
+        $name = is_array($name) ? $name : ['en' => (string) $product->name];
+        $base = strtoupper(Str::slug($name['en'] ?? $name['ar'] ?? 'product'));
+
+        if ($colorId && ($color = Color::find($colorId))) {
+            $colorName = is_string($color->name) ? json_decode($color->name, true) : $color->name;
+            $colorName = is_array($colorName) ? $colorName : ['en' => (string) $color->name];
+            $base .= '-' . strtoupper(Str::slug($colorName['en'] ?? $colorName['ar'] ?? ''));
         }
 
-        $sku = strtoupper(Str::slug($name['en'] ?? $name['ar'] ?? $product->name));
-        if ($colorId) {
-            $sku .= '-C' . $colorId;
+        if ($sizeId && ($size = Size::find($sizeId))) {
+            $sizeName = is_string($size->name) ? json_decode($size->name, true) : $size->name;
+            $sizeName = is_array($sizeName) ? $sizeName : ['en' => (string) $size->name];
+            $base .= '-' . strtoupper(Str::slug($sizeName['en'] ?? $sizeName['ar'] ?? ''));
         }
-        if ($sizeId) {
-            $sku .= '-S' . $sizeId;
+
+        do {
+            $sku = $base . '-' . strtoupper(Str::random(4));
+        } while (self::where('sku', $sku)->exists());
+
+        return $sku;
+    }
+
+    public function getDisplaySkuAttribute(): string
+    {
+        $parts = [];
+
+        // Product Name
+        $productName = $this->product?->name;
+        $productName = is_string($productName) ? json_decode($productName, true) : $productName;
+        $productName = is_array($productName) ? $productName : ['en' => (string) $this->product?->name];
+        $parts[] = strtoupper($productName['en'] ?? $productName['ar'] ?? 'PRODUCT');
+
+        // Color Name
+        if ($this->color) {
+            $colorName = is_string($this->color->name) ? json_decode($this->color->name, true) : $this->color->name;
+            $colorName = is_array($colorName) ? $colorName : ['en' => (string) $this->color->name];
+            $parts[] = strtoupper($colorName['en'] ?? $colorName['ar'] ?? '');
         }
-        return $sku . '-' . uniqid();
+
+        // Size Name
+        if ($this->size) {
+            $sizeName = is_string($this->size->name) ? json_decode($this->size->name, true) : $this->size->name;
+            $sizeName = is_array($sizeName) ? $sizeName : ['en' => (string) $this->size->name];
+            $parts[] = strtoupper($sizeName['en'] ?? $sizeName['ar'] ?? '');
+        }
+
+        return implode('-', array_filter($parts));
     }
 }

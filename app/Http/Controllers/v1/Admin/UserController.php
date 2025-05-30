@@ -22,7 +22,7 @@ class UserController extends Controller
             $validated = $request->validate([
                 'search' => 'nullable|string|max:255',
                 'role' => 'nullable|string|max:100',
-                'sort' => 'nullable|in:created_at,name,email,last_activity,role',
+                'sort' => 'nullable|in:created_at,name,email,last_activity,role,is_active',
                 'order' => 'nullable|in:asc,desc',
                 'per_page' => 'nullable|integer|min:1|max:100',
             ]);

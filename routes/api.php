@@ -6,8 +6,10 @@ use App\Http\Controllers\V1\Admin\AuthController;
 use App\Http\Controllers\V1\Admin\SessionController;
 use App\Http\Controllers\V1\Admin\UserController;
 use App\Http\Controllers\V1\Admin\ActivityLogController;
+use App\Http\Controllers\V1\Admin\AddressController;
 use App\Http\Controllers\V1\Admin\BrandController;
 use App\Http\Controllers\V1\Admin\CategoryController;
+use App\Http\Controllers\V1\Admin\ClientController;
 use App\Http\Controllers\V1\Admin\ProfileController;
 use App\Http\Controllers\V1\Admin\SettingsController;
 
@@ -18,9 +20,11 @@ use App\Http\Controllers\V1\Admin\ShelfController;
 use App\Http\Controllers\V1\Admin\SizeController;
 use App\Http\Controllers\V1\Admin\TagController;
 use App\Http\Controllers\V1\Admin\ConfigurationController;
+use App\Http\Controllers\V1\Admin\CouponController;
 use App\Http\Controllers\V1\Admin\HomeSectionController;
 use App\Http\Controllers\V1\Admin\LearningVideoController;
 use App\Http\Controllers\V1\Admin\OccupationController;
+use App\Http\Controllers\V1\Admin\OrderController;
 use App\Http\Controllers\V1\Admin\ProductController;
 use App\Http\Controllers\V1\Admin\ProductImageController;
 use App\Http\Controllers\V1\Admin\ProductVariantController;
@@ -44,7 +48,11 @@ Route::prefix('v1')->group(function () {
                 Route::middleware('can:view-activity-logs')->get('activity-logs', [ActivityLogController::class, 'index']);
 
 
-                Route::get('getAllProductsVariants', [ProductController::class, 'getAllProductsVariants']);
+                Route::get('getAllClients', [SettingsController::class, 'getAllClients']);
+                Route::get('getAllProductsVariants', [SettingsController::class, 'getAllProductsVariants']);
+                Route::get('getOrderableVariants', [SettingsController::class, 'getOrderableVariants']);
+                Route::get('getClientAddresses', [SettingsController::class, 'getClientAddresses']);
+
 
                 Route::middleware('can:view-profile')->post('changePassword', [ProfileController::class, 'changePassword']);
                 Route::middleware('can:view-profile')->get('sessions', [SessionController::class, 'getAllSessions']);
@@ -90,6 +98,31 @@ Route::prefix('v1')->group(function () {
 
                 Route::delete('/stock-adjustments/{stockAdjustment}', [StockAdjustmentController::class, 'destroy'])
                     ->middleware('can:delete-stock-adjustment');
+
+                Route::middleware('can:view-client')->get('clients', [ClientController::class, 'index']);
+                Route::middleware('can:view-client')->get('clients/{client}', [ClientController::class, 'show']);
+                Route::middleware('can:create-client')->post('clients', [ClientController::class, 'store']);
+                Route::middleware('can:edit-client')->put('clients/{client}', [ClientController::class, 'update']);
+                Route::middleware('can:delete-client')->delete('clients/{client}', [ClientController::class, 'destroy']);
+
+                Route::middleware('can:view-client')->get('addresses', [AddressController::class, 'index']);
+                Route::middleware('can:view-client')->get('addresses/{address}', [AddressController::class, 'show']);
+                Route::middleware('can:view-client')->post('addresses', [AddressController::class, 'store']);
+                Route::middleware('can:view-client')->put('addresses/{address}', [AddressController::class, 'update']);
+                Route::middleware('can:view-client')->delete('addresses/{address}', [AddressController::class, 'destroy']);
+
+                Route::middleware('can:view-coupon')->get('coupons', [CouponController::class, 'index']);
+                Route::middleware('can:view-coupon')->get('coupons/{coupon}', [CouponController::class, 'show']);
+                Route::middleware('can:create-coupon')->post('coupons', [CouponController::class, 'store']);
+                Route::middleware('can:edit-coupon')->put('coupons/{coupon}', [CouponController::class, 'update']);
+                Route::middleware('can:delete-coupon')->delete('coupons/{coupon}', [CouponController::class, 'destroy']);
+
+
+                Route::middleware('can:view-order')->get('orders', [OrderController::class, 'index']);
+                Route::middleware('can:view-order')->get('orders/{order}', [OrderController::class, 'show']);
+                Route::middleware('can:create-order')->post('orders', [OrderController::class, 'store']);
+                Route::middleware('can:edit-order')->put('orders/{order}', [OrderController::class, 'update']);
+
 
                 Route::middleware('can:view-settings')->group(function () {
                     // Brand Routes

@@ -11,15 +11,12 @@ use Exception;
 
 class StockController extends Controller
 {
-    /**
-     * Display a listing of stocks.
-     */
     public function index(Request $request)
     {
         try {
             $validated = $request->validate([
-                'search'   => 'nullable|string|max:255',   // search by variant SKU or warehouse name etc
-                'sort'     => 'nullable|in:quantity,created_at,updated_at',
+                'search'   => 'nullable|string|max:255',
+                'sort'     => 'nullable|in:quantity,created_at,updated_at,warehouse_name,shelf_name',
                 'order'    => 'nullable|in:asc,desc',
                 'per_page' => 'nullable|integer|min:1|max:100',
             ]);
@@ -32,22 +29,32 @@ class StockController extends Controller
                 'shelf'
             ]);
 
-            // Example search: filter stocks by variant SKU or warehouse name
             if (!empty($validated['search'])) {
                 $searchTerm = $validated['search'];
                 $query->whereHas('variant', function ($q) use ($searchTerm) {
                     $q->where('sku', 'like', "%{$searchTerm}%");
-                })
-                    ->orWhereHas('warehouse', function ($q) use ($searchTerm) {
-                        $q->where('name', 'like', "%{$searchTerm}%");
-                    });
+                })->orWhereHas('warehouse', function ($q) use ($searchTerm) {
+                    $q->where('name', 'like', "%{$searchTerm}%");
+                });
             }
 
             $sort = $validated['sort'] ?? 'created_at';
             $order = $validated['order'] ?? 'desc';
 
-            $stocks = $query->orderBy($sort, $order)
-                ->paginate($validated['per_page'] ?? 10);
+            // Handle sorting by related model fields:
+            if ($sort === 'warehouse_name') {
+                $query->leftJoin('warehouses', 'stocks.warehouse_id', '=', 'warehouses.id')
+                    ->orderBy('warehouses.name', $order)
+                    ->select('stocks.*'); // avoid ambiguous columns
+            } elseif ($sort === 'shelf_name') {
+                $query->leftJoin('shelves', 'stocks.shelf_id', '=', 'shelves.id')
+                    ->orderBy('shelves.name', $order)
+                    ->select('stocks.*');
+            } else {
+                $query->orderBy($sort, $order);
+            }
+
+            $stocks = $query->paginate($validated['per_page'] ?? 10);
 
             return response()->json([
                 'result' => true,
