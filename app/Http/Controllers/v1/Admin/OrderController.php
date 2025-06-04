@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\V1\OrderRequest;
-use App\Http\Resources\V1\OrderResource;
-use App\Http\Resources\V1\PaginationResource;
+use App\Http\Requests\V1\Admin\OrderRequest;
+use App\Http\Resources\V1\Admin\OrderResource;
+use App\Http\Resources\V1\Admin\PaginationResource;
 use App\Models\Address;
 use App\Models\Configuration;
 use App\Models\Coupon;
@@ -31,7 +31,7 @@ class OrderController extends Controller
                 'per_page' => 'nullable|integer|min:1|max:100',
             ]);
 
-            $orders = Order::with(['client', 'coupon', 'address'])->where('is_cart', false)
+            $orders = Order::with(['client', 'coupon', 'address'])->where('is_cart', false)->where('is_preorder', false)
                 ->when($validated['search'] ?? null, function ($query, $search) {
                     $query->where('order_number', 'like', "%$search%");
                 })
@@ -60,6 +60,10 @@ class OrderController extends Controller
             'orderDetails.variant.color',
         ]);
 
+        if (!$order->is_view) {
+            $order->is_view = true;
+            $order->update();
+        }
 
         return response()->json([
             'result' => true,
@@ -70,33 +74,20 @@ class OrderController extends Controller
 
     public function store(OrderRequest $request)
     {
+        $data = $request->validated();
+        $total = 0;
+        $validatedProducts = [];
+
         try {
             DB::beginTransaction();
 
-            $data = $request->validated();
-            $total = 0;
-            $validatedProducts = [];
-
             foreach ($data['products'] as $item) {
-                $variant = Variant::with('product', 'stockAdjustments')->find($item['variant_id']);
+                $variant = Variant::with(['product', 'stocks'])->find($item['variant_id']);
 
                 if (!$variant || !$variant->product) {
-                    return response()->json([
-                        'result' => false,
-                        'message' => __('messages.order.invalid_variant', ['sku' => $item['variant_id']])
-                    ]);
-                }
-
-                $availableQty = $variant->stockAdjustments()->sum('quantity');
-
-                if ($item['quantity'] > $availableQty) {
-                    return response()->json([
-                        'result' => false,
-                        'message' => __('messages.order.insufficient_stock', [
-                            'sku' => $variant->display_sku,
-                            'available' => $availableQty,
-                        ]),
-                    ]);
+                    throw new Exception(__('messages.order.invalid_variant', [
+                        'sku' => $item['variant_id'],
+                    ]));
                 }
 
                 $price = $variant->product->price;
@@ -104,35 +95,25 @@ class OrderController extends Controller
                 $discountedPrice = $price - ($price * $discount / 100);
                 $total += $discountedPrice * $item['quantity'];
 
-
                 $validatedProducts[] = [
                     'variant' => $variant,
                     'quantity' => $item['quantity'],
                     'price' => $price,
-                    'availableQty' => $availableQty,
+                    'discount' => $discount,
                 ];
             }
 
-            // Handle Coupon
-            if ($request->filled('coupon_code')) {
-                $coupon = Coupon::where('code', $request->coupon_code)->first();
+            // Handle coupon logic
+            if (!empty($data['coupon_code'])) {
+                $coupon = Coupon::where('code', $data['coupon_code'])->first();
+                [$canUse, $reason] = $coupon?->canBeUsed() ?? [false, __('messages.order.invalid_coupon')];
 
-                [$canUse, $reason] = $coupon->canBeUsed();
+                if (!$canUse) throw new Exception($reason);
 
-                if (!$canUse) {
-                    return response()->json([
-                        'result' => false,
-                        'message' =>  $reason,
-                    ]);
-                }
-
-                if ($coupon->min_order_amount !== null && $total < $coupon->min_order_amount) {
-                    return response()->json([
-                        'result' => false,
-                        'message' => __('messages.order.min_amount_not_met', [
-                            'amount' => $coupon->min_order_amount,
-                        ]),
-                    ]);
+                if ($coupon->min_order_amount && $total < $coupon->min_order_amount) {
+                    throw new Exception(__('messages.order.min_amount_not_met', [
+                        'amount' => $coupon->min_order_amount,
+                    ]));
                 }
 
                 $data['coupon_id'] = $coupon->id;
@@ -141,48 +122,32 @@ class OrderController extends Controller
                 $coupon->increment('usage_count');
             }
 
-            // Handle Address
+            // Handle address
             $address = Address::find($data['address_id']);
-            $data['address_info'] = $address ? $address->toArray() : null;
-
-            // Set Order Data
+            $data['address_info'] = $address?->toArray();
             $data['order_number'] = Order::generateOrderNumber();
             $data['delivery_amount'] = (float) Configuration::where('key', 'delivery_charge')->value('value');
             $data['is_cart'] = false;
             $data['created_by'] = Auth::id();
 
-            $data = Arr::except($data, ['coupon_code', 'products']);
-
-            // Create Order
-            $order = Order::create($data);
+            $order = Order::create(Arr::except($data, ['coupon_code', 'products']));
 
             foreach ($validatedProducts as $item) {
-                $variant = $item['variant'];
-                $firstAdjustment = $variant->stockAdjustments()->first();
-
-                if (!$firstAdjustment) {
-                    continue;
-                }
-
-                OrderDetail::create([
-                    'order_id' => $order->id,
-                    'variant_id' => $variant->id,
-                    'quantity' => $item['quantity'],
-                    'price' => $item['price'],
-                    'discount' => $variant->product->discount,
-                    'cost' => $firstAdjustment->cost_per_item ?? 0,
-                ]);
-
-                StockAdjustment::systemAdjust([
-                    'variant_id' => $variant->id,
-                    'warehouse_id' => $firstAdjustment->warehouse_id,
-                    'shelf_id' => $firstAdjustment->shelf_id,
-                    'type' => 'sale',
-                    'quantity' => $item['quantity'],
-                    'cost_per_item' => $firstAdjustment->cost_per_item,
+                StockAdjustment::deductForOrder($item['variant']->id, $item['quantity'], [
                     'reason' => 'Order #' . $order->order_number,
                     'reference_id' => $order->id,
                     'reference_type' => 'order',
+                ]);
+
+                $cost = $item['variant']->stockAdjustments()->latest()->value('cost_per_item') ?? 0;
+
+                OrderDetail::create([
+                    'order_id' => $order->id,
+                    'variant_id' => $item['variant']->id,
+                    'quantity' => $item['quantity'],
+                    'price' => $item['price'],
+                    'discount' => $item['discount'],
+                    'cost' => $cost,
                 ]);
             }
 
@@ -190,12 +155,12 @@ class OrderController extends Controller
 
             return response()->json([
                 'result' => true,
-                'message' => __('messages.order.order_created'). " ".  $total ,
+                'message' => __('messages.order.order_created'),
                 'order' => new OrderResource($order),
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.order.failed_to_create_order', $e);
+            return $this->errorResponse(__('messages.order.failed_to_create_order'), $e);
         }
     }
 
@@ -203,14 +168,59 @@ class OrderController extends Controller
     {
         $validated = $request->validate([
             'status' => 'nullable|integer|min:0|max:10',
-            'payment_method' => 'nullable|integer|between:0,0',
+            'payment_method' => 'nullable|integer|in:0',
             'payment_status' => 'nullable|integer|between:0,3',
         ]);
 
         try {
-            $order = Order::findOrFail($id);
+            DB::beginTransaction();
+
+            $order = Order::with('orderDetails.variant')->findOrFail($id);
+            $oldStatus = $order->status;
+
+            if (isset($validated['status'])) {
+                $newStatus = $validated['status'];
+                if ($newStatus !== $oldStatus && !$order->canTransitionTo($newStatus)) {
+                    throw new Exception(__('messages.order.invalid_status_transition'));
+                }
+            }
 
             $order->update(array_filter($validated, fn($v) => !is_null($v)));
+
+            // If status changed to canceled
+            if (isset($validated['status']) && $validated['status'] !== $oldStatus) {
+                $newStatus = $validated['status'];
+                $canceledStatuses = [7]; // Define as constant if needed
+
+                if (in_array($newStatus, $canceledStatuses) && !in_array($oldStatus, $canceledStatuses)) {
+                    foreach ($order->orderDetails as $detail) {
+                        $adjustments = StockAdjustment::where([
+                            ['variant_id', '=', $detail->variant_id],
+                            ['reference_id', '=', $order->id],
+                            ['reference_type', '=', 'order'],
+                            ['type', '=', 'sale'],
+                        ])->latest()->get();
+
+                        foreach ($adjustments as $adj) {
+                            StockAdjustment::systemAdjust([
+                                'variant_id'     => $adj->variant_id,
+                                'warehouse_id'   => $adj->warehouse_id,
+                                'shelf_id'       => $adj->shelf_id,
+                                'type'           => 'return',
+                                'quantity'       => $adj->quantity,
+                                'cost_per_item'  => $adj->cost_per_item,
+                                'reason'         => 'Stock returned due to cancellation of Order #' . $order->order_number,
+                                'reference_id'   => $order->id,
+                                'reference_type' => 'order',
+                            ]);
+                        }
+                    }
+                }
+            }
+            if ($order->coupon_id) {
+                $order->coupon->decrement('usage_count');
+            }
+            DB::commit();
 
             return response()->json([
                 'result' => true,
@@ -224,12 +234,9 @@ class OrderController extends Controller
                     'orderDetails.variant.color',
                 ])),
             ]);
-        } catch (\Throwable $e) {
-            return response()->json([
-                'result' => false,
-                'message' => __('messages.order.failed_to_update_order'),
-            ]
-        );
+        } catch (Exception $e) {
+            DB::rollBack();
+            return $this->errorResponse(__('messages.order.failed_to_update_order'), $e);
         }
     }
 }

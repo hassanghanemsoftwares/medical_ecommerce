@@ -5,8 +5,8 @@ namespace App\Http\Controllers\V1\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Spatie\Activitylog\Models\Activity;
-use App\Http\Resources\V1\ActivityLogResource as V1ActivityLogResource;
-use App\Http\Resources\V1\PaginationResource;
+use App\Http\Resources\V1\Admin\ActivityLogResource as V1ActivityLogResource;
+use App\Http\Resources\V1\Admin\PaginationResource;
 use Exception;
 use Illuminate\Support\Carbon;
 

@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('product_clicks', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('device_id');
-            $table->foreign('device_id')->references('id')->on('client_devices')->cascadeOnDelete();
+        $table->unsignedBigInteger('client_session_id');
+            $table->foreign('client_session_id')->references('id')->on('client_sessions')->cascadeOnDelete();
             $table->unsignedBigInteger('product_id');
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
             $table->timestamps();

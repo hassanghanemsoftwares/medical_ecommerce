@@ -18,7 +18,6 @@ class OrderDetail extends Model
         'price',
         'discount',
         'cost',
-
     ];
 
     public function order()
@@ -34,7 +33,14 @@ class OrderDetail extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['order_id', 'variant_id', 'quantity', 'price', 'discount'])
+            ->logOnly([
+                'order_id',
+                'variant_id',
+                'quantity',
+                'price',
+                'discount',
+                'cost',
+            ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('order_detail');

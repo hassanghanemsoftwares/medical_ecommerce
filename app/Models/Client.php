@@ -52,9 +52,9 @@ class Client extends Model
     {
         return $this->hasMany(Order::class);
     }
-    public function app_devices()
+    public function client_sessions()
     {
-        return $this->hasMany(ClientDevice::class);
+        return $this->hasMany(ClientSession::class);
     }
 
     public function reviews()
@@ -70,10 +70,7 @@ class Client extends Model
     {
         return $this->hasMany(Notification::class);
     }
-    public function access_tokens()
-    {
-        return $this->hasMany(AccessToken::class);
-    }
+
     public function occupation()
     {
         return $this->belongsTo(Occupation::class);

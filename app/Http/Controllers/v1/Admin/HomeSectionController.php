@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\V1\HomeSectionRequest;
-use App\Http\Resources\V1\HomeSectionResource;
+use App\Http\Requests\V1\Admin\HomeSectionRequest;
+use App\Http\Resources\V1\Admin\HomeSectionResource;
 use App\Models\HomeSection;
 use Illuminate\Http\Request;
 use Exception;
@@ -28,8 +28,7 @@ class HomeSectionController extends Controller
     public function store(HomeSectionRequest $request)
     {
         try {
-            $data = $request->validated();
-            $homeSection = HomeSection::create($data);
+            $homeSection = HomeSection::create($request->validated());
 
             return response()->json([
                 'result' => true,
@@ -41,10 +40,9 @@ class HomeSectionController extends Controller
         }
     }
 
-    public function show($id)
+    public function show(HomeSection $homeSection)
     {
         try {
-            $homeSection = HomeSection::findOrFail($id);
             return response()->json([
                 'result' => true,
                 'message' => __('messages.home_section.home_section_fetched'),
@@ -55,12 +53,10 @@ class HomeSectionController extends Controller
         }
     }
 
-    public function update(HomeSectionRequest $request, $id)
+    public function update(HomeSectionRequest $request, HomeSection $homeSection)
     {
         try {
-            $data = $request->validated();
-            $homeSection = HomeSection::findOrFail($id);
-            $homeSection->update($data);
+            $homeSection->update($request->validated());
 
             return response()->json([
                 'result' => true,
@@ -72,10 +68,9 @@ class HomeSectionController extends Controller
         }
     }
 
-    public function destroy($id)
+    public function  destroy(HomeSection $homeSection)
     {
         try {
-            $homeSection = HomeSection::findOrFail($id);
             $homeSection->delete();
 
             return response()->json([
@@ -86,6 +81,4 @@ class HomeSectionController extends Controller
             return $this->errorResponse('messages.home_section.failed_to_delete_home_section', $e);
         }
     }
-
- 
 }

@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('search_logs', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('device_id');
-            $table->foreign('device_id')->references('id')->on('client_devices')->cascadeOnDelete();
+            $table->unsignedBigInteger('client_session_id');
+            $table->foreign('client_session_id')->references('id')->on('client_sessions')->cascadeOnDelete();
             $table->unsignedBigInteger('category_id')->nullable();
             $table->foreign('category_id')->references('id')->on('categories')->restrictOnDelete();
             $table->unsignedBigInteger('brand_id')->nullable();

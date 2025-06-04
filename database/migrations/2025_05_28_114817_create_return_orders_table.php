@@ -13,15 +13,14 @@ return new class extends Migration
     {
         Schema::create('return_orders', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('return_order_number')->unique();
             $table->unsignedBigInteger('order_id');
             $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
             $table->unsignedBigInteger('client_id');
             $table->foreign('client_id')->references('id')->on('clients');
             $table->dateTime('requested_at');
-            $table->dateTime('processed_at')->nullable();
             $table->unsignedTinyInteger('status')->default(0); // 0=requested,1=approved,2=rejected,3=completed
             $table->string('reason')->nullable();
-            $table->decimal('refund_amount', 10, 2)->nullable();
             $table->unsignedBigInteger('created_by')->nullable();
             $table->foreign('created_by')->references('id')->on('users')->nullOnDelete();
             $table->timestamps();

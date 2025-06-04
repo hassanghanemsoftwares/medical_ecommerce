@@ -1,8 +1,5 @@
 <?php
 
-use App\Console\Commands\UpdateCouponsStatus;
-use App\Http\Middleware\AppMiddleware;
-use App\Http\Middleware\ManageAuthSession;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -18,15 +15,15 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->api(prepend: [
-            // ManageGeustSession::class,
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             'throttle:api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            ManageAuthSession::class,
-            AppMiddleware::class,
+
         ]);
 
         $middleware->alias([
+            'manage_auth_session' => \App\Http\Middleware\ManageAuthSession::class,
+            'app_auth' => \App\Http\Middleware\AppMiddleware::class,
             'recaptcha' => \App\Http\Middleware\VerifyRecaptcha::class,
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
@@ -37,9 +34,8 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->shouldRenderJsonWhen(function (Request $request, Throwable $e) {
-            // Custom logic for when exceptions should be rendered as JSON
             if ($request->is('api/*')) {
-                return true; // Always render JSON for 'api/*' routes
+                return true;
             }
             return $request->expectsJson();
         });

@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\V1\OccupationRequest;
-use App\Http\Resources\V1\OccupationResource;
-use App\Http\Resources\V1\PaginationResource;
+use App\Http\Requests\V1\Admin\OccupationRequest;
+use App\Http\Resources\V1\Admin\OccupationResource;
+use App\Http\Resources\V1\Admin\PaginationResource;
 use App\Models\Occupation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

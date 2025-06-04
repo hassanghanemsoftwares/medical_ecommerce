@@ -3,12 +3,10 @@
 namespace App\Http\Controllers\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\V1\ProductsVariantsResource;
 use App\Models\Variant;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Exception;
-use Illuminate\Http\Request;
 
 
 class ProductVariantController extends Controller

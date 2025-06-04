@@ -2,8 +2,8 @@
 namespace App\Http\Controllers\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\V1\ConfigurationRequest;
-use App\Http\Resources\V1\ConfigurationResource;
+use App\Http\Requests\V1\Admin\ConfigurationRequest;
+use App\Http\Resources\V1\Admin\ConfigurationResource;
 use App\Models\Configuration;
 use Illuminate\Http\Request;
 use Exception;

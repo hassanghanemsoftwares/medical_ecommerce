@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Http\Resources\V1\SessionResource;
+use App\Http\Resources\V1\Admin\SessionResource;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;

@@ -3,14 +3,14 @@
 namespace App\Http\Controllers\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\V1\UserRequest;
-use App\Http\Resources\V1\PaginationResource;
+use App\Http\Requests\V1\Admin\UserRequest;
+use App\Http\Resources\V1\Admin\PaginationResource;
 use Illuminate\Http\Request;
 use App\Models\User;
-use App\Http\Resources\V1\UserResource as V1UserResource;
+use App\Http\Resources\V1\Admin\UserResource as V1UserResource;
 use Carbon\Carbon;
 use Exception;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 
@@ -34,8 +34,11 @@ class UserController extends Controller
 
             $query = User::query()
                 ->with('roles')
-                ->whereNotIn('id', [1, 2, $request->user()->id])
+                ->when(Auth::id() !== 1, function ($query) use ($request) {
+                    $query->whereNotIn('id', [1, 2, $request->user()->id]);
+                })
                 ->whereHas('roles', fn($q) => $q->where('model_has_roles.team_id', $teamId));
+
 
             if (!empty($validated['search'])) {
                 $query->where(function ($q) use ($validated) {
@@ -200,7 +203,6 @@ class UserController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             return $this->errorResponse('messages.user.failed_to_update_user', $e);
-
         }
     }
 }

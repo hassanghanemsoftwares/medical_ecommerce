@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\V1\UserResource as V1UserResource;
+use App\Http\Resources\V1\Admin\UserResource as V1UserResource;
 use App\Services\OtpService;
 use App\Services\UserSessionService;
 use App\Models\User;

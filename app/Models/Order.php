@@ -16,6 +16,7 @@ class Order extends Model
         'order_number',
         'client_id',
         'is_cart',
+        'is_preorder',
         'address_id',
         'coupon_id',
         'coupon_value',
@@ -51,10 +52,31 @@ class Order extends Model
     {
         return $this->hasMany(OrderDetail::class);
     }
+    public function returnOrders()
+    {
+        return $this->hasMany(ReturnOrder::class);
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['order_number', 'client_id', 'is_cart', 'address_id', 'coupon_id', 'coupon_value', 'coupon_type', 'address_info', 'notes', 'payment_method', 'payment_status', 'delivery_amount', 'status', 'is_view'])
+            ->logOnly([
+                'order_number',
+                'client_id',
+                'is_cart',
+                'is_preorder',
+                'address_id',
+                'coupon_id',
+                'coupon_value',
+                'coupon_type',
+                'address_info',
+                'notes',
+                'payment_method',
+                'payment_status',
+                'delivery_amount',
+                'status',
+                'is_view'
+            ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('order');
@@ -197,12 +219,100 @@ class Order extends Model
         $statuses = self::getAllOrderStatus();
         return array_search($statusValue, array_column($statuses, 'name'));
     }
+    public const STATUS_TRANSITIONS = [
+        0 => [0, 1, 7],
+        1 => [1, 2, 3, 7],
+        2 => [2, 3, 4, 7],
+        3 => [3, 2, 7],
+        4 => [4, 5, 6, 7],
+        5 => [5, 10],
+        6 => [6, 7],
+        7 => [7],
+        8 => [8],
+        9 => [9],
+        10 => [10],
+    ];
+
+    public function canTransitionTo(int $newStatus): bool
+    {
+        $current = $this->getStatusKey($this->status['name']);
+        return in_array($newStatus, self::STATUS_TRANSITIONS[$current] ?? []);
+    }
     public static function generateOrderNumber(): int
     {
-        // Get the max order_number from existing orders
         $maxOrderNumber = Order::max('order_number');
-
-        // If no orders yet, start from 1, else increment
         return $maxOrderNumber ? $maxOrderNumber + 1 : 1;
+    }
+    public static function validateAndPrepareProducts(array $products, float &$total): array
+    {
+        $validatedProducts = [];
+
+        foreach ($products as $item) {
+            $variant = Variant::with('product')->find($item['variant_id']);
+
+            if (!$variant || !$variant->product) {
+                throw new \Exception(__('messages.order.invalid_variant', ['sku' => $item['variant_id']]));
+            }
+
+            $price = $variant->product->price;
+            $discount = $variant->product->discount;
+            $discountedPrice = $price - ($price * $discount / 100);
+            $total += $discountedPrice * $item['quantity'];
+
+            $validatedProducts[] = [
+                'variant' => $variant,
+                'quantity' => $item['quantity'],
+                'price' => $price,
+            ];
+        }
+
+        return $validatedProducts;
+    }
+
+    public static function applyCouponIfExists(?string $couponCode, float $total): ?Coupon
+    {
+        if (!$couponCode) return null;
+
+        $coupon = Coupon::where('code', $couponCode)->first();
+
+        if (!$coupon) {
+            throw new \Exception(__('messages.order.invalid_coupon'));
+        }
+
+        [$canUse, $reason] = $coupon->canBeUsed();
+
+        if (!$canUse) {
+            throw new \Exception($reason);
+        }
+
+        if ($coupon->min_order_amount !== null && $total < $coupon->min_order_amount) {
+            throw new \Exception(__('messages.order.min_amount_not_met', [
+                'amount' => $coupon->min_order_amount,
+            ]));
+        }
+
+        return $coupon;
+    }
+    public function returnedQuantities(): array
+    {
+        if (!$this->relationLoaded('returnOrders')) {
+            $this->load('returnOrders.details');
+        }
+
+        $quantities = [];
+
+        foreach ($this->returnOrders as $returnOrder) {
+            // Use raw status integer, not transformed object
+            if ((int)$returnOrder->getAttribute('status') !== 1) {
+                continue;
+            }
+
+            foreach ($returnOrder->details as $detail) {
+                $variantId = $detail->variant_id;
+                $quantities[$variantId] = ($quantities[$variantId] ?? 0) + $detail->quantity;
+            }
+        }
+
+        return $quantities;
     }
 }

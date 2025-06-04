@@ -50,7 +50,6 @@ class PermissionSeeder extends Seeder
             'view-stock',
             'view-stock-adjustment',
             'create-stock-adjustment',
-            'delete-stock-adjustment',
 
             // Client Permissions
             'view-client',
@@ -73,6 +72,12 @@ class PermissionSeeder extends Seeder
             'create-return-order',
             'edit-return-order',
             'delete-return-order',
+
+            // pre-order Permissions
+            'view-pre-order',
+            'create-pre-order',
+            'edit-pre-order',
+            'delete-pre-order',
         ];
 
         foreach ($permissions as $permission) {

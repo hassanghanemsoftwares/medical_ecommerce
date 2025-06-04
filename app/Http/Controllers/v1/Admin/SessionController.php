@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Session as UserSession;
-use App\Http\Resources\V1\SessionResource as V1SessionResource;
+use App\Http\Resources\V1\Admin\SessionResource as V1SessionResource;
 use App\Services\UserSessionService;
 use Exception;
 

@@ -371,6 +371,7 @@ return [
         'negative_stock_error' => 'Cannot delete adjustment because it would cause negative stock.',
         'invalid_type' => 'Invalid stock adjustment type.',
         'insufficient_stock' => 'Insufficient stock for this adjustment.',
+        'returned_due_to_return_order' => 'Stock returned due to return order #:number',
 
     ],
     'stocks' => [
@@ -411,6 +412,39 @@ return [
         'invalid_status_transition' => 'Invalid status transition for the current order status.',
         'updated_successfully' => 'Order updated successfully.',
         'failed_to_update_order' => 'Failed to update the order.',
+
     ],
 
+
+    'notiifications' => [
+    'new_order_msg' => ':name placed a new order',
+    'new_preorder_msg' => ':name placed a new preorder',
+    'return_order_msg' => ':name requested a return for order #:order_number',
+    'new_contact_msg' => 'New contact message from :name regarding ":subject"',
+    ],
+    'return_order' => [
+        'return_orders_retrieved' => 'Return orders retrieved successfully.',
+        'failed_to_retrieve_data' => 'Failed to retrieve return orders.',
+        'return_order_found' => 'Return order found.',
+        'invalid_order' => 'Invalid order selected.',
+        'variant_not_in_order' => 'The selected variant does not exist in the original order.',
+        'quantity_exceeds_ordered' => 'Return quantity exceeds ordered quantity.',
+        'invalid_variant' => 'Invalid product variant.',
+        'return_order_created' => 'Return order created successfully.',
+        'failed_to_create_return_order' => 'Failed to create return order.',
+        'invalid_status_transition' => 'Invalid status transition.',
+        'updated_successfully' => 'Return order updated successfully.',
+        'failed_to_update' => 'Failed to update return order.',
+    ],
+
+    'return_status' => [
+        'Requested' => 'Requested',
+        'Requested_description' => 'The return request has been submitted and is awaiting approval.',
+        'Approved' => 'Approved',
+        'Approved_description' => 'The return request has been approved.',
+        'Rejected' => 'Rejected',
+        'Rejected_description' => 'The return request has been rejected.',
+        'Completed' => 'Completed',
+        'Completed_description' => 'The return has been completed and processed.',
+    ],
 ];

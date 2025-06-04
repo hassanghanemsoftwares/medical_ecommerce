@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\V1\ColorRequest;
-use App\Http\Resources\V1\ColorResource;
-use App\Http\Resources\V1\PaginationResource;
+use App\Http\Requests\V1\Admin\ColorRequest;
+use App\Http\Resources\V1\Admin\ColorResource;
+use App\Http\Resources\V1\Admin\PaginationResource;
 use App\Models\Color;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

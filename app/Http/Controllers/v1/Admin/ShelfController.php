@@ -2,9 +2,9 @@
 namespace App\Http\Controllers\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\V1\ShelfRequest;
-use App\Http\Resources\V1\ShelfResource;
-use App\Http\Resources\V1\PaginationResource;
+use App\Http\Requests\V1\Admin\ShelfRequest;
+use App\Http\Resources\V1\Admin\ShelfResource;
+use App\Http\Resources\V1\Admin\PaginationResource;
 use App\Models\Shelf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

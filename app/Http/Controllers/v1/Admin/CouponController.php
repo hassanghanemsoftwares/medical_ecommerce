@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\V1\CouponRequest;
-use App\Http\Resources\V1\CouponResource;
-use App\Http\Resources\V1\PaginationResource;
+use App\Http\Requests\V1\Admin\CouponRequest;
+use App\Http\Resources\V1\Admin\CouponResource;
+use App\Http\Resources\V1\Admin\PaginationResource;
 use App\Models\Coupon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

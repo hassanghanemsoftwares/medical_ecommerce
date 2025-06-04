@@ -10,6 +10,7 @@ return new class extends Migration
     {
         Schema::create('stock_adjustments', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('parent_adjustment_id')->nullable();
             $table->foreignId('variant_id')->constrained()->restrictOnDelete();
             $table->foreignId('warehouse_id')->constrained()->restrictOnDelete();
             $table->foreignId('shelf_id')->nullable()->constrained()->restrictOnDelete();

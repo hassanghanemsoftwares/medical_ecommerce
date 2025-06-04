@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\V1\ProductRequest;
-use App\Http\Resources\V1\ProductResource;
-use App\Http\Resources\V1\PaginationResource;
-use App\Http\Resources\V1\ProductsVariantsResource;
+use App\Http\Requests\V1\Admin\ProductRequest;
+use App\Http\Resources\V1\Admin\ProductResource;
+use App\Http\Resources\V1\Admin\PaginationResource;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductSpecification;

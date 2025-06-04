@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\V1\WarehouseRequest;
-use App\Http\Resources\V1\WarehouseResource;
-use App\Http\Resources\V1\PaginationResource;
+use App\Http\Requests\V1\Admin\WarehouseRequest;
+use App\Http\Resources\V1\Admin\WarehouseResource;
+use App\Http\Resources\V1\Admin\PaginationResource;
 use App\Models\Warehouse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

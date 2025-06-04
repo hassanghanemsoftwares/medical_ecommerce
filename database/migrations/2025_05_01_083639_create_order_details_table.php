@@ -20,7 +20,7 @@ return new class extends Migration
             $table->unsignedInteger('quantity');
             $table->decimal('price', 10, 2);
             $table->unsignedInteger('discount')->default(0);
-            $table->decimal('cost', 10, 2);
+            $table->decimal('cost', 10, 2)->nullable();
             $table->timestamps();
         });
     }

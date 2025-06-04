@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\V1\ProductImageRequest;
-use App\Http\Resources\V1\ProductImageResource;
+use App\Http\Requests\V1\Admin\ProductImageRequest;
+use App\Http\Resources\V1\Admin\ProductImageResource;
 use App\Models\ProductImage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;

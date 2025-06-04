@@ -2,9 +2,9 @@
 namespace App\Http\Controllers\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\V1\TagRequest;
-use App\Http\Resources\V1\TagResource;
-use App\Http\Resources\V1\PaginationResource;
+use App\Http\Requests\V1\Admin\TagRequest;
+use App\Http\Resources\V1\Admin\TagResource;
+use App\Http\Resources\V1\Admin\PaginationResource;
 use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\V1\BrandRequest;
-use App\Http\Resources\V1\BrandResource;
-use App\Http\Resources\V1\PaginationResource;
+use App\Http\Requests\V1\Admin\BrandRequest;
+use App\Http\Resources\V1\Admin\BrandResource;
+use App\Http\Resources\V1\Admin\PaginationResource;
 use App\Models\Brand;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

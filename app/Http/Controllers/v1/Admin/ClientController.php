@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\V1\ClientRequest;
-use App\Http\Resources\V1\ClientResource;
-use App\Http\Resources\V1\PaginationResource;
+use App\Http\Requests\V1\Admin\ClientRequest;
+use App\Http\Resources\V1\Admin\ClientResource;
+use App\Http\Resources\V1\Admin\PaginationResource;
 use App\Models\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

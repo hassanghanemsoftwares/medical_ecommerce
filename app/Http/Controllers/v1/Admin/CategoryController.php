@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\V1\CategoryRequest;
-use App\Http\Resources\V1\CategoryResource;
-use App\Http\Resources\V1\PaginationResource;
+use App\Http\Requests\V1\Admin\CategoryRequest;
+use App\Http\Resources\V1\Admin\CategoryResource;
+use App\Http\Resources\V1\Admin\PaginationResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Exception;

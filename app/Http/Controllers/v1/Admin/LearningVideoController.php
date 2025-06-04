@@ -2,9 +2,9 @@
 namespace App\Http\Controllers\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\V1\LearningVideoRequest;
-use App\Http\Resources\V1\LearningVideoResource;
-use App\Http\Resources\V1\PaginationResource;
+use App\Http\Requests\V1\Admin\LearningVideoRequest;
+use App\Http\Resources\V1\Admin\LearningVideoResource;
+use App\Http\Resources\V1\Admin\PaginationResource;
 use App\Models\LearningVideo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

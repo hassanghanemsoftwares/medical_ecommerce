@@ -3,16 +3,16 @@
 namespace App\Http\Controllers\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\V1\StockAdjustmentRequest;
-use App\Http\Resources\V1\PaginationResource;
-use App\Http\Resources\V1\StockAdjustmentResource;
+use App\Http\Requests\V1\Admin\StockAdjustmentRequest;
+use App\Http\Resources\V1\Admin\PaginationResource;
+use App\Http\Resources\V1\Admin\StockAdjustmentResource;
 use App\Models\Stock;
 use App\Models\StockAdjustment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Exception;
 use Illuminate\Support\Facades\Auth;
-use InvalidArgumentException;
+
 
 class StockAdjustmentController extends Controller
 {
@@ -29,7 +29,13 @@ class StockAdjustmentController extends Controller
             $query = StockAdjustment::with(['warehouse', 'shelf', 'adjustedBy', 'variant']);
 
             if (!empty($validated['search'])) {
-                $query->where('reason', 'like', '%' . $validated['search'] . '%');
+                $search = $validated['search'];
+                $query->where(function ($q) use ($search) {
+                    $q->where('reason', 'like', "%$search%")
+                        ->orWhereHas('variant', function ($q2) use ($search) {
+                            $q2->where('sku', 'like', "%$search%");
+                        });
+                });
             }
 
             $sort = $validated['sort'] ?? 'created_at';
@@ -61,7 +67,7 @@ class StockAdjustmentController extends Controller
     public function manualAdjustWithDirection(StockAdjustmentRequest $request)
     {
         $data = $request->validated();
-        $data['type'] = "manual";
+
         if (!in_array($data['direction'], ['increase', 'decrease'])) {
             return response()->json([
                 'result' => false,
@@ -70,40 +76,37 @@ class StockAdjustmentController extends Controller
         }
 
         $quantityChange = $data['direction'] === 'increase'
-            ? $data['quantity']
-            : -$data['quantity'];
+            ? abs($data['quantity'])
+            : -abs($data['quantity']);
+
+        $data['type'] = 'manual';
+        $data['adjusted_by'] = Auth::id();
+        $data['quantity'] = $quantityChange;
+        $data['parent_adjustment_id'] = null; // Explicit for consistency
 
         try {
-            DB::beginTransaction();
+            DB::transaction(function () use (&$data, &$stock, &$adjustment) {
+                if ($data['direction'] === 'decrease') {
+                    $existingStock = Stock::where([
+                        'variant_id' => $data['variant_id'],
+                        'warehouse_id' => $data['warehouse_id'],
+                        'shelf_id' => $data['shelf_id'] ?? null,
+                    ])->first();
 
-            if ($data['direction'] === 'decrease') {
-                $existingStock = Stock::where([
-                    'variant_id' => $data['variant_id'],
-                    'warehouse_id' => $data['warehouse_id'],
-                    'shelf_id' => $data['shelf_id'] ?? null,
-                ])->first();
-
-                if (!$existingStock || $existingStock->quantity < abs($quantityChange)) {
-                    return response()->json([
-                        'result' => false,
-                        'message' => __('messages.stock_adjustment.insufficient_stock'),
-                    ]);
+                    if (!$existingStock || $existingStock->quantity < abs($data['quantity'])) {
+                        throw new Exception(__('messages.stock_adjustment.insufficient_stock'));
+                    }
                 }
-            }
 
-            $stock = StockAdjustment::updateStockQuantity(
-                $data['variant_id'],
-                $data['warehouse_id'],
-                $data['shelf_id'] ?? null,
-                $quantityChange
-            );
+                $stock = StockAdjustment::updateStockQuantity(
+                    $data['variant_id'],
+                    $data['warehouse_id'],
+                    $data['shelf_id'] ?? null,
+                    $data['quantity']
+                );
 
-            $adjustment = StockAdjustment::createAdjustment(array_merge($data, [
-                'quantity' => $quantityChange,
-                'adjusted_by' => Auth::id(),
-            ]));
-
-            DB::commit();
+                $adjustment = StockAdjustment::createAdjustment($data);
+            });
 
             return response()->json([
                 'result' => true,
@@ -112,51 +115,7 @@ class StockAdjustmentController extends Controller
                 'adjustment' => $adjustment,
             ]);
         } catch (Exception $e) {
-            DB::rollBack();
-            return $this->errorResponse(__('messages.stock_adjustment.failed_to_retrieve_data'), $e);
-        }
-    }
-
-    public function destroy(StockAdjustment $adjustment)
-    {
-        try {
-            DB::beginTransaction();
-
-            $stock = Stock::where([
-                'variant_id' => $adjustment->variant_id,
-                'warehouse_id' => $adjustment->warehouse_id,
-                'shelf_id' => $adjustment->shelf_id,
-            ])->first();
-
-            if (!$stock) {
-                return response()->json([
-                    'result' => false,
-                    'message' => __('messages.stock_adjustment.not_found'),
-                ]);
-            }
-
-            $revertedQty = $stock->quantity - $adjustment->quantity;
-
-            if ($revertedQty < 0) {
-                return response()->json([
-                    'result' => false,
-                    'message' => __('messages.stock_adjustment.negative_stock_error'),
-                ]);
-            }
-
-            $stock->quantity = $revertedQty;
-            $stock->save();
-            $adjustment->delete();
-
-            DB::commit();
-
-            return response()->json([
-                'result' => true,
-                'message' => __('messages.stock_adjustment.deleted'),
-            ]);
-        } catch (Exception $e) {
-            DB::rollBack();
-            return $this->errorResponse('messages.stock_adjustment.failed_to_delete_adjustment', $e);
+            return $this->errorResponse(__('messages.stock_adjustment.failed_to_adjust'), $e);
         }
     }
 }

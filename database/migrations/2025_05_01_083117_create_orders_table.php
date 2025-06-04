@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('client_id');
             $table->foreign('client_id')->references('id')->on('clients')->restrictOnDelete();
             $table->boolean('is_cart')->default(true);
+            $table->boolean('is_preorder')->default(false);
             $table->unsignedBigInteger('address_id')->nullable();
             $table->foreign('address_id')->references('id')->on('addresses')->restrictOnDelete();
             $table->unsignedBigInteger('coupon_id')->nullable();

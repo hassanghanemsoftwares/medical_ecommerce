@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\V1\AddressRequest;
-use App\Http\Resources\V1\AddressResource;
-use App\Http\Resources\V1\PaginationResource;
+use App\Http\Requests\V1\Admin\AddressRequest;
+use App\Http\Resources\V1\Admin\AddressResource;
+use App\Http\Resources\V1\Admin\PaginationResource;
 use App\Models\Address;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

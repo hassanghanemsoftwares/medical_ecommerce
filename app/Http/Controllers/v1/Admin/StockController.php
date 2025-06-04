@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\V1\PaginationResource;
-use App\Http\Resources\V1\StockResource;
+use App\Http\Resources\V1\Admin\PaginationResource;
+use App\Http\Resources\V1\Admin\StockResource;
 use App\Models\Stock;
 use Illuminate\Http\Request;
 use Exception;

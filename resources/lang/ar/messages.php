@@ -365,6 +365,7 @@ return [
         'negative_stock_error' => 'لا يمكن حذف التعديل لأنه سيؤدي إلى رصيد سلبي في المخزون.',
         'invalid_type' => 'نوع تعديل المخزون غير صالح.',
         'insufficient_stock' => 'لا توجد كمية كافية في المخزون لهذا التعديل.',
+        'returned_due_to_return_order' => 'تم إرجاع المخزون بسبب طلب الإرجاع #:number',
     ],
     'stocks' => [
         'retrieved' => 'تم جلب بيانات المخزون بنجاح.',
@@ -405,4 +406,39 @@ return [
         'updated_successfully' => 'تم تحديث الطلب بنجاح.',
         'failed_to_update_order' => 'فشل في تحديث الطلب.',
     ],
+
+
+    'notiifications' => [
+        'new_order_msg' => ':name قام بعمل طلب جديد',
+        'new_preorder_msg' => ':name قام بعمل طلب مسبق جديد',
+        'return_order_msg' => ':name طلب إرجاع للطلب رقم #:order_number',
+        'new_contact_msg' => 'رسالة جديدة من :name بخصوص ":subject"',
+    ],
+
+    'return_order' => [
+        'return_orders_retrieved' => 'تم استرجاع طلبات الإرجاع بنجاح.',
+        'failed_to_retrieve_data' => 'فشل في استرجاع طلبات الإرجاع.',
+        'return_order_found' => 'تم العثور على طلب الإرجاع.',
+        'invalid_order' => 'الطلب المحدد غير صالح.',
+        'variant_not_in_order' => 'المتغير المحدد غير موجود في الطلب الأصلي.',
+        'quantity_exceeds_ordered' => 'كمية الإرجاع تتجاوز الكمية المطلوبة.',
+        'invalid_variant' => 'متغير المنتج غير صالح.',
+        'return_order_created' => 'تم إنشاء طلب الإرجاع بنجاح.',
+        'failed_to_create_return_order' => 'فشل في إنشاء طلب الإرجاع.',
+        'invalid_status_transition' => 'تحويل الحالة غير صالح.',
+        'updated_successfully' => 'تم تحديث طلب الإرجاع بنجاح.',
+        'failed_to_update' => 'فشل في تحديث طلب الإرجاع.',
+    ],
+
+    'return_status' => [
+        'Requested' => 'تم الطلب',
+        'Requested_description' => 'تم تقديم طلب الإرجاع وهو في انتظار الموافقة.',
+        'Approved' => 'تمت الموافقة',
+        'Approved_description' => 'تمت الموافقة على طلب الإرجاع.',
+        'Rejected' => 'تم الرفض',
+        'Rejected_description' => 'تم رفض طلب الإرجاع.',
+        'Completed' => 'مكتمل',
+        'Completed_description' => 'تم إتمام الإرجاع ومعالجته.',
+    ],
+
 ];

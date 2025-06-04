@@ -16,8 +16,6 @@ return [
         'login' => 'Login attempt',
         'forgot' => 'Forgot password',
         'reset' => 'Password reset',
-
-
         'access_token' => 'AccessToken',
         'address' => 'Address',
         'brand' => 'Brand',

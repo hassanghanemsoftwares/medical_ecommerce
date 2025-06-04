@@ -14,18 +14,15 @@ class ReturnOrder extends Model
 
     protected $fillable = [
         'order_id',
-        'client_id',
+        'return_order_number',
         'requested_at',
-        'processed_at',
         'status',
         'reason',
-        'refund_amount',
+        'created_by'
     ];
 
     protected $casts = [
         'requested_at' => 'datetime',
-        'processed_at' => 'datetime',
-        'refund_amount' => 'decimal:2',
     ];
 
     // Relationships
@@ -49,13 +46,12 @@ class ReturnOrder extends Model
     {
         return LogOptions::defaults()
             ->logOnly([
+                'return_order_number',
                 'order_id',
-                'client_id',
                 'requested_at',
-                'processed_at',
                 'status',
                 'reason',
-                'refund_amount',
+                'created_by'
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
@@ -72,7 +68,7 @@ class ReturnOrder extends Model
     protected function status(): Attribute
     {
         return new Attribute(
-            get: fn ($value) => $this->getAllReturnStatuses()[$value] ?? null,
+            get: fn($value) => $this->getAllReturnStatuses()[$value] ?? null,
         );
     }
 
@@ -120,7 +116,7 @@ class ReturnOrder extends Model
     }
 
     // Allowed status transitions
-    private static function getStatusTransitions()
+    public static function getStatusTransitions()
     {
         return [
             0 => [0, 1, 2],  // Requested -> Requested, Approved, Rejected
@@ -145,5 +141,11 @@ class ReturnOrder extends Model
             }
         }
         return $enabled;
+    }
+
+    public static function generateOrderNumber(): int
+    {
+        $maxOrderNumber = Order::max('return_order_number');
+        return $maxOrderNumber ? $maxOrderNumber + 1 : 1;
     }
 }

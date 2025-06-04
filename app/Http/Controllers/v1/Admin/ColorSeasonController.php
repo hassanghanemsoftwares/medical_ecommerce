@@ -2,9 +2,9 @@
 namespace App\Http\Controllers\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\V1\ColorSeasonRequest;
-use App\Http\Resources\V1\ColorSeasonResource;
-use App\Http\Resources\V1\PaginationResource;
+use App\Http\Requests\V1\Admin\ColorSeasonRequest;
+use App\Http\Resources\V1\Admin\ColorSeasonResource;
+use App\Http\Resources\V1\Admin\PaginationResource;
 use App\Models\ColorSeason;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

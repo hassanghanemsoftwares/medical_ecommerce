@@ -41,7 +41,7 @@ class Variant extends Model
     }
     public function stocks()
     {
-        return $this->hasMany(Stock::class);
+         return $this->hasMany(Stock::class, 'variant_id');
     }
 
     public function getActivitylogOptions(): LogOptions

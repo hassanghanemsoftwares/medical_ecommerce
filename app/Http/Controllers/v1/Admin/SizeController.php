@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\V1\SizeRequest;
-use App\Http\Resources\V1\SizeResource;
-use App\Http\Resources\V1\PaginationResource;
+use App\Http\Requests\V1\Admin\SizeRequest;
+use App\Http\Resources\V1\Admin\SizeResource;
+use App\Http\Resources\V1\Admin\PaginationResource;
 use App\Models\Size;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
