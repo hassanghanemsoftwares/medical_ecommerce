@@ -76,7 +76,7 @@ class StockAdjustment extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->useLogName('stock_adjustment')
+            ->useLogName('StockAdjustment')
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->logOnly([

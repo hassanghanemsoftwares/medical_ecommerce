@@ -7,7 +7,6 @@ use App\Http\Requests\V1\Admin\ProductImageRequest;
 use App\Http\Resources\V1\Admin\ProductImageResource;
 use App\Models\ProductImage;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Exception;
 
 class ProductImageController extends Controller
@@ -20,7 +19,6 @@ class ProductImageController extends Controller
             $newArrangement = $request->input('arrangement', $productImage->arrangement);
             $newIsActive = $request->has('is_active') ? $request->boolean('is_active') : $productImage->is_active;
 
-            // If the request sets this image to inactive, ensure at least one image remains active
             if (
                 $productImage->is_active &&
                 $newIsActive === false
@@ -34,7 +32,7 @@ class ProductImageController extends Controller
                     return response()->json([
                         'result' => false,
                         'message' => __('messages.product.at_least_one_image_active'),
-                    ], 422);
+                    ]);
                 }
             }
 
@@ -51,14 +49,9 @@ class ProductImageController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Failed to update product image', ['error' => $e->getMessage()]);
-            return response()->json([
-                'result' => false,
-                'message' => __('messages.product.update_error'),
-            ], 500);
+            return $this->errorResponse( __('messages.product.update_error'), $e);
         }
     }
-
 
     public function destroy(ProductImage $productImage)
     {
@@ -67,10 +60,8 @@ class ProductImageController extends Controller
 
             $productId = $productImage->product_id;
 
-            // Count total images for this product
             $totalImages = ProductImage::where('product_id', $productId)->count();
 
-            // Prevent deleting the last image
             if ($totalImages <= 1) {
                 return response()->json([
                     'result' => false,
@@ -90,11 +81,8 @@ class ProductImageController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Failed to delete product image', ['error' => $e->getMessage()]);
-            return response()->json([
-                'result' => false,
-                'message' => __('messages.product.update_error'),
-            ], 500);
+
+            return $this->errorResponse( __('messages.product.update_error'), $e);
         }
     }
 }

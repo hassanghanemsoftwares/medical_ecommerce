@@ -40,7 +40,7 @@ class Address extends Model
             ->logOnly(['client_id', 'country', 'city', 'district', 'governorate', 'specifications', 'is_active', 'is_default'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName('address');
+            ->useLogName('Address');
     }
 
     public function getDescriptionForEvent(string $eventName): string

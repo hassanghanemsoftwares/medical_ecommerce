@@ -48,7 +48,7 @@ class Stock extends Model
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName('stock_adjustment');
+            ->useLogName('Stock');
     }
 
     public function getDescriptionForEvent(string $eventName): string

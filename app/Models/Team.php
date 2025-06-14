@@ -37,7 +37,7 @@ class Team extends Model
             ->logOnly(['name'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName('team');
+            ->useLogName('Team');
     }
 
     public function getDescriptionForEvent(string $eventName): string

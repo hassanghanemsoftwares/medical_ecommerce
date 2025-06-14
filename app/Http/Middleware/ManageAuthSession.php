@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Session;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,16 +30,36 @@ class ManageAuthSession
             ]);
         }
 
-        $session = $sessionCheck['session']; 
+        $session = $sessionCheck['session'];
         $user = $request->user();
 
         if ($user) {
             $token = $user->currentAccessToken();
             $tokenId = $token instanceof PersonalAccessToken ? $token->id : null;
+            $expiredTokens = PersonalAccessToken::where('tokenable_id', $user->id)
+                ->where('tokenable_type', get_class($user))
+                ->whereNotNull('expires_at')
+                ->where('expires_at', '<', Carbon::now())
+                ->get();
 
+            if ($expiredTokens->isNotEmpty()) {
+                $expiredTokenIds = $expiredTokens->pluck('id');
+
+                // Delete expired tokens
+                PersonalAccessToken::whereIn('id', $expiredTokenIds)->delete();
+
+                // Delete sessions that have these token_ids
+                Session::whereIn('token_id', $expiredTokenIds)->delete();
+            }
             $session->update([
                 'user_id' => $user->id,
                 'token_id' => $tokenId,
+                'last_activity' => Carbon::now()->timestamp,
+            ]);
+        } else {
+            $session->update([
+                'user_id' => null,
+                'token_id' => null,
                 'last_activity' => Carbon::now()->timestamp,
             ]);
         }

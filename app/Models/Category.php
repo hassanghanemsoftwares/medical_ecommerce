@@ -22,6 +22,10 @@ class Category extends Model
         'arrangement',
         'is_active',
     ];
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -29,7 +33,7 @@ class Category extends Model
             ->logOnly(['name', 'image', 'arrangement', 'is_active'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName('category');
+            ->useLogName('Category');
     }
 
     public function getDescriptionForEvent(string $eventName): string
@@ -45,7 +49,7 @@ class Category extends Model
         );
     }
 
-       public static function getNextArrangement()
+    public static function getNextArrangement()
     {
         $maxArrangement = self::max('arrangement') ?? 0;
         return $maxArrangement + 1;

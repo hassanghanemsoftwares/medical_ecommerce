@@ -27,7 +27,7 @@ class ColorSeason extends Model
             ->logOnly(['name'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName('color_season');
+            ->useLogName('ColorSeason');
     }
 
     public function getDescriptionForEvent(string $eventName): string

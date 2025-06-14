@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('colors', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 100);
+            $table->json('name');
             $table->string('code',10);
             $table->unsignedBigInteger('color_season_id');
             $table->foreign('color_season_id')->references('id')->on('color_seasons')->restrictOnDelete();

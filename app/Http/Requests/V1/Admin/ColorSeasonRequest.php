@@ -23,14 +23,31 @@ class ColorSeasonRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                'unique:color_seasons,name->en,' . ($colorSeasonId ? $colorSeasonId : 'NULL') 
+                'unique:color_seasons,name->en,' . ($colorSeasonId ?? 'NULL'),
             ],
             'name.ar' => [
                 'required',
                 'string',
                 'max:255',
-                'unique:color_seasons,name->ar,' . ($colorSeasonId ? $colorSeasonId : 'NULL') 
+                'unique:color_seasons,name->ar,' . ($colorSeasonId ?? 'NULL'),
             ],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'name.required' => __('messages.validation.required', ['attribute' => __('messages.validation.attributes.name')]),
+
+            'name.en.required' => __('messages.validation.required', ['attribute' => __('messages.validation.attributes.name_en')]),
+            'name.en.string' => __('messages.validation.string', ['attribute' => __('messages.validation.attributes.name_en')]),
+            'name.en.max' => __('messages.validation.max.string', ['attribute' => __('messages.validation.attributes.name_en'), 'max' => 255]),
+            'name.en.unique' => __('messages.validation.unique', ['attribute' => __('messages.validation.attributes.name_en')]),
+
+            'name.ar.required' => __('messages.validation.required', ['attribute' => __('messages.validation.attributes.name_ar')]),
+            'name.ar.string' => __('messages.validation.string', ['attribute' => __('messages.validation.attributes.name_ar')]),
+            'name.ar.max' => __('messages.validation.max.string', ['attribute' => __('messages.validation.attributes.name_ar'), 'max' => 255]),
+            'name.ar.unique' => __('messages.validation.unique', ['attribute' => __('messages.validation.attributes.name_ar')]),
         ];
     }
 
@@ -40,7 +57,6 @@ class ColorSeasonRequest extends FormRequest
             'result' => false,
             'message' => 'Validation failed',
             'errors' => $validator->errors(),
-            'request_data' => $this->all()
         ], 200));
     }
 }

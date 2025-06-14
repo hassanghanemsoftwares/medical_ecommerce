@@ -39,7 +39,7 @@ class WarehouseController extends Controller
                 'pagination' => new PaginationResource($warehouses),
             ]);
         } catch (Exception $e) {
-            return $this->errorResponse('messages.warehouse.failed_to_retrieve_data', $e);
+            return $this->errorResponse(__('messages.warehouse.failed_to_retrieve_data'), $e);
         }
     }
 
@@ -68,7 +68,7 @@ class WarehouseController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.warehouse.failed_to_create_warehouse', $e);
+            return $this->errorResponse(__('messages.warehouse.failed_to_create_warehouse'), $e);
         }
     }
 
@@ -89,7 +89,7 @@ class WarehouseController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.warehouse.failed_to_update_warehouse', $e);
+            return $this->errorResponse(__('messages.warehouse.failed_to_update_warehouse'), $e);
         }
     }
 
@@ -108,7 +108,7 @@ class WarehouseController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.warehouse.failed_to_delete_warehouse', $e);
+            return $this->errorResponse(__('messages.warehouse.failed_to_delete_warehouse'), $e);
         }
     }
 }

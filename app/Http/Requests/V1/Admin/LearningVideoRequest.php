@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Requests\V1\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -17,14 +18,50 @@ class LearningVideoRequest extends FormRequest
         $learningVideoId = $this->route('learning_video');
 
         return [
-            'title' => [
+            'title' => 'required|array',
+            'title.en' => [
                 'required',
                 'string',
-                'max:255',
-                'unique:learning_videos,title,' . ($learningVideoId ?? 'NULL')
+                'max:191',
+                'unique:learning_videos,title->en,' . ($learningVideoId ? $learningVideoId : 'NULL')
             ],
-            'description' => ['nullable', 'string'],
+            'title.ar' => [
+                'required',
+                'string',
+                'max:191',
+                'unique:learning_videos,title->ar,' . ($learningVideoId ? $learningVideoId : 'NULL')
+            ],
+            'description' => 'required|array',
+            'description.en' => [
+                'required',
+                'string',
+            ],
+            'description.ar' => [
+                'required',
+                'string',
+            ],
             'video' => ['required', 'string', 'max:255'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'title.required' => __('messages.learning_video.title_required'),
+            'title.en.required' => __('messages.learning_video.title_en_required'),
+            'title.en.unique' => __('messages.learning_video.title_en_unique'),
+            'title.en.max' => __('messages.learning_video.title_en_max'),
+            'title.ar.required' => __('messages.learning_video.title_ar_required'),
+            'title.ar.unique' => __('messages.learning_video.title_ar_unique'),
+            'title.ar.max' => __('messages.learning_video.title_ar_max'),
+
+            'description.required' => __('messages.learning_video.description_required'),
+            'description.en.required' => __('messages.learning_video.description_en_required'),
+            'description.ar.required' => __('messages.learning_video.description_ar_required'),
+
+            'video.required' => __('messages.learning_video.video_required'),
+            'video.string' => __('messages.learning_video.video_string'),
+            'video.max' => __('messages.learning_video.video_max'),
         ];
     }
 
@@ -34,7 +71,6 @@ class LearningVideoRequest extends FormRequest
             'result' => false,
             'message' => 'Validation failed',
             'errors' => $validator->errors(),
-            'request_data' => $this->all()
         ], 200));
     }
 }

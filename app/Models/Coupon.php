@@ -43,7 +43,7 @@ class Coupon extends Model
             ->logOnly(['code', 'type', 'value', 'usage_limit', 'usage_count', 'min_order_amount', 'status', 'coupon_type', 'client_id'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName('coupon');
+            ->useLogName('Coupon');
     }
 
     public function getDescriptionForEvent(string $eventName): string

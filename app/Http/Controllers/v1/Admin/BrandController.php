@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\V1\Admin;
 
 use App\Http\Controllers\Controller;
@@ -39,7 +38,7 @@ class BrandController extends Controller
                 'pagination' => new PaginationResource($brands),
             ]);
         } catch (Exception $e) {
-            return $this->errorResponse('messages.brands.failed_to_retrieve_data', $e);
+            return $this->errorResponse( __('messages.brand.failed_to_retrieve_data'), $e);
         }
     }
 
@@ -71,7 +70,7 @@ class BrandController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.brands.failed_to_create_brand', $e);
+            return $this->errorResponse( __('messages.brand.failed_to_create_brand'), $e);
         }
     }
 
@@ -95,7 +94,7 @@ class BrandController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.brands.failed_to_update_brand', $e);
+            return $this->errorResponse( __('messages.brand.failed_to_update_brand'), $e);
         }
     }
 
@@ -109,7 +108,7 @@ class BrandController extends Controller
                 'message' => __('messages.brand.brand_deleted'),
             ]);
         } catch (Exception $e) {
-            return $this->errorResponse('messages.brands.failed_to_delete_brand', $e);
+            return $this->errorResponse( __('messages.brand.failed_to_delete_brand'), $e);
             
         }
     }

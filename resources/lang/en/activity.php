@@ -1,56 +1,56 @@
 <?php
-
 return [
-
     'default' => [
         'created' => ':model record has been created',
         'updated' => ':model record has been updated',
         'deleted' => ':model record has been deleted',
     ],
-
     'models' => [
-        'otp' => 'OTP',
-        'team' => 'Team',
-        'session' => 'Session',
-        'user' => 'User account',
-        'login' => 'Login attempt',
-        'forgot' => 'Forgot password',
-        'reset' => 'Password reset',
-        'access_token' => 'AccessToken',
         'address' => 'Address',
         'brand' => 'Brand',
         'category' => 'Category',
         'client' => 'Client',
-        'client_device' => 'ClientDevice',
+        'clientsession' => 'ClientSession',
         'color' => 'Color',
-        'color_season' => 'ColorSeason',
+        'colorseason' => 'ColorSeason',
         'configuration' => 'Configuration',
-        'contact_us' => 'ContactUs',
+        'contact' => 'Contact',
+        'contactus' => 'ContactUs',
         'coupon' => 'Coupon',
-        'home_section' => 'HomeSection',
-        'learning_video' => 'LearningVideo',
+        'homebanner' => 'HomeBanner',
+        'homeproductsectionitem' => 'HomeProductSectionItem',
+        'homesection' => 'HomeSection',
+        'learningvideo' => 'LearningVideo',
+        'newsletteremail' => 'NewsletterEmail',
         'notification' => 'Notification',
+        'occupation' => 'Occupation',
         'order' => 'Order',
-        'order_detail' => 'OrderDetail',
+        'orderdetail' => 'OrderDetail',
         'otp' => 'Otp',
         'product' => 'Product',
-        'product_click' => 'ProductClick',
-        'product_image' => 'ProductImage',
-        'product_tag' => 'ProductTag',
+        'productclick' => 'ProductClick',
+        'productimage' => 'ProductImage',
+        'productspecification' => 'ProductSpecification',
+        'producttag' => 'ProductTag',
+        'returnorder' => 'ReturnOrder',
+        'returnorderdetail' => 'ReturnOrderDetail',
         'review' => 'Review',
-        'search_log' => 'SearchLog',
+        'searchlog' => 'SearchLog',
         'session' => 'Session',
         'shelf' => 'Shelf',
         'size' => 'Size',
-        'stock_adjustment' => 'StockAdjustment',
+        'stock' => 'Stock',
+        'stockadjustment' => 'StockAdjustment',
+        'subscription' => 'Subscription',
+        'subscriptionplan' => 'SubscriptionPlan',
         'tag' => 'Tag',
         'team' => 'Team',
+        'teammember' => 'TeamMember',
         'user' => 'User',
         'variant' => 'Variant',
         'warehouse' => 'Warehouse',
         'wishlist' => 'Wishlist',
     ],
-
     'login' => [
         'success' => 'User logged in successfully',
         'failed' => [
@@ -59,7 +59,6 @@ return [
         ],
         'exception' => 'Login failed due to an exception',
     ],
-
     'otp' => [
         'success' => 'OTP verified successfully and user logged in',
         'failed' => [
@@ -69,7 +68,6 @@ return [
         ],
         'exception' => 'OTP verification failed due to an exception',
     ],
-
     'forgot' => [
         'success' => 'Password reset link sent to user',
         'failed' => [
@@ -77,13 +75,11 @@ return [
         ],
         'exception' => 'Forgot password failed due to an exception',
     ],
-
     'reset' => [
         'success' => 'Password reset successfully',
         'failed' => 'Password reset failed',
         'failed_validation' => 'Password reset failed due to validation errors',
         'exception' => 'Password reset failed due to an exception',
-        'sent'=>"Password reset email sent"
+        'sent' => "Password reset email sent"
     ],
-
 ];

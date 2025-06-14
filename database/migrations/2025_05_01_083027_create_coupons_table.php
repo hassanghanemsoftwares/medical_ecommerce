@@ -19,8 +19,8 @@ return new class extends Migration
             $table->integer('usage_limit')->nullable();
             $table->integer('usage_count')->default(0);
             $table->decimal('min_order_amount', 10, 2)->nullable();
-            $table->tinyInteger('status')->default(0);
-            $table->tinyInteger('coupon_type')->default(0);
+            $table->unsignedTinyInteger('status')->default(0);
+            $table->unsignedTinyInteger('coupon_type')->default(0);
             $table->unsignedBigInteger('client_id')->nullable(); // For specific users
             $table->date('valid_from')->nullable();
             $table->date('valid_to')->nullable();

@@ -12,6 +12,7 @@ use App\Http\Resources\V1\Admin\ColorSeasonResource;
 use App\Http\Resources\V1\Admin\ConfigurationResource;
 use App\Http\Resources\V1\Admin\OccupationResource;
 use App\Http\Resources\V1\Admin\OrderResource;
+use App\Http\Resources\V1\Admin\ProductResource;
 use App\Http\Resources\V1\Admin\ProductsVariantsResource;
 use App\Http\Resources\V1\Admin\ShelfResource;
 use App\Http\Resources\V1\Admin\SizeResource;
@@ -27,6 +28,7 @@ use App\Models\Configuration;
 use App\Models\Contact;
 use App\Models\Occupation;
 use App\Models\Order;
+use App\Models\Product;
 use App\Models\ReturnOrder;
 use App\Models\Shelf;
 use App\Models\Size;
@@ -73,7 +75,7 @@ class SettingsController extends Controller
             ]);
         } catch (Exception $e) {
 
-            return $this->errorResponse('messages.failed_to_retrieve_data', $e);
+            return $this->errorResponse(__('messages.failed_to_retrieve_data'), $e);
         }
     }
     public function getAllClients(Request $request)
@@ -105,7 +107,7 @@ class SettingsController extends Controller
                 'last_page' => $clients->lastPage(),
             ]);
         } catch (Exception $e) {
-            return $this->errorResponse('messages.client.failed_to_retrieve_data', $e);
+            return $this->errorResponse(__('messages.client.failed_to_retrieve_data'), $e);
         }
     }
     public function getAllProductsVariants(Request $request)
@@ -149,7 +151,7 @@ class SettingsController extends Controller
                 'last_page' => $variants->lastPage(),
             ]);
         } catch (Exception $e) {
-            return $this->errorResponse('messages.product.failed_to_retrieve_data', $e);
+            return $this->errorResponse(__('messages.product.failed_to_retrieve_data'), $e);
         }
     }
 
@@ -200,7 +202,7 @@ class SettingsController extends Controller
                 'last_page' => $variants->lastPage(),
             ]);
         } catch (Exception $e) {
-            return $this->errorResponse('messages.product.failed_to_retrieve_data', $e);
+            return $this->errorResponse(__('messages.product.failed_to_retrieve_data'), $e);
         }
     }
 
@@ -243,7 +245,7 @@ class SettingsController extends Controller
                 'last_page' => $addresses->lastPage(),
             ]);
         } catch (Exception $e) {
-            return $this->errorResponse('messages.addresses.failed_to_retrieve_data', $e);
+            return $this->errorResponse(__('messages.addresses.failed_to_retrieve_data'), $e);
         }
     }
 
@@ -337,7 +339,7 @@ class SettingsController extends Controller
                 'color',
             ])
                 ->whereHas('product', function ($q) {
-                    $q->where('availability_status', 'pre_order');
+                    $q->whereIn('availability_status', ['pre_order', 'available']);
                 })
                 ->whereDoesntHave('stocks', function ($q) {
                     $q->where('quantity', '>', 0);
@@ -368,10 +370,54 @@ class SettingsController extends Controller
                 'last_page' => $variants->lastPage(),
             ]);
         } catch (\Exception $e) {
-            return $this->errorResponse('messages.product.failed_to_retrieve_data', $e);
+            return $this->errorResponse(__('messages.product.failed_to_retrieve_data'), $e);
         }
     }
+    public function getAllProducts(Request $request)
+    {
+        try {
+            $perPage = $request->input('limit', 10);
+            $page = $request->input('page', 1);
+            $searchTerm = $request->input('search', '');
 
+            $query = Product::with([
+                'category',
+                'brand',
+                'images' => function ($query) {
+                    $query->orderBy('arrangement', 'asc');
+                },
+                'variants' => function ($query) {
+                    $query->where(function ($q) {
+                        $q->whereNotNull('size_id')
+                            ->orWhereNotNull('color_id');
+                    })->with(['size', 'color']);
+                },
+                'tags',
+                'specifications',
+            ]);
+
+            if ($searchTerm) {
+                $query->where(function ($q) use ($searchTerm) {
+                    $q->where('products.name', 'like', "%{$searchTerm}%")
+                        ->orWhere('products.barcode', 'like', "%{$searchTerm}%");
+                });
+            }
+
+            $products = $query->orderBy('created_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
+
+            return response()->json([
+                'result' => true,
+                'message' => __('messages.product.products_retrieved'),
+                'products' => ProductResource::collection($products),
+                'total' => $products->total(),
+                'page' => $products->currentPage(),
+                'limit' => $products->perPage(),
+                'last_page' => $products->lastPage(),
+            ]);
+        } catch (Exception $e) {
+            return $this->errorResponse(__('messages.product.failed_to_retrieve_data'), $e);
+        }
+    }
     public function getNotifications()
     {
         try {
@@ -406,7 +452,7 @@ class SettingsController extends Controller
                     'type' => 'order',
                     'order_id' => $order->id,
                     'message' => __('messages.notiifications.new_order_msg', ['name' => $order->client->name]),
-                    'created_at' => $order->created_at->format('Y-m-d H:i:s'),
+                    'created_at' => optional($order->created_at)->toDateTimeString(),
                 ];
             });
 
@@ -416,7 +462,7 @@ class SettingsController extends Controller
                     'type' => 'preorder',
                     'order_id' => $order->id,
                     'message' => __('messages.notiifications.new_preorder_msg', ['name' => $order->client->name]),
-                    'created_at' => $order->created_at->format('Y-m-d H:i:s'),
+                    'created_at' => optional($order->created_at)->toDateTimeString(),
                 ];
             });
 
@@ -429,7 +475,7 @@ class SettingsController extends Controller
                         'name' => $return->client->name,
                         'order_number' => $return->order_number,
                     ]),
-                    'created_at' => $return->requested_at->format('Y-m-d H:i:s'),
+                    'created_at' => optional($return->requested_at)->toDateTimeString(),
                 ];
             });
 
@@ -442,7 +488,7 @@ class SettingsController extends Controller
                         'name' => $contact->name,
                         'subject' => $contact->subject,
                     ]),
-                    'created_at' => $contact->created_at->format('Y-m-d H:i:s'),
+                    'created_at' => optional($contact->created_at)->toDateTimeString(),
                 ];
             });
 
@@ -465,7 +511,7 @@ class SettingsController extends Controller
                 'total_unread_count' => $unreadOrders->count() + $unreadPreorders->count() + $returnOrders->count() + $unreadContacts->count(),
             ]);
         } catch (\Exception $e) {
-            return $this->errorResponse('messages.notiifications.failed_to_retrieve_notifications', $e);
+            return $this->errorResponse(__('messages.notiifications.failed_to_retrieve_notifications'), $e);
         }
     }
 }

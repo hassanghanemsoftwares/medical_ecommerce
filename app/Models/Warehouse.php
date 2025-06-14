@@ -25,7 +25,7 @@ class Warehouse extends Model
             ->logOnly(['name', 'location'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName('warehouse');
+            ->useLogName('Warehouse');
     }
 
     public function getDescriptionForEvent(string $eventName): string

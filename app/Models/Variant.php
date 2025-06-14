@@ -50,7 +50,7 @@ class Variant extends Model
             ->logOnly(['product_id', 'size_id', 'color_id'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName('variant');
+            ->useLogName('Variant');
     }
 
     public function getDescriptionForEvent(string $eventName): string

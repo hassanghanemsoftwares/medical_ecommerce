@@ -35,7 +35,7 @@ class TagController extends Controller
                 'pagination' => new PaginationResource($tags),
             ]);
         } catch (Exception $e) {
-            return $this->errorResponse('messages.tag.failed_to_retrieve_data', $e);
+            return $this->errorResponse(__('messages.tag.failed_to_retrieve_data'), $e);
         }
     }
 
@@ -64,7 +64,7 @@ class TagController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.tag.failed_to_create_tag', $e);
+            return $this->errorResponse(__('messages.tag.failed_to_create_tag'), $e);
         }
     }
 
@@ -85,7 +85,7 @@ class TagController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.tag.failed_to_update_tag', $e);
+            return $this->errorResponse(__('messages.tag.failed_to_update_tag'), $e);
         }
     }
 
@@ -104,7 +104,7 @@ class TagController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.tag.failed_to_delete_tag', $e);
+            return $this->errorResponse(__('messages.tag.failed_to_delete_tag'), $e);
         }
     }
 

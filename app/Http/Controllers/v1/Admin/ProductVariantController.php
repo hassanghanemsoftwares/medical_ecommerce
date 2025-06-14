@@ -26,12 +26,7 @@ class ProductVariantController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Failed to delete product image', ['error' => $e->getMessage()]);
-            return response()->json([
-                'result' => false,
-                'message' => __('messages.product.update_error'),
-            ], 500);
+            return $this->errorResponse(__('messages.product.update_error'), $e);
         }
     }
-
 }

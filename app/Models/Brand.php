@@ -24,7 +24,7 @@ class Brand extends Model
             ->logOnly(['name',  'is_active'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName('brand');
+            ->useLogName('Brand');
     }
 
     public function getDescriptionForEvent(string $eventName): string

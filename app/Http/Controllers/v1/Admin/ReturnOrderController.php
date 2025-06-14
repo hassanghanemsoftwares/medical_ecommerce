@@ -46,7 +46,7 @@ class ReturnOrderController extends Controller
                 'pagination' => new PaginationResource($returns),
             ]);
         } catch (Exception $e) {
-            return $this->errorResponse('messages.return_order.failed_to_retrieve_data', $e);
+            return $this->errorResponse(__('messages.return_order.failed_to_retrieve_data'), $e);
         }
     }
 
@@ -76,7 +76,6 @@ class ReturnOrderController extends Controller
             $totalRefund = 0;
             $details = [];
 
-            // Get the original order with its details
             $order = Order::with('orderDetails')->find($data['order_id']);
 
             if (!$order) {
@@ -86,14 +85,12 @@ class ReturnOrderController extends Controller
                 ]);
             }
 
-            // Index order details by variant_id for quick lookup
             $orderItems = $order->orderDetails->keyBy('variant_id');
 
             foreach ($data['products'] as $product) {
                 $variantId = $product['variant_id'];
                 $quantity = $product['quantity'];
 
-                // Ensure the variant exists in the original order
                 if (!isset($orderItems[$variantId])) {
                     return response()->json([
                         'result' => false,
@@ -103,7 +100,6 @@ class ReturnOrderController extends Controller
 
                 $orderedQty = $orderItems[$variantId]->quantity;
 
-                // Check return quantity does not exceed ordered quantity
                 if ($quantity > $orderedQty) {
                     return response()->json([
                         'result' => false,
@@ -111,7 +107,6 @@ class ReturnOrderController extends Controller
                     ]);
                 }
 
-                // Get the variant with price info
                 $variant = Variant::with('product')->find($variantId);
 
                 if (!$variant) {
@@ -157,7 +152,7 @@ class ReturnOrderController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.return_order.failed_to_create_return_order', $e);
+            return $this->errorResponse(__('messages.return_order.failed_to_create_return_order'), $e);
         }
     }
 
@@ -181,15 +176,12 @@ class ReturnOrderController extends Controller
                 ]);
             }
 
-            // If changing to Approved (e.g., status = 1), apply logic
             if ((int) $validated['status'] === 1 && (int) ReturnOrder::getStatusKey($returnOrder->status['name'] ?? '') !== 1) {
-                // Update main order status to Returned (code 9)
                 $order = $returnOrder->order;
 
                 if ($order) {
                     $order->update(['status' => 9]);
 
-                    // Restore stock for each returned item
                     foreach ($returnOrder->details as $detail) {
                         $variant = $detail->variant;
 
@@ -214,7 +206,6 @@ class ReturnOrderController extends Controller
                 }
             }
 
-            // Update the return order status
             $returnOrder->update(['status' => $validated['status']]);
 
             DB::commit();
@@ -226,7 +217,7 @@ class ReturnOrderController extends Controller
             ]);
         } catch (\Throwable $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.return_order.failed_to_update', $e);
+            return $this->errorResponse(__('messages.return_order.failed_to_update'), $e);
         }
     }
 }

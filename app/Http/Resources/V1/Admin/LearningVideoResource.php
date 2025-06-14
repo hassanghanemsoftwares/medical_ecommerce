@@ -10,8 +10,8 @@ class LearningVideoResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'title' => $this->title,
-            'description' => $this->description,
+            'title' => $this->getTranslations('title'),
+            'description' => $this->getTranslations('description'),
             'video' => $this->video,
             'created_at' => $this->created_at ? $this->created_at->toDateTimeString() : null,
             'updated_at' => $this->updated_at ? $this->updated_at->toDateTimeString() : null,

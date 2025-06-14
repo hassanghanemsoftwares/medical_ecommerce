@@ -63,11 +63,7 @@ class StockController extends Controller
                 'pagination' => new PaginationResource($stocks),
             ]);
         } catch (Exception $e) {
-            return response()->json([
-                'result' => false,
-                'message' => __('messages.stocks.failed_to_retrieve_data'),
-                'error' => $e->getMessage(),
-            ], 500);
+            return $this->errorResponse(__('messages.stocks.failed_to_retrieve_data'), $e);
         }
     }
 }

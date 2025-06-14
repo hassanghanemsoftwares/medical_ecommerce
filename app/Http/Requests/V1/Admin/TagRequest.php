@@ -27,13 +27,22 @@ class TagRequest extends FormRequest
         ];
     }
 
+    public function messages(): array
+    {
+        return [
+            'name.required' => __('messages.tag.name_required'),
+            'name.string' => __('messages.tag.name_string'),
+            'name.max' => __('messages.tag.name_max'),
+            'name.unique' => __('messages.tag.name_unique'),
+        ];
+    }
+
     protected function failedValidation(Validator $validator)
     {
         throw new ValidationException($validator, response()->json([
             'result' => false,
             'message' => 'Validation failed',
-            'errors' => $validator->errors(),
-            'request_data' => $this->all()
+            'errors' => $validator->errors()
         ], 200));
     }
 }

@@ -45,7 +45,7 @@ class OrderController extends Controller
                 'pagination' => new PaginationResource($orders),
             ]);
         } catch (Exception $e) {
-            return $this->errorResponse('messages.order.failed_to_retrieve_data', $e);
+            return $this->errorResponse( __('messages.order.failed_to_retrieve_data'), $e);
         }
     }
 
@@ -120,13 +120,17 @@ class OrderController extends Controller
                 $data['coupon_value'] = $coupon->value;
                 $data['coupon_type'] = $coupon->type;
                 $coupon->increment('usage_count');
+                if ($coupon->coupon_type === 4) {
+                    $data['delivery_amount'] = 0;
+                }
             }
-
             // Handle address
             $address = Address::find($data['address_id']);
             $data['address_info'] = $address?->toArray();
             $data['order_number'] = Order::generateOrderNumber();
-            $data['delivery_amount'] = (float) Configuration::where('key', 'delivery_charge')->value('value');
+            if (!isset($data['delivery_amount'])) {
+                $data['delivery_amount'] = (float) Configuration::where('key', 'delivery_charge')->value('value');
+            }
             $data['is_cart'] = false;
             $data['created_by'] = Auth::id();
 
@@ -160,7 +164,7 @@ class OrderController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse(__('messages.order.failed_to_create_order'), $e);
+            return $this->errorResponse( __(__('messages.order.failed_to_create_order')), $e);
         }
     }
 
@@ -236,7 +240,7 @@ class OrderController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse(__('messages.order.failed_to_update_order'), $e);
+            return $this->errorResponse( __(__('messages.order.failed_to_update_order')), $e);
         }
     }
 }

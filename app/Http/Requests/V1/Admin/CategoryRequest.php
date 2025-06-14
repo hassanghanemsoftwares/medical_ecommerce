@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Requests\V1\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -14,7 +15,7 @@ class CategoryRequest extends FormRequest
 
     public function rules()
     {
-        $categoryId = $this->route('category'); 
+        $categoryId = $this->route('category');
 
         $rules = [
             'name' => 'required|array',
@@ -22,13 +23,13 @@ class CategoryRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                'unique:categories,name->en,' . ($categoryId ? $categoryId : 'NULL') 
+                'unique:categories,name->en,' . ($categoryId ?? 'NULL')
             ],
             'name.ar' => [
                 'required',
                 'string',
                 'max:255',
-                'unique:categories,name->ar,' . ($categoryId ? $categoryId : 'NULL') 
+                'unique:categories,name->ar,' . ($categoryId ?? 'NULL')
             ],
             'arrangement' => 'nullable|integer|min:0',
             'is_active' => 'nullable|boolean',
@@ -50,29 +51,36 @@ class CategoryRequest extends FormRequest
     public function messages()
     {
         return [
-            'name.required' => __('messages.category.name_required'),
-            'name.en.required' => __('messages.category.name_en_required'),
-            'name.en.unique' => __('messages.category.name_en_unique'), 
-            'name.ar.required' => __('messages.category.name_ar_required'),
-            'name.ar.unique' => __('messages.category.name_ar_unique'), 
-            'image.required' => __('messages.category.image_required'),
-            'image.mimes' => __('messages.category.image_mimes'),
-            'image.max' => __('messages.category.image_max_size'),
-            'image.dimensions' => __('messages.category.image_dimensions'),
+            'name.required' => __('messages.validation.required', ['attribute' => __('messages.validation.attributes.name')]),
+            'name.en.required' => __('messages.validation.required', ['attribute' => __('messages.validation.attributes.name_en')]),
+            'name.en.string' => __('messages.validation.string', ['attribute' => __('messages.validation.attributes.name_en')]),
+            'name.en.max' => __('messages.validation.max.string', ['attribute' => __('messages.validation.attributes.name_en'), 'max' => 255]),
+            'name.en.unique' => __('messages.validation.unique', ['attribute' => __('messages.validation.attributes.name_en')]),
+
+            'name.ar.required' => __('messages.validation.required', ['attribute' => __('messages.validation.attributes.name_ar')]),
+            'name.ar.string' => __('messages.validation.string', ['attribute' => __('messages.validation.attributes.name_ar')]),
+            'name.ar.max' => __('messages.validation.max.string', ['attribute' => __('messages.validation.attributes.name_ar'), 'max' => 255]),
+            'name.ar.unique' => __('messages.validation.unique', ['attribute' => __('messages.validation.attributes.name_ar')]),
+
+            'image.required' => __('messages.validation.required', ['attribute' => __('messages.validation.attributes.image')]),
+            'image.image' => __('messages.validation.image', ['attribute' => __('messages.validation.attributes.image')]),
+            'image.mimes' => __('messages.validation.mimes', ['attribute' => __('messages.validation.attributes.image')]),
+            'image.max' => __('messages.validation.max.file', ['attribute' => __('messages.validation.attributes.image'), 'max' => 2048]),
+            'image.dimensions' => __('messages.validation.dimensions', ['attribute' => __('messages.validation.attributes.image')]),
+
+            'arrangement.integer' => __('messages.validation.integer', ['attribute' => __('messages.validation.attributes.arrangement')]),
+            'arrangement.min' => __('messages.validation.min.numeric', ['attribute' => __('messages.validation.attributes.arrangement'), 'min' => 0]),
+
+            'is_active.boolean' => __('messages.validation.boolean', ['attribute' => __('messages.validation.attributes.is_active')]),
         ];
     }
 
-    
     protected function failedValidation(Validator $validator)
     {
-        
-        
-        
         throw new ValidationException($validator, response()->json([
             'result' => false,
             'message' => 'Validation failed',
             'errors' => $validator->errors(),
-            'request_data' => $this->all()
-        ], 200)); 
+        ], 200));
     }
 }

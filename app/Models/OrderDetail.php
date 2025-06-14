@@ -43,7 +43,7 @@ class OrderDetail extends Model
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName('order_detail');
+            ->useLogName('OrderDetail');
     }
 
     public function getDescriptionForEvent(string $eventName): string

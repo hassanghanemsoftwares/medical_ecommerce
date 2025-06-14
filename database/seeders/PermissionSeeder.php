@@ -10,7 +10,7 @@ class PermissionSeeder extends Seeder
     public function run(): void
     {
         $permissions = [
-            'view-activity-logs',
+            'view-activity_logs',
 
             'view-profile',
 
@@ -28,18 +28,6 @@ class PermissionSeeder extends Seeder
             'delete-category',
             'view-category',
 
-            // learning video Permissions
-            'view-learning-video',
-            'create-learning-video',
-            'edit-learning-video',
-            'delete-learning-video',
-
-            // ecommerce Permissions
-            'view-ecommerce',
-            'create-ecommerce',
-            'edit-ecommerce',
-            'delete-ecommerce',
-
             // product Permissions
             'view-product',
             'create-product',
@@ -48,8 +36,8 @@ class PermissionSeeder extends Seeder
 
             // stock Permissions
             'view-stock',
-            'view-stock-adjustment',
-            'create-stock-adjustment',
+            'view-stock_adjustment',
+            'create-stock_adjustment',
 
             // Client Permissions
             'view-client',
@@ -67,17 +55,50 @@ class PermissionSeeder extends Seeder
             'edit-order',
             'delete-order',
 
-            // return-order Permissions
-            'view-return-order',
-            'create-return-order',
-            'edit-return-order',
-            'delete-return-order',
+            // return_order Permissions
+            'view-return_order',
+            'create-return_order',
+            'edit-return_order',
+            'delete-return_order',
 
-            // pre-order Permissions
-            'view-pre-order',
-            'create-pre-order',
-            'edit-pre-order',
-            'delete-pre-order',
+            // pre_order Permissions
+            'view-pre_order',
+            'create-pre_order',
+            'edit-pre_order',
+            'delete-pre_order',
+
+            // learning video Permissions
+            'view-learning_video',
+            'create-learning_video',
+            'edit-learning_video',
+            'delete-learning_video',
+
+            // home_section Permissions
+            'view-home_section',
+            'create-home_section',
+            'edit-home_section',
+            'delete-home_section',
+
+            // contacts Permissions
+            'view-contacts',
+
+            // subscription_plan Permissions
+            'view-subscription_plan',
+            'create-subscription_plan',
+            'edit-subscription_plan',
+            'delete-subscription_plan',
+
+            // subscription Permissions
+            'view-subscription',
+            'create-subscription',
+            'edit-subscription',
+            'delete-subscription',
+
+            // team_member Permissions
+            'view-team_member',
+            'create-team_member',
+            'edit-team_member',
+            'delete-team_member',
         ];
 
         foreach ($permissions as $permission) {

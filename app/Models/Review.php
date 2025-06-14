@@ -36,7 +36,7 @@ class Review extends Model
             ->logOnly(['client_id', 'product_id', 'rating', 'comment', 'is_active', 'is_view'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName('review');
+            ->useLogName('Review');
     }
 
     public function getDescriptionForEvent(string $eventName): string

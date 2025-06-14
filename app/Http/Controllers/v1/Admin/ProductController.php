@@ -70,7 +70,7 @@ class ProductController extends Controller
                 'pagination' => new PaginationResource($products),
             ]);
         } catch (Exception $e) {
-            return $this->errorResponse('messages.product.failed_to_retrieve_data', $e);
+            return $this->errorResponse( __('messages.product.failed_to_retrieve_data'), $e);
         }
     }
 
@@ -173,7 +173,7 @@ class ProductController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.product.failed_to_create_product', $e);
+            return $this->errorResponse( __('messages.product.failed_to_create_product'), $e);
         }
     }
 
@@ -257,7 +257,7 @@ class ProductController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.product.failed_to_update_product', $e);
+            return $this->errorResponse( __('messages.product.failed_to_update_product'), $e);
         }
     }
 
@@ -278,7 +278,7 @@ class ProductController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.product.failed_to_delete_product', $e);
+            return $this->errorResponse( __('messages.product.failed_to_delete_product'), $e);
         }
     }
 

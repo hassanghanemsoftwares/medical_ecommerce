@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
-
+use App\Casts\JsonOrScalarCast;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use Illuminate\Support\Facades\Storage;
 
 class Configuration extends Model
 {
@@ -15,6 +16,9 @@ class Configuration extends Model
     protected $fillable = [
         'key',
         'value',
+    ];
+    protected $casts = [
+         'value' => JsonOrScalarCast::class,
     ];
 
     public function getActivitylogOptions(): LogOptions
@@ -26,11 +30,23 @@ class Configuration extends Model
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName('configuration');
+            ->useLogName('Configuration');
     }
 
     public function getDescriptionForEvent(string $eventName): string
     {
         return strtolower(class_basename($this)) . '.' . $eventName;
+    }
+
+        public static function storeImage($imageFile)
+    {
+        return $imageFile->store('configurations', 'public');
+    }
+
+    public static function deleteImage($imagePath)
+    {
+        if ($imagePath && Storage::disk('public')->exists($imagePath)) {
+            Storage::disk('public')->delete($imagePath);
+        }
     }
 }

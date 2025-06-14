@@ -19,9 +19,9 @@ class SearchLog extends Model
         'text',
     ];
 
-    public function device()
+    public function client_sessions()
     {
-        return $this->belongsTo(ClientDevice::class, 'device_id');
+        return $this->hasMany(ClientSession::class);
     }
 
     public function category()
@@ -43,6 +43,4 @@ class SearchLog extends Model
     {
         return $this->belongsTo(Color::class, 'color_id');
     }
-
-  
 }

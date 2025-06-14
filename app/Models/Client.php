@@ -89,7 +89,7 @@ class Client extends Model
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName('client');
+            ->useLogName('Client');
     }
 
     public function getDescriptionForEvent(string $eventName): string

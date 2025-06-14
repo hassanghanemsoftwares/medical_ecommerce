@@ -36,7 +36,7 @@ class ProductImage extends Model
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName('product_image');
+            ->useLogName('ProductImage');
     }
 
     public function getDescriptionForEvent(string $eventName): string

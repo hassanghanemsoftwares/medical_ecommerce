@@ -18,7 +18,7 @@ class BrandRequest extends FormRequest
         $brandId = $this->route('brand');
 
         return [
-            'name' => 'required|string|max:255|unique:brands,name,' . ($brandId ? $brandId : 'NULL'),
+            'name' => 'required|string|max:255|unique:brands,name,' . ($brandId ?? 'NULL'),
             'is_active' => 'nullable|boolean',
         ];
     }
@@ -26,8 +26,11 @@ class BrandRequest extends FormRequest
     public function messages()
     {
         return [
-            'name.required' => __('messages.brand.name_required'),
-            'name.unique' => __('messages.brand.name_unique'),
+            'name.required' => __('messages.validation.required', ['attribute' => __('messages.validation.attributes.name')]),
+            'name.string' => __('messages.validation.string', ['attribute' => __('messages.validation.attributes.name')]),
+            'name.max' => __('messages.validation.max.string', ['attribute' => __('messages.validation.attributes.name'), 'max' => 255]),
+            'name.unique' => __('messages.validation.unique', ['attribute' => __('messages.validation.attributes.name')]),
+            'is_active.boolean' => __('messages.validation.boolean', ['attribute' => __('messages.validation.attributes.is_active')]),
         ];
     }
 
@@ -37,7 +40,6 @@ class BrandRequest extends FormRequest
             'result' => false,
             'message' => 'Validation failed',
             'errors' => $validator->errors(),
-            'request_data' => $this->all()
         ], 200));
     }
 }

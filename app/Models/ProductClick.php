@@ -14,9 +14,9 @@ class ProductClick extends Model
         'product_id',
     ];
 
-    public function device()
+    public function client_sessions()
     {
-        return $this->belongsTo(ClientDevice::class);
+        return $this->hasMany(ClientSession::class);
     }
 
     public function product()

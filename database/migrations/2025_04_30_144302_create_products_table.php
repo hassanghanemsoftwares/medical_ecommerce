@@ -25,9 +25,9 @@ return new class extends Migration
             $table->foreign('category_id')->references('id')->on('categories')->restrictOnDelete();
             $table->unsignedBigInteger('brand_id');
             $table->foreign('brand_id')->references('id')->on('brands')->restrictOnDelete();
-            $table->string('name', 100);
-            $table->string('short_description')->nullable();
-            $table->text('description')->nullable();
+            $table->json('name');
+            $table->json('short_description')->nullable();
+            $table->json('description')->nullable();
             $table->decimal('price', 10, 2);
             $table->unsignedInteger('discount')->default(0);
             $table->integer('min_order_quantity')->default(1);

@@ -36,7 +36,7 @@ class LearningVideoController extends Controller
                 'pagination' => new PaginationResource($learningVideos),
             ]);
         } catch (Exception $e) {
-            return $this->errorResponse('messages.learning_video.failed_to_retrieve_data', $e);
+            return $this->errorResponse( __('messages.learning_video.failed_to_retrieve_data'), $e);
         }
     }
 
@@ -65,7 +65,7 @@ class LearningVideoController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.learning_video.failed_to_create_learning_video', $e);
+            return $this->errorResponse( __('messages.learning_video.failed_to_create_learning_video'), $e);
         }
     }
 
@@ -86,7 +86,7 @@ class LearningVideoController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.learning_video.failed_to_update_learning_video', $e);
+            return $this->errorResponse( __('messages.learning_video.failed_to_update_learning_video'), $e);
         }
     }
 
@@ -105,7 +105,7 @@ class LearningVideoController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.learning_video.failed_to_delete_learning_video', $e);
+            return $this->errorResponse( __('messages.learning_video.failed_to_delete_learning_video'), $e);
         }
     }
 

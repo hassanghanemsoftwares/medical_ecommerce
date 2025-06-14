@@ -25,7 +25,6 @@ class ReturnOrder extends Model
         'requested_at' => 'datetime',
     ];
 
-    // Relationships
     public function order()
     {
         return $this->belongsTo(Order::class);
@@ -41,7 +40,6 @@ class ReturnOrder extends Model
         return $this->hasMany(ReturnOrderDetail::class);
     }
 
-    // Activity Log Options
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -55,16 +53,14 @@ class ReturnOrder extends Model
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName('return_order');
+            ->useLogName('ReturnOrder');
     }
 
-    // Activity description
     public function getDescriptionForEvent(string $eventName): string
     {
         return strtolower(class_basename($this)) . '.' . $eventName;
     }
 
-    // Status attribute accessor (casts numeric status to descriptive array)
     protected function status(): Attribute
     {
         return new Attribute(
@@ -72,7 +68,6 @@ class ReturnOrder extends Model
         );
     }
 
-    // Return statuses with localization and UI info
     public static function getAllReturnStatuses()
     {
         return [
@@ -103,7 +98,6 @@ class ReturnOrder extends Model
         ];
     }
 
-    // Get status key by name (inverse lookup)
     public static function getStatusKey($statusName)
     {
         $statuses = self::getAllReturnStatuses();
@@ -115,18 +109,16 @@ class ReturnOrder extends Model
         return null;
     }
 
-    // Allowed status transitions
     public static function getStatusTransitions()
     {
         return [
-            0 => [0, 1, 2],  // Requested -> Requested, Approved, Rejected
-            1 => [1, 3],     // Approved -> Approved, Completed
-            2 => [2],        // Rejected -> Rejected (terminal)
-            3 => [3],        // Completed -> Completed (terminal)
+            0 => [0, 1, 2],
+            1 => [1, 3],
+            2 => [2],
+            3 => [3],
         ];
     }
 
-    // Get enabled statuses based on current
     public static function getEnabledStatuses($currentStatus)
     {
         $allStatuses = self::getAllReturnStatuses();

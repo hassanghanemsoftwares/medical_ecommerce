@@ -38,7 +38,7 @@ class ClientSession extends Model
             ->logOnly(['client_id', 'notification_token', 'device_id', 'ip_address', 'user_agent', 'is_active'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName('client_device');
+            ->useLogName('ClientSession');
     }
 
     public function getDescriptionForEvent(string $eventName): string

@@ -21,13 +21,21 @@ class ProductImageRequest extends FormRequest
         ];
     }
 
+    public function messages(): array
+    {
+        return [
+            'arrangement.integer' => __('messages.product_image.arrangement_integer'),
+            'arrangement.min' => __('messages.product_image.arrangement_min'),
+            'is_active.boolean' => __('messages.product_image.is_active_boolean'),
+        ];
+    }
+
     protected function failedValidation(Validator $validator)
     {
         throw new ValidationException($validator, response()->json([
             'result' => false,
             'message' => __('messages.validation_failed'),
-            'errors' => $validator->errors(),
-            'request_data' => $this->all(),
+            'errors' => $validator->errors()
         ], 422));
     }
 }

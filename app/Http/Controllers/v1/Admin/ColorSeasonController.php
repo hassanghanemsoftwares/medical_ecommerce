@@ -37,7 +37,7 @@ class ColorSeasonController extends Controller
                 'pagination' => new PaginationResource($colorSeasons),
             ]);
         } catch (Exception $e) {
-            return $this->errorResponse('messages.color_season.failed_to_retrieve_data', $e);
+            return $this->errorResponse( __('messages.color_season.failed_to_retrieve_data'), $e);
         }
     }
 
@@ -68,7 +68,7 @@ class ColorSeasonController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.color_season.failed_to_create_color_season', $e);
+            return $this->errorResponse( __('messages.color_season.failed_to_create_color_season'), $e);
         }
     }
 
@@ -91,7 +91,7 @@ class ColorSeasonController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.color_season.failed_to_update_color_season', $e);
+            return $this->errorResponse( __('messages.color_season.failed_to_update_color_season'), $e);
         }
     }
 
@@ -110,7 +110,7 @@ class ColorSeasonController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.color_season.failed_to_delete_color_season', $e);
+            return $this->errorResponse( __('messages.color_season.failed_to_delete_color_season'), $e);
         }
     }
 

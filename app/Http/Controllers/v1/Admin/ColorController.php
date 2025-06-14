@@ -39,7 +39,7 @@ class ColorController extends Controller
                 'pagination' => new PaginationResource($colors),
             ]);
         } catch (Exception $e) {
-            return $this->errorResponse('messages.color.failed_to_retrieve_data', $e);
+            return $this->errorResponse( __('messages.color.failed_to_retrieve_data'), $e);
         }
     }
 
@@ -74,7 +74,7 @@ class ColorController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.color.failed_to_create_color', $e);
+            return $this->errorResponse( __('messages.color.failed_to_create_color'), $e);
         }
     }
 
@@ -99,7 +99,7 @@ class ColorController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.color.failed_to_update_color', $e);
+            return $this->errorResponse( __('messages.color.failed_to_update_color'), $e);
         }
     }
 
@@ -118,7 +118,7 @@ class ColorController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.color.failed_to_delete_color', $e);
+            return $this->errorResponse( __('messages.color.failed_to_delete_color'), $e);
         }
     }
 

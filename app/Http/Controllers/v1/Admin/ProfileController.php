@@ -7,9 +7,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\V1\Admin\UserResource as V1UserResource;
 use Illuminate\Http\Request;
 use Exception;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class ProfileController extends Controller
 {
@@ -32,29 +34,24 @@ class ProfileController extends Controller
                 'user' => new V1UserResource($user),
             ]);
         } catch (Exception $e) {
-            return response()->json([
-                'result' => false,
-                'error' => config('app.debug') ? $e->getMessage() : __('messages.general_error'),
-            ], 500);
+            return $this->errorResponse(__('messages.error_occurred'), $e);
         }
     }
 
     public function logout(Request $request)
     {
         try {
-            $request->user()->currentAccessToken()->delete();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-
+            $user = $request->user();
+            $token = $user->currentAccessToken();
+            $tokenId = $token instanceof PersonalAccessToken ? $token->id : null;
+            DB::table('sessions')->where('token_id', $tokenId)->delete();
+            $token->delete();
             return response()->json([
                 'result' => true,
                 'message' => __('messages.successfully_logged_out')
             ]);
         } catch (Exception $e) {
-            return response()->json([
-                'result' => false,
-                'error' => config('app.debug') ? $e->getMessage() : __('messages.general_error'),
-            ]);
+            return $this->errorResponse(__('messages.error_occurred'), $e);
         }
     }
 
@@ -95,10 +92,7 @@ class ProfileController extends Controller
                 'message' => __('messages.password_changed_successfully')
             ]);
         } catch (Exception $e) {
-            return response()->json([
-                'result' => false,
-                'error' => config('app.debug') ? $e->getMessage() : __('messages.general_error'),
-            ]);
+            return $this->errorResponse(__('messages.error_occurred'), $e);
         }
     }
 }

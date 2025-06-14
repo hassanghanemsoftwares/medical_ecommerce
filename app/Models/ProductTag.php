@@ -35,7 +35,7 @@ class ProductTag extends Model
             ->logOnly(['product_id', 'tag_id'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName('product_tag');
+            ->useLogName('ProductTag');
     }
 
     public function getDescriptionForEvent(string $eventName): string

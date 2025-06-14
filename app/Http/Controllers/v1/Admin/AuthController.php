@@ -88,11 +88,7 @@ class AuthController extends Controller
             ]);
         } catch (Exception $e) {
             $this->sessionService->logSessionActivity($request, 'login.exception', ['error' => $e->getMessage()]);
-            return response()->json([
-                'result' => false,
-                'message' => __('messages.error_occurred'),
-                'error' => config('app.debug') ? $e->getMessage() : __('messages.general_error'),
-            ]);
+            return $this->errorResponse( __('messages.error_occurred'), $e);
         }
     }
 
@@ -134,7 +130,10 @@ class AuthController extends Controller
             if ($this->otpService->verifyOtp($request->email, $request->otp)) {
                 Auth::login($user);
                 setPermissionsTeamId($user->teams()->first()?->id);
-                $token = $user->createToken('authToken')->plainTextToken;
+
+                $expiresAt = now()->addMinutes(config('sanctum.expiration', 43200));
+                $accessToken = $user->createToken('authToken', ['*'], $expiresAt);
+                $token = $accessToken->plainTextToken;
 
                 $this->sessionService->logSessionActivity($request, 'login.success', [], $user, $user);
 
@@ -157,11 +156,7 @@ class AuthController extends Controller
             ]);
         } catch (Exception $e) {
             $this->sessionService->logSessionActivity($request, 'otp.exception', ['error' => $e->getMessage()]);
-            return response()->json([
-                'result' => false,
-                'message' => __('messages.error_occurred'),
-                'error' => config('app.debug') ? $e->getMessage() : __('messages.general_error'),
-            ]);
+            return $this->errorResponse( __('messages.error_occurred'), $e);
         }
     }
 
@@ -191,11 +186,7 @@ class AuthController extends Controller
             ]);
         } catch (Exception $e) {
             $this->sessionService->logSessionActivity($request, 'forgot.exception', ['error' => $e->getMessage()]);
-            return response()->json([
-                'result' => false,
-                'message' => __('messages.error_occurred'),
-                'error' => config('app.debug') ? $e->getMessage() : __('messages.general_error'),
-            ]);
+            return $this->errorResponse( __('messages.error_occurred'), $e);
         }
     }
 
@@ -239,11 +230,7 @@ class AuthController extends Controller
                 'message' => __("messages.password_reset.error")
             ]);
         } catch (Exception $e) {
-            return response()->json([
-                'result' => false,
-                'message' => __('messages.error_occurred'),
-                'error' => config('app.debug') ? $e->getMessage() : __('messages.general_error'),
-            ]);
+            return $this->errorResponse( __('messages.error_occurred'), $e);
         }
     }
 }

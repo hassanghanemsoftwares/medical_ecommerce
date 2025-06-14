@@ -94,7 +94,6 @@ class ProductRequest extends FormRequest
                     $unique[] = $key;
                 }
 
-                // Optional: check against DB for duplicates on this product (excluding variants being updated)
                 $submittedKeys = array_map(function ($variant) {
                     $sizeKey = (isset($variant['size_id']) && $variant['size_id'] !== null && $variant['size_id'] !== '' && $variant['size_id'] !== 'null')
                         ? (int)$variant['size_id']
@@ -168,7 +167,6 @@ class ProductRequest extends FormRequest
             'duplicate_variant' => 'Duplicate variant found at row #:index (same size and color).',
             'specifications.*.description.en.required' => __('messages.product.specification_en_required'),
             'specifications.*.description.ar.required' => __('messages.product.specification_ar_required'),
-
         ];
     }
 
@@ -177,8 +175,7 @@ class ProductRequest extends FormRequest
         throw new ValidationException($validator, response()->json([
             'result' => false,
             'message' => 'Validation failed',
-            'errors' => $validator->errors(),
-            'request_data' => $this->all()
+            'errors' => $validator->errors()
         ], 200));
     }
 }

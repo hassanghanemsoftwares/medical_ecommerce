@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('subscription_plans', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->json('name');
             $table->decimal('price', 8, 2);
-            $table->enum('duration', ['monthly', 'yearly']);
+            $table->unsignedInteger('duration_in_days'); // e.g. 30 for monthly, 365 for yearly
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });

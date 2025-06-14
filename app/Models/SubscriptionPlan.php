@@ -6,16 +6,26 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use Spatie\Translatable\HasTranslations;
 
 class SubscriptionPlan extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory, LogsActivity,HasTranslations;
 
     protected $fillable = [
         'name',
         'price',
-        'duration',
+        'duration_in_days',
         'is_active',
+    ];
+    
+    public $translatable = [
+        'name',
+    ];
+
+    protected $casts = [
+        'name' => 'array',
+        'is_active' => 'boolean',
     ];
 
     public function subscriptions()
@@ -23,34 +33,23 @@ class SubscriptionPlan extends Model
         return $this->hasMany(Subscription::class);
     }
 
-    public function isMonthly(): bool
+    public function isActive(): bool
     {
-        return $this->duration === 'monthly';
-    }
-
-    public function isYearly(): bool
-    {
-        return $this->duration === 'yearly';
+        return $this->is_active;
     }
 
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
             ->logOnly([
-                'variant_id',
-                'warehouse_id',
-                'shelf_id',
-                'type',
-                'quantity',
-                'cost_per_item',
-                'reason',
-                'adjusted_by',
-                'reference_id',
-                'reference_type',
+                'name',
+                'price',
+                'duration_in_days',
+                'is_active',
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName('stock_adjustment');
+            ->useLogName('SubscriptionPlan');
     }
 
     public function getDescriptionForEvent(string $eventName): string

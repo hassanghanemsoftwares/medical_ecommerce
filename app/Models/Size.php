@@ -24,7 +24,7 @@ class Size extends Model
             ->logOnly(['name'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName('size');
+            ->useLogName('Size');
     }
 
     public function getDescriptionForEvent(string $eventName): string

@@ -35,7 +35,7 @@ class ReturnOrderDetail extends Model
             ->logOnly(['return_order_id', 'variant_id', 'quantity', 'price', 'refund_amount'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName('return_order_detail');
+            ->useLogName('ReturnOrderDetail');
     }
 
     public function getDescriptionForEvent(string $eventName): string

@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('learning_videos', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
-            $table->text('description');
+            $table->json('title');
+            $table->json('description');
             $table->string('video');
             $table->timestamps();
         });

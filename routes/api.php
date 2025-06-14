@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\V1\Admin\AuthController;
 use App\Http\Controllers\V1\Admin\SessionController;
@@ -19,7 +18,10 @@ use App\Http\Controllers\V1\Admin\ShelfController;
 use App\Http\Controllers\V1\Admin\SizeController;
 use App\Http\Controllers\V1\Admin\TagController;
 use App\Http\Controllers\V1\Admin\ConfigurationController;
+use App\Http\Controllers\V1\Admin\ContactController;
 use App\Http\Controllers\V1\Admin\CouponController;
+use App\Http\Controllers\V1\Admin\HomeBannerController;
+use App\Http\Controllers\V1\Admin\HomeProductSectionItemController;
 use App\Http\Controllers\V1\Admin\HomeSectionController;
 use App\Http\Controllers\V1\Admin\LearningVideoController;
 use App\Http\Controllers\V1\Admin\OccupationController;
@@ -31,6 +33,9 @@ use App\Http\Controllers\V1\Admin\ProductVariantController;
 use App\Http\Controllers\V1\Admin\ReturnOrderController;
 use App\Http\Controllers\V1\Admin\StockAdjustmentController;
 use App\Http\Controllers\V1\Admin\StockController;
+use App\Http\Controllers\V1\Admin\SubscriptionController;
+use App\Http\Controllers\V1\Admin\SubscriptionPlanController;
+use App\Http\Controllers\V1\Admin\TeamMemberController;
 use App\Http\Controllers\V1\Client\ClientAuthController;
 
 Route::prefix('v1')->group(function () {
@@ -51,7 +56,7 @@ Route::prefix('v1')->group(function () {
                     Route::get('allSettings', [SettingsController::class, 'index']);
                     Route::get('getNotifications', [SettingsController::class, 'getNotifications']);
 
-                    Route::middleware('can:view-activity-logs')->get('activity-logs', [ActivityLogController::class, 'index']);
+                    Route::middleware('can:view-activity_logs')->get('activity-logs', [ActivityLogController::class, 'index']);
 
 
                     Route::get('getAllClients', [SettingsController::class, 'getAllClients']);
@@ -60,6 +65,7 @@ Route::prefix('v1')->group(function () {
                     Route::get('getClientAddresses', [SettingsController::class, 'getClientAddresses']);
                     Route::get('getOrdersCanBeReturned', [SettingsController::class, 'getOrdersCanBeReturned']);
                     Route::get('getAllProductsVariantsCanBePreOrder', [SettingsController::class, 'getAllProductsVariantsCanBePreOrder']);
+                    Route::get('getAllProducts', [SettingsController::class, 'getAllProducts']);
 
 
                     Route::middleware('can:view-profile')->post('changePassword', [ProfileController::class, 'changePassword']);
@@ -96,13 +102,13 @@ Route::prefix('v1')->group(function () {
 
                     // StockAdjustment routes
                     Route::get('/stock-adjustments', [StockAdjustmentController::class, 'index'])
-                        ->middleware('can:view-stock-adjustment');
+                        ->middleware('can:view-stock_adjustment');
 
                     Route::get('/stock-adjustments/{stockAdjustment}', [StockAdjustmentController::class, 'show'])
-                        ->middleware('can:view-stock-adjustment');
+                        ->middleware('can:view-stock_adjustment');
 
                     Route::post('/stock-adjustments/manual', [StockAdjustmentController::class, 'manualAdjustWithDirection'])
-                        ->middleware('can:create-stock-adjustment');
+                        ->middleware('can:create-stock_adjustment');
 
                     Route::middleware('can:view-client')->get('clients', [ClientController::class, 'index']);
                     Route::middleware('can:view-client')->get('clients/{client}', [ClientController::class, 'show']);
@@ -130,15 +136,53 @@ Route::prefix('v1')->group(function () {
 
 
 
-                    Route::middleware('can:view-return-order')->get('return-orders', [ReturnOrderController::class, 'index']);
-                    Route::middleware('can:view-return-order')->get('return-orders/{returnOrder}', [ReturnOrderController::class, 'show']);
-                    Route::middleware('can:create-return-order')->post('return-orders', [ReturnOrderController::class, 'store']);
-                    Route::middleware('can:edit-return-order')->put('return-orders/{returnOrder}', [ReturnOrderController::class, 'update']);
+                    Route::middleware('can:view-return_order')->get('return-orders', [ReturnOrderController::class, 'index']);
+                    Route::middleware('can:view-return_order')->get('return-orders/{returnOrder}', [ReturnOrderController::class, 'show']);
+                    Route::middleware('can:create-return_order')->post('return-orders', [ReturnOrderController::class, 'store']);
+                    Route::middleware('can:edit-return_order')->put('return-orders/{returnOrder}', [ReturnOrderController::class, 'update']);
 
-                    Route::middleware('can:view-pre-order')->get('pre-orders', [PreOrderController::class, 'index']);
-                    Route::middleware('can:view-pre-order')->get('pre-orders/{order}', [PreOrderController::class, 'show']);
-                    Route::middleware('can:create-pre-order')->post('pre-orders', [PreOrderController::class, 'store']);
-                    Route::middleware('can:edit-pre-order')->put('pre-orders/{order}', [PreOrderController::class, 'update']);
+                    Route::middleware('can:view-pre_order')->get('pre-orders', [PreOrderController::class, 'index']);
+                    Route::middleware('can:view-pre_order')->get('pre-orders/{order}', [PreOrderController::class, 'show']);
+                    Route::middleware('can:create-pre_order')->post('pre-orders', [PreOrderController::class, 'store']);
+                    Route::middleware('can:edit-pre_order')->put('pre-orders/{order}', [PreOrderController::class, 'update']);
+
+                    Route::middleware('can:view-contacts')->get('contacts', [ContactController::class, 'index']);
+
+                    // Learning Video Routes
+                    Route::middleware('can:view-learning_video')->get('learning-videos', [LearningVideoController::class, 'index']);
+                    Route::middleware('can:view-learning_video')->get('learning-videos/{learning_video}', [LearningVideoController::class, 'show']);
+                    Route::middleware('can:create-learning_video')->post('learning-videos', [LearningVideoController::class, 'store']);
+                    Route::middleware('can:view-learning_video')->put('learning-videos/{learning_video}', [LearningVideoController::class, 'update']);
+                    Route::middleware('can:view-learning_video')->delete('learning-videos/{learning_video}', [LearningVideoController::class, 'destroy']);
+
+
+
+                    Route::middleware('can:view-subscription_plan')->get('subscription-plan', [SubscriptionPlanController::class, 'index']);
+                    Route::middleware('can:view-subscription_plan')->get('subscription-plan/{subscription_plan}', [SubscriptionPlanController::class, 'show']);
+                    Route::middleware('can:create-subscription_plan')->post('subscription-plan', [SubscriptionPlanController::class, 'store']);
+                    Route::middleware('can:edit-subscription_plan')->put('subscription-plan/{subscription_plan}', [SubscriptionPlanController::class, 'update']);
+                    Route::middleware('can:delete-subscription_plan')->delete('subscription-plan/{subscription_plan}', [SubscriptionPlanController::class, 'destroy']);
+
+                    Route::middleware('can:view-subscription')->get('subscription', [SubscriptionController::class, 'index']);
+                    Route::middleware('can:edit-subscription')->put('subscription/{subscription}', [SubscriptionController::class, 'update']);
+
+
+                    Route::middleware('can:view-team_member')->get('team-members', [TeamMemberController::class, 'index']);
+                    Route::middleware('can:view-team_member')->get('team-members/{team_member}', [TeamMemberController::class, 'show']);
+                    Route::middleware('can:create-team_member')->post('team-members', [TeamMemberController::class, 'store']);
+                    Route::middleware('can:edit-team_member')->put('team-members/{team_member}', [TeamMemberController::class, 'update']);
+                    Route::middleware('can:delete-team_member')->delete('team-members/{team_member}', [TeamMemberController::class, 'destroy']);
+
+                    // Home Section Routes
+                    Route::middleware('can:view-home_section')->get('home-sections', [HomeSectionController::class, 'index']);
+                    Route::middleware('can:view-home_section')->get('home-sections/{home_section}', [HomeSectionController::class, 'show']);
+                    Route::middleware('can:create-home_section')->post('home-sections', [HomeSectionController::class, 'store']);
+                    Route::middleware('can:edit-home_section')->put('home-sections/{home_section}', [HomeSectionController::class, 'update']);
+                    Route::middleware('can:delete-home_section')->delete('home-sections/{home_section}', [HomeSectionController::class, 'destroy']);
+
+                    Route::middleware('can:edit-home_section')->group(function () {
+                        Route::delete('home_banners/{home_banner}', [HomeBannerController::class, 'destroy']);
+                    });
 
                     Route::middleware('can:view-settings')->group(function () {
                         // Brand Routes
@@ -194,20 +238,6 @@ Route::prefix('v1')->group(function () {
                         Route::get('configurations', [ConfigurationController::class, 'index']);
                         Route::put('configurations', [ConfigurationController::class, 'update']);
 
-                        // Learning Video Routes
-                        Route::get('learning-videos', [LearningVideoController::class, 'index']);
-                        Route::get('learning-videos/{learning_video}', [LearningVideoController::class, 'show']);
-                        Route::post('learning-videos', [LearningVideoController::class, 'store']);
-                        Route::put('learning-videos/{learning_video}', [LearningVideoController::class, 'update']);
-                        Route::delete('learning-videos/{learning_video}', [LearningVideoController::class, 'destroy']);
-
-                        // Home Section Routes
-                        Route::get('home-sections', [HomeSectionController::class, 'index']);
-                        Route::get('home-sections/{home_section}', [HomeSectionController::class, 'show']);
-                        Route::post('home-sections', [HomeSectionController::class, 'store']);
-                        Route::put('home-sections/{home_section}', [HomeSectionController::class, 'update']);
-                        Route::delete('home-sections/{home_section}', [HomeSectionController::class, 'destroy']);
-
                         // Occupation Routes
                         Route::get('occupations', [OccupationController::class, 'index']);
                         Route::get('occupations/{occupation}', [OccupationController::class, 'show']);
@@ -232,9 +262,4 @@ Route::prefix('v1')->group(function () {
     });
 });
 
-
-Route::fallback(function (Request $request) {
-    return response()->json([
-        'message' => 'The route ' . $request->path() . ' could not be found.'
-    ], 404);
-});
+Route::fallback(fn() => abort(404));

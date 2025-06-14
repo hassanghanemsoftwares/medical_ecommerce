@@ -41,7 +41,7 @@ class ShelfController extends Controller
                 'pagination' => new PaginationResource($shelves),
             ]);
         } catch (Exception $e) {
-            return $this->errorResponse('messages.shelf.failed_to_retrieve_data', $e);
+            return $this->errorResponse(__('messages.shelf.failed_to_retrieve_data'), $e);
         }
     }
 
@@ -70,7 +70,7 @@ class ShelfController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.shelf.failed_to_create_shelf', $e);
+            return $this->errorResponse(__('messages.shelf.failed_to_create_shelf'), $e);
         }
     }
 
@@ -91,7 +91,7 @@ class ShelfController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.shelf.failed_to_update_shelf', $e);
+            return $this->errorResponse(__('messages.shelf.failed_to_update_shelf'), $e);
         }
     }
 
@@ -110,7 +110,7 @@ class ShelfController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.shelf.failed_to_delete_shelf', $e);
+            return $this->errorResponse(__('messages.shelf.failed_to_delete_shelf'), $e);
         }
     }
 

@@ -40,7 +40,7 @@ class SizeController extends Controller
                 'pagination' => new PaginationResource($sizes),
             ]);
         } catch (Exception $e) {
-            return $this->errorResponse('messages.size.failed_to_retrieve_data', $e);
+            return $this->errorResponse(__('messages.size.failed_to_retrieve_data'), $e);
         }
     }
 
@@ -69,7 +69,7 @@ class SizeController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.size.failed_to_create_size', $e);
+            return $this->errorResponse(__('messages.size.failed_to_create_size'), $e);
         }
     }
 
@@ -90,7 +90,7 @@ class SizeController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.size.failed_to_update_size', $e);
+            return $this->errorResponse(__('messages.size.failed_to_update_size'), $e);
         }
     }
 
@@ -106,7 +106,7 @@ class SizeController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.size.failed_to_delete_size', $e);
+            return $this->errorResponse(__('messages.size.failed_to_delete_size'), $e);
         }
     }
 }

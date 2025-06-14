@@ -34,13 +34,25 @@ class OccupationRequest extends FormRequest
         ];
     }
 
+    public function messages(): array
+    {
+        return [
+            'name.required' => __('messages.occupation.name_required'),
+            'name.en.required' => __('messages.occupation.name_en_required'),
+            'name.en.unique' => __('messages.occupation.name_en_unique'),
+            'name.en.max' => __('messages.occupation.name_en_max'),
+            'name.ar.required' => __('messages.occupation.name_ar_required'),
+            'name.ar.unique' => __('messages.occupation.name_ar_unique'),
+            'name.ar.max' => __('messages.occupation.name_ar_max'),
+        ];
+    }
+
     protected function failedValidation(Validator $validator)
     {
         throw new ValidationException($validator, response()->json([
             'result' => false,
             'message' => 'Validation failed',
             'errors' => $validator->errors(),
-            'request_data' => $this->all()
         ], 200));
     }
 }

@@ -6,9 +6,6 @@ use App\Services\UserSessionService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Laravel\Sanctum\PersonalAccessToken;
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\Cookie;
-
 
 class Session extends Model
 {

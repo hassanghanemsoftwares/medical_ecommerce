@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('clients', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 100);
+            $table->string('name');
             $table->enum('gender', ['male', 'female', 'other'])->nullable();
             $table->date('birthdate')->nullable();
             $table->unsignedBigInteger('occupation_id');

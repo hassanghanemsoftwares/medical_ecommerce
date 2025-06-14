@@ -30,7 +30,7 @@ class Color extends Model
             ->logOnly(['name', 'code', 'color_season_id'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName('color');
+            ->useLogName('Color');
     }
 
     public function getDescriptionForEvent(string $eventName): string

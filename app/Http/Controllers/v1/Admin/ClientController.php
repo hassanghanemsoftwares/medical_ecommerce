@@ -41,7 +41,7 @@ class ClientController extends Controller
                 'pagination' => new PaginationResource($clients),
             ]);
         } catch (Exception $e) {
-            return $this->errorResponse('messages.client.failed_to_retrieve_data', $e);
+            return $this->errorResponse( __('messages.client.failed_to_retrieve_data'), $e);
         }
     }
 
@@ -72,7 +72,7 @@ class ClientController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.client.failed_to_create_client', $e);
+            return $this->errorResponse( __('messages.client.failed_to_create_client'), $e);
         }
     }
 
@@ -105,7 +105,7 @@ class ClientController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.client.failed_to_update_client', $e);
+            return $this->errorResponse( __('messages.client.failed_to_update_client'), $e);
         }
     }
 
@@ -125,7 +125,7 @@ class ClientController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.client.failed_to_delete_client', $e);
+            return $this->errorResponse( __('messages.client.failed_to_delete_client'), $e);
         }
     }
 }

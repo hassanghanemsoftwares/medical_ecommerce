@@ -6,34 +6,64 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use Spatie\Translatable\HasTranslations;
 
 class HomeSection extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory, LogsActivity, HasTranslations;
 
     protected $fillable = [
         'type',
         'title',
-        'content',
         'arrangement',
         'is_active',
     ];
 
+    public $translatable = ['title'];
+
     protected $casts = [
-        'content' => 'array',
+        'is_active' => 'boolean',
+        'arrangement' => 'integer',
+        'title' => 'array',
     ];
 
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['type', 'title', 'content', 'arrangement', 'is_active'])
+            ->logOnly(['type', 'title', 'arrangement', 'is_active'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName('home_section');
+            ->useLogName('HomeSection');
     }
 
     public function getDescriptionForEvent(string $eventName): string
     {
         return strtolower(class_basename($this)) . '.' . $eventName;
+    }
+
+
+    public function banners()
+    {
+        return $this->hasMany(HomeBanner::class);
+    }
+
+    public function productSectionItems()
+    {
+        return $this->hasMany(HomeProductSectionItem::class);
+    }
+
+    public static function rearrangeAfterDelete($deletedArrangement)
+    {
+        self::where('arrangement', '>', $deletedArrangement)
+            ->decrement('arrangement');
+    }
+
+    public static function updateArrangement(HomeSection $home_section, $newArrangement)
+    {
+        if ($home_section->arrangement != $newArrangement) {
+            self::where('arrangement', $newArrangement)->update(['arrangement' => $home_section->arrangement]);
+            return $newArrangement;
+        }
+        return $home_section->arrangement;
     }
 }

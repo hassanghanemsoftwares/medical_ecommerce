@@ -40,11 +40,7 @@ class CategoryController extends Controller
                 'pagination' => new PaginationResource($categories),
             ]);
         } catch (Exception $e) {
-            return response()->json([
-                'result' => false,
-                'message' => __('messages.user.failed_to_retrieve_data'),
-                'error' => config('app.debug') ? $e->getMessage() : __('messages.general_error'),
-            ]);
+            return $this->errorResponse( __('messages.category.failed_to_retrieve_data'), $e);
         }
     }
 
@@ -83,7 +79,7 @@ class CategoryController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.category.failed_to_create_category', $e);
+            return $this->errorResponse( __('messages.category.failed_to_create_category'), $e);
         }
     }
 
@@ -115,32 +111,37 @@ class CategoryController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.category.failed_to_update_category', $e);
+            return $this->errorResponse( __('messages.category.failed_to_update_category'), $e);
         }
     }
 
-    public function destroy(Category $category)
-    {
-        try {
-            DB::beginTransaction();
-
-            Category::rearrangeAfterDelete($category->arrangement);
-
-            Category::deleteImage($category->getRawOriginal('image'));
-
-            $category->delete();
-
-            DB::commit();
-
+ public function destroy(Category $category)
+{
+    try {
+        if ($category->products()->exists()) {
             return response()->json([
-                'result' => true,
-                'message' => __('messages.category.category_deleted'),
+                'result' => false,
+                'message' => __('messages.category.cannot_delete_category_with_products'),
             ]);
-        } catch (Exception $e) {
-            DB::rollBack();
-            return $this->errorResponse('messages.category.failed_to_delete_category', $e);
         }
-    }
 
+        DB::beginTransaction();
+
+        Category::rearrangeAfterDelete($category->arrangement);
+        Category::deleteImage($category->getRawOriginal('image'));
+
+        $category->delete();
+
+        DB::commit();
+
+        return response()->json([
+            'result' => true,
+            'message' => __('messages.category.category_deleted'),
+        ]);
+    } catch (Exception $e) {
+        DB::rollBack();
+        return $this->errorResponse( __('messages.category.failed_to_delete_category'), $e);
+    }
+}
 
 }

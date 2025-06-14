@@ -32,7 +32,7 @@ class Shelf extends Model
             ->logOnly(['name', 'location', 'warehouse_id'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName('shelf');
+            ->useLogName('Shelf');
     }
 
     public function getDescriptionForEvent(string $eventName): string

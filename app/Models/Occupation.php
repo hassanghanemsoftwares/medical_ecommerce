@@ -22,7 +22,7 @@ class Occupation extends Model
             ->logOnly(['name'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName('occupation');
+            ->useLogName('Occupation');
     }
 
     public function getDescriptionForEvent(string $eventName): string

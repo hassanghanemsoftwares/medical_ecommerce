@@ -37,7 +37,7 @@ class Notification extends Model
             ->logOnly(['client_id', 'type', 'title', 'message', 'is_read', 'sent_at'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName('notification');
+            ->useLogName('Notification');
     }
 
     public function getDescriptionForEvent(string $eventName): string

@@ -6,15 +6,20 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use Spatie\Translatable\HasTranslations;
 
 class LearningVideo extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory, LogsActivity, HasTranslations;
 
     protected $fillable = [
         'title',
         'description',
         'video',
+    ];
+    public $translatable = [
+        'title',
+        'description',
     ];
 
     public function getActivitylogOptions(): LogOptions
@@ -23,7 +28,7 @@ class LearningVideo extends Model
             ->logOnly(['title', 'description', 'video'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName('learning_video');
+            ->useLogName('LearningVideo');
     }
 
     public function getDescriptionForEvent(string $eventName): string

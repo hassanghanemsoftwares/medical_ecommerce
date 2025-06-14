@@ -42,7 +42,7 @@ class AddressController extends Controller
                 'pagination' => new PaginationResource($addresses),
             ]);
         } catch (Exception $e) {
-            return $this->errorResponse('messages.addresses.failed_to_retrieve_data', $e);
+            return $this->errorResponse(__('messages.addresses.failed_to_retrieve_data'), $e);
         }
     }
 
@@ -73,7 +73,7 @@ class AddressController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.addresses.failed_to_create_address', $e);
+            return $this->errorResponse(__('messages.addresses.failed_to_create_address'), $e);
         }
     }
 
@@ -124,7 +124,7 @@ class AddressController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.addresses.failed_to_update_address', $e);
+            return $this->errorResponse(__('messages.addresses.failed_to_update_address'), $e);
         }
     }
 
@@ -143,7 +143,7 @@ class AddressController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.addresses.failed_to_delete_address', $e);
+            return $this->errorResponse(__('messages.addresses.failed_to_delete_address'), $e);
         }
     }
 }

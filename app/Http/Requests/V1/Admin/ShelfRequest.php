@@ -28,13 +28,26 @@ class ShelfRequest extends FormRequest
         ];
     }
 
+    public function messages(): array
+    {
+        return [
+            'warehouse_id.required' => __('messages.shelf.warehouse_id_required'),
+            'warehouse_id.exists' => __('messages.shelf.warehouse_id_exists'),
+            'name.required' => __('messages.shelf.name_required'),
+            'name.string' => __('messages.shelf.name_string'),
+            'name.max' => __('messages.shelf.name_max'),
+            'name.unique' => __('messages.shelf.name_unique'),
+            'location.string' => __('messages.shelf.location_string'),
+            'location.max' => __('messages.shelf.location_max'),
+        ];
+    }
+
     protected function failedValidation(Validator $validator)
     {
         throw new ValidationException($validator, response()->json([
             'result' => false,
             'message' => 'Validation failed',
-            'errors' => $validator->errors(),
-            'request_data' => $this->all()
+            'errors' => $validator->errors()
         ], 200));
     }
 }

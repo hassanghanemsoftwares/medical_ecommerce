@@ -95,11 +95,7 @@ class UserController extends Controller
                 'pagination' => new PaginationResource($users),
             ]);
         } catch (Exception $e) {
-            return response()->json([
-                'result' => false,
-                'message' => __('messages.user.failed_to_retrieve_users'),
-                'error' => config('app.debug') ? $e->getMessage() : __('messages.general_error'),
-            ]);
+            return $this->errorResponse(__('messages.user.failed_to_retrieve_users'), $e);
         }
     }
     public function show(User $user)
@@ -111,11 +107,7 @@ class UserController extends Controller
                 'user' => new V1UserResource($user),
             ]);
         } catch (Exception $e) {
-            return response()->json([
-                'result' => false,
-                'message' => __('messages.user.failed_to_retrieve_user'),
-                'error' => config('app.debug') ? $e->getMessage() : __('messages.general_error'),
-            ]);
+            return $this->errorResponse(__('messages.user.failed_to_retrieve_user'), $e);
         }
     }
 
@@ -129,11 +121,7 @@ class UserController extends Controller
                 'message' => __('messages.user.user_deleted'),
             ]);
         } catch (Exception $e) {
-            return response()->json([
-                'result' => false,
-                'message' => __('messages.user.failed_to_delete_user'),
-                'error' => config('app.debug') ? $e->getMessage() : __('messages.general_error'),
-            ]);
+            return $this->errorResponse(__('messages.user.failed_to_delete_user'), $e);
         }
     }
 
@@ -164,11 +152,8 @@ class UserController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return response()->json([
-                'result' => false,
-                'message' => __('messages.user.failed_to_create_user'),
-                'error' => config('app.debug') ? $e->getMessage() : __('messages.general_error'),
-            ]);
+            return $this->errorResponse(__('messages.user.failed_to_create_user'), $e);
+
         }
     }
     public function update(UserRequest $request, $id)
@@ -202,7 +187,7 @@ class UserController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.user.failed_to_update_user', $e);
+            return $this->errorResponse(__('messages.user.failed_to_update_user'), $e);
         }
     }
 }

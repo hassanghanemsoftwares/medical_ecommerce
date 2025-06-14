@@ -25,7 +25,7 @@ class Tag extends Model
             ->logOnly(['name'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName('tag');
+            ->useLogName('Tag');
     }
 
     public function getDescriptionForEvent(string $eventName): string

@@ -38,7 +38,7 @@ class CouponController extends Controller
                 'pagination' => new PaginationResource($coupons),
             ]);
         } catch (Exception $e) {
-            return $this->errorResponse('messages.coupons.failed_to_retrieve_data', $e);
+            return $this->errorResponse( __('messages.coupon.failed_to_retrieve_data'), $e);
         }
     }
 
@@ -69,7 +69,7 @@ class CouponController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.coupons.failed_to_create_coupon', $e);
+            return $this->errorResponse( __('messages.coupon.failed_to_create_coupon'), $e);
         }
     }
 
@@ -90,7 +90,7 @@ class CouponController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.coupons.failed_to_update_coupon', $e);
+            return $this->errorResponse( __('messages.coupon.failed_to_update_coupon'), $e);
         }
     }
 
@@ -104,7 +104,7 @@ class CouponController extends Controller
                 'message' => __('messages.coupon.coupon_deleted'),
             ]);
         } catch (Exception $e) {
-            return $this->errorResponse('messages.coupons.failed_to_delete_coupon', $e);
+            return $this->errorResponse( __('messages.coupon.failed_to_delete_coupon'), $e);
         }
     }
     public function checkUsability(Request $request)

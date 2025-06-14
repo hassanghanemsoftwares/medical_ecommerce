@@ -9,11 +9,11 @@ abstract class Controller
 {
     //
 
-    protected function errorResponse(string $messageKey, Exception $e): JsonResponse
+    protected function errorResponse(string $message, Exception $e): JsonResponse
     {
         return response()->json([
             'result' => false,
-            'message' => __($messageKey),
+            'message' => $message,
             'error' => config('app.debug') ? $e->getMessage() : __('messages.general_error'),
         ]);
     }

@@ -32,11 +32,7 @@ class SessionController extends Controller
                 'sessions' => V1SessionResource::collection($sessions),
             ]);
         } catch (Exception $e) {
-            return response()->json([
-                'result' => false,
-                'message' => __('messages.session.failed_to_retrieve'),
-                'error' => config('app.debug') ? $e->getMessage() : __('messages.general_error'),
-            ]);
+            return $this->errorResponse(__('messages.session.failed_to_retrieve'), $e);
         }
     }
 
@@ -88,11 +84,7 @@ class SessionController extends Controller
                 'message' => __('messages.session.logout_other_devices'),
             ]);
         } catch (Exception $e) {
-            return response()->json([
-                'result' => false,
-                'message' => __('messages.session.session_update_failed'),
-                'error' => config('app.debug') ? $e->getMessage() : __('messages.general_error'),
-            ]);
+            return $this->errorResponse(__('messages.session.session_update_failed'), $e);
         }
     }
 
@@ -135,11 +127,7 @@ class SessionController extends Controller
                 'message' => __('messages.session.logout_specific_device'),
             ]);
         } catch (Exception $e) {
-            return response()->json([
-                'result' => false,
-                'message' => __('messages.session.session_update_failed'),
-                'error' => config('app.debug') ? $e->getMessage() : __('messages.general_error'),
-            ]);
+            return $this->errorResponse(__('messages.session.session_update_failed'), $e);
         }
     }
 }

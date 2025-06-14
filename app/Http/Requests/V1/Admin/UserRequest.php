@@ -3,6 +3,8 @@
 namespace App\Http\Requests\V1\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Validation\ValidationException;
 
 class UserRequest extends FormRequest
 {
@@ -37,5 +39,14 @@ class UserRequest extends FormRequest
             'permissions.*.exists' => __('messages.validation.exists', ['attribute' => __('messages.validation.attributes.permissions')]),
             'is_active.boolean' => __('messages.validation.boolean', ['attribute' => __('messages.validation.attributes.is_active')]),
         ];
+    }
+
+    protected function failedValidation(Validator $validator)
+    {
+        throw new ValidationException($validator, response()->json([
+            'result' => false,
+            'message' => 'Validation failed',
+            'errors' => $validator->errors()
+        ], 200));
     }
 }

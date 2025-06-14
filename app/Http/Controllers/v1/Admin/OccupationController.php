@@ -38,7 +38,7 @@ class OccupationController extends Controller
                 'pagination' => new PaginationResource($occupations),
             ]);
         } catch (Exception $e) {
-            return $this->errorResponse('messages.learning_video.failed_to_retrieve_data', $e);
+            return $this->errorResponse( __('messages.learning_video.failed_to_retrieve_data'), $e);
         }
     }
 
@@ -69,7 +69,7 @@ class OccupationController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.learning_video.failed_to_create_occupation', $e);
+            return $this->errorResponse( __('messages.learning_video.failed_to_create_occupation'), $e);
         }
     }
 
@@ -92,7 +92,7 @@ class OccupationController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.learning_video.failed_to_update_occupation', $e);
+            return $this->errorResponse( __('messages.learning_video.failed_to_update_occupation'), $e);
         }
     }
 
@@ -111,7 +111,7 @@ class OccupationController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.learning_video.failed_to_delete_occupation', $e);
+            return $this->errorResponse( __('messages.learning_video.failed_to_delete_occupation'), $e);
         }
     }
 

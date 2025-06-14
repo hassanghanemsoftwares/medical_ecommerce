@@ -101,7 +101,7 @@ class Product extends Model
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->useLogName('product');
+            ->useLogName('Product');
     }
 
 

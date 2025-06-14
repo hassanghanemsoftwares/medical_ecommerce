@@ -45,7 +45,7 @@ class PreOrderController extends Controller
                 'pagination' => new PaginationResource($orders),
             ]);
         } catch (Exception $e) {
-            return $this->errorResponse('messages.order.failed_to_retrieve_data', $e);
+            return $this->errorResponse( __('messages.order.failed_to_retrieve_data'), $e);
         }
     }
 
@@ -133,7 +133,7 @@ class PreOrderController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse('messages.order.failed_to_create_order', $e);
+            return $this->errorResponse( __('messages.order.failed_to_create_order'), $e);
         }
     }
 
@@ -196,7 +196,7 @@ class PreOrderController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse(__('messages.order.failed_to_update_order'), $e);
+            return $this->errorResponse( __(__('messages.order.failed_to_update_order')), $e);
         }
     }
 }

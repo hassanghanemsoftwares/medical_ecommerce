@@ -27,7 +27,6 @@ class DatabaseSeeder extends Seeder
             OccupationSeeder::class,
             WarehouseSeeder::class,
             ShelfSeeder::class,
-             SubscriptionPlanSeeder::class,
         ]);
     }
 }
