@@ -88,17 +88,19 @@ class Order extends Model
     }
     public function getSubtotalAttribute()
     {
-        return $this->orderDetails->sum(function ($orderDetail) {
+        $subtotal = $this->orderDetails->sum(function ($orderDetail) {
             return $orderDetail->getTotalAttribute();
         });
-    }
 
+        return round($subtotal, 2);
+    }
 
     public function getGrandTotalAttribute()
     {
         $subtotal = $this->subtotal ?? 0;
         $delivery_amount = $this->delivery_amount ?? 0;
         $discount = 0;
+
         if ($this->coupon_value && $this->coupon_type) {
             if ($this->coupon_type === 'fixed') {
                 $discount = $this->coupon_value;
@@ -106,8 +108,10 @@ class Order extends Model
                 $discount = ($subtotal * $this->coupon_value) / 100;
             }
         }
+
         $grandTotal = $subtotal - $discount + $delivery_amount;
-        return $grandTotal > 0 ? $grandTotal : 0;
+
+        return round(max($grandTotal, 0), 2);
     }
 
 

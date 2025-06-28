@@ -49,7 +49,7 @@ class HomeSectionRequest extends FormRequest
         ];
 
         $rules['banners.*.image'] = $imageRule;
-
+        $rules['banners.*.image480w'] = $imageRule;
         return $rules;
     }
 

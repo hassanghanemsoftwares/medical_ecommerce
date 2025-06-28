@@ -36,7 +36,17 @@ use App\Http\Controllers\V1\Admin\StockController;
 use App\Http\Controllers\V1\Admin\SubscriptionController;
 use App\Http\Controllers\V1\Admin\SubscriptionPlanController;
 use App\Http\Controllers\V1\Admin\TeamMemberController;
+use App\Http\Controllers\V1\Client\ClientAddressController;
 use App\Http\Controllers\V1\Client\ClientAuthController;
+use App\Http\Controllers\V1\Client\ClientCartController;
+use App\Http\Controllers\V1\Client\ClientCheckoutController;
+use App\Http\Controllers\V1\Client\ClientCouponController;
+use App\Http\Controllers\V1\Client\ClientHomeController;
+use App\Http\Controllers\V1\Client\ClientNewsletterController;
+use App\Http\Controllers\V1\Client\ClientProductController;
+use App\Http\Controllers\V1\Client\ClientProfileController;
+use App\Http\Controllers\V1\Client\ClientSettingsController;
+use App\Http\Controllers\V1\Client\ClientShopController;
 
 Route::prefix('v1')->group(function () {
     Route::prefix('admin')->group(function () {
@@ -49,7 +59,7 @@ Route::prefix('v1')->group(function () {
                 Route::post('reset-password', [AuthController::class, 'resetPassword']);
             });
 
-            Route::middleware('auth:sanctum')->group(function () {
+            Route::middleware(['auth:sanctum', 'check_token_expiry'])->group(function () {
                 Route::middleware('auth.actions')->group(function () {
                     Route::get('getCurrentUser', [ProfileController::class, 'getCurrentUser']);
                     Route::post('logout', [ProfileController::class, 'logout']);
@@ -251,13 +261,48 @@ Route::prefix('v1')->group(function () {
     });
 
     Route::prefix('client')->group(function () {
-        Route::post('send-otp', [ClientAuthController::class, 'sendOtp']);
-        Route::post('verify-otp', [ClientAuthController::class, 'verifyOtp']);
-        Route::post('google-login', [ClientAuthController::class, 'googleLogin']);
+        Route::middleware(['manage_client_session', 'app_auth'])->group(function () {
+            Route::get('allSettings', [ClientSettingsController::class, 'index']);
+            Route::get('home', [ClientHomeController::class, 'index']);
+            Route::get('product/{slug}', [ClientProductController::class, 'show']);
+            Route::get('shop', [ClientShopController::class, 'index']);
 
-        Route::middleware('auth:sanctum')->group(function () {
-            Route::get('me', [ClientAuthController::class, 'me']);
-            Route::post('logout', [ClientAuthController::class, 'logout']);
+            Route::middleware(['recaptcha'])->group(function () {
+                Route::post('send-otp-login', [ClientAuthController::class, 'sendOtpLogin']);
+                Route::post('send-otp-register', [ClientAuthController::class, 'sendOtpRegister']);
+                Route::post('verify-otp-login', [ClientAuthController::class, 'verifyOtpLogin']);
+                Route::post('verify-otp-register', [ClientAuthController::class, 'verifyOtpRegister']);
+            });
+
+            Route::middleware('auth:sanctum')->group(function () {
+                Route::get('getCurrentUser', [ClientProfileController::class, 'getCurrentUser']);
+                Route::post('logout', [ClientProfileController::class, 'logout']);
+                Route::post('updateProfile', [ClientProfileController::class, 'update']);
+
+                Route::post('newsletterSubscribe', [ClientNewsletterController::class, 'subscribe']);
+
+
+                Route::prefix('cart')->controller(ClientCartController::class)->group(function () {
+                    Route::get('/', 'index');
+                    Route::post('addOrUpdate', 'addOrUpdate');
+                    Route::delete('remove', 'remove');
+                });
+                Route::prefix('coupon')->controller(ClientCouponController::class)->group(function () {
+                    Route::post('apply', 'apply');
+                    Route::post('remove', 'remove');
+                });
+
+                Route::prefix('addresses')->controller(ClientAddressController::class)->group(function () {
+                    Route::get('/', 'index');
+                    Route::get('default', 'defaultAddress');
+                    Route::get('{address}', 'show');
+                    Route::post('/', 'store');
+                    Route::put('{id}', 'update');
+                    Route::delete('{address}', 'destroy');
+                });
+
+                Route::post('placeOrder', [ClientCheckoutController::class, 'placeOrder']);
+            });
         });
     });
 });

@@ -9,7 +9,6 @@ class ClientResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'id' => $this->id,
             'name' => $this->name,
             'gender' => $this->gender,
             'birthdate' => $this->birthdate ? $this->birthdate->toDateString() : null,

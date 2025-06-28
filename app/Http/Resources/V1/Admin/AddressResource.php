@@ -22,7 +22,6 @@ class AddressResource extends JsonResource
             'is_default' => $this->is_default,
             'created_at' => $this->created_at ? $this->created_at->toDateTimeString() : null,
             'updated_at' => $this->updated_at ? $this->updated_at->toDateTimeString() : null,
-            // Optionally, include related client data if loaded
             'client' => new ClientResource($this->whenLoaded('client')),
         ];
     }

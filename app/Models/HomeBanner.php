@@ -17,6 +17,7 @@ class HomeBanner extends Model
     protected $fillable = [
         'home_section_id',
         'image',
+        'image480w',
         'link',
         'title',
         'subtitle',
@@ -41,6 +42,7 @@ class HomeBanner extends Model
             ->logOnly([
                 'home_section_id',
                 'image',
+                'image480w',
                 'link',
                 'title',
                 'subtitle',
@@ -56,6 +58,14 @@ class HomeBanner extends Model
         return new Attribute(
             get: function () {
                 return asset(Storage::url($this->attributes['image']));
+            }
+        );
+    }
+    protected function image480w(): Attribute
+    {
+        return new Attribute(
+            get: function () {
+                return asset(Storage::url($this->attributes['image480w']));
             }
         );
     }

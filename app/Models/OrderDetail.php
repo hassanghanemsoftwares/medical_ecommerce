@@ -57,6 +57,6 @@ class OrderDetail extends Model
         if ($this->discount) {
             $total -= ($this->discount / 100) * $total;
         }
-        return $total;
+        return round($total, 2);
     }
 }

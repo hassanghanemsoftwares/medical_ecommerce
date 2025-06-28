@@ -6,11 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\V1\Client\ClientResource;
 use App\Models\Client;
 use App\Services\OtpService;
-use App\Services\UserSessionService;
+use App\Services\ClientSessionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\OtpEmail;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Exception;
 
@@ -19,7 +18,7 @@ class ClientAuthController extends Controller
     protected $otpService;
     protected $sessionService;
 
-    public function __construct(OtpService $otpService, UserSessionService $sessionService)
+    public function __construct(OtpService $otpService, ClientSessionService $sessionService)
     {
         $this->otpService = $otpService;
         $this->sessionService = $sessionService;
@@ -37,24 +36,26 @@ class ClientAuthController extends Controller
         return null;
     }
 
-    public function sendOtp(Request $request)
+    public function sendOtpLogin(Request $request)
     {
         $validation = $this->validateRequest($request, [
-            'email' => 'required|email',
+            'email' => 'required|email|exists:clients,email',
+
         ], [
             'email.required' => __('messages.validation.required', ['attribute' => __('messages.validation.attributes.email')]),
+            'email.exists' => __('messages.validation.invalid_email'),
         ]);
 
         if ($validation) return $validation;
 
         try {
-            $client = Client::firstOrCreate(['email' => $request->email]);
+            $client = Client::where('email', $request->email)->first();
 
             $generateOtp = $this->otpService->generateOtp($request->email);
             $otp = $generateOtp[0];
             $expiresAt = $generateOtp[1];
 
-            Mail::to($client->email)->send(new OtpEmail($otp, $client->name));
+            Mail::to($request->email)->send(new OtpEmail($otp, $client->name));
 
             $this->sessionService->logSessionActivity($request, 'client.otp.sent', [], $client);
 
@@ -65,18 +66,14 @@ class ClientAuthController extends Controller
             ]);
         } catch (Exception $e) {
             $this->sessionService->logSessionActivity($request, 'client.otp.exception', ['error' => $e->getMessage()]);
-            return response()->json([
-                'result' => false,
-                'message' => __('messages.error_occurred'),
-                'error' => config('app.debug') ? $e->getMessage() : __('messages.general_error'),
-            ]);
+            return $this->errorResponse(__('messages.error_occurred'), $e);
         }
     }
 
-    public function verifyOtp(Request $request)
+    public function verifyOtpLogin(Request $request)
     {
         $validation = $this->validateRequest($request, [
-            'email' => 'required|email',
+            'email' => 'required|email|exists:clients,email',
             'otp' => 'required|numeric',
         ], [
             'email.required' => __('messages.validation.required', ['attribute' => __('messages.validation.attributes.email')]),
@@ -86,7 +83,8 @@ class ClientAuthController extends Controller
         if ($validation) return $validation;
 
         try {
-            $client = Client::where('email', $request->email)->first();
+            $client = Client::with('occupation')->where('email', $request->email)->first();
+
 
             if (!$client || !$client->is_active) {
                 return response()->json([
@@ -101,7 +99,6 @@ class ClientAuthController extends Controller
                     'last_login' => now(),
                 ]);
 
-                Auth::guard('client')->login($client);
                 $token = $client->createToken('client_token')->plainTextToken;
 
                 $this->sessionService->logSessionActivity($request, 'client.login.success', [], $client);
@@ -122,73 +119,108 @@ class ClientAuthController extends Controller
             ]);
         } catch (Exception $e) {
             $this->sessionService->logSessionActivity($request, 'client.otp.exception', ['error' => $e->getMessage()]);
-            return response()->json([
-                'result' => false,
-                'message' => __('messages.error_occurred'),
-                'error' => config('app.debug') ? $e->getMessage() : __('messages.general_error'),
-            ]);
+
+            return $this->errorResponse(__('messages.error_occurred'), $e);
         }
     }
 
-    public function googleLogin(Request $request)
+    public function sendOtpRegister(Request $request)
     {
         $validation = $this->validateRequest($request, [
-            'email' => 'required|email',
-            'name' => 'required|string',
-            'social_id' => 'required|string',
-        ], []);
+            'name' => 'required|string|min:2|max:255',
+            'gender' => 'nullable|in:male,female,other',
+            'birthdate' => 'nullable|date',
+            'occupation_id' => 'required|exists:occupations,id',
+            'phone' => 'nullable|string|max:20',
+            'email' => 'required|email|unique:clients,email',
+        ], [
+            'email.required' => __('messages.validation.required', ['attribute' => __('messages.validation.attributes.email')]),
+        ]);
 
         if ($validation) return $validation;
 
         try {
-            $client = Client::updateOrCreate(
-                ['email' => $request->email],
-                [
-                    'name' => $request->name,
-                    'social_id' => $request->social_id,
-                    'social_provider' => 'google',
-                    'email_verified_at' => now(),
-                    'last_login' => now(),
-                    'is_active' => true,
-                ]
-            );
+            $client = Client::where('email', $request->email)->first();
 
-            $token = $client->createToken('client_token')->plainTextToken;
+            if ($client) {
+                $name = $client->name;
+                $logEvent = 'client.otp.sent';
+            } else {
+                $name = "Guest";
+                $logEvent = 'client.otp.register.sent';
+            }
 
-            $this->sessionService->logSessionActivity($request, 'client.google.success', [], $client);
+            $generateOtp = $this->otpService->generateOtp($request->email);
+            $otp = $generateOtp[0];
+            $expiresAt = $generateOtp[1];
+
+            Mail::to($request->email)->send(new OtpEmail($otp, $name));
+
+            $this->sessionService->logSessionActivity($request, $logEvent, [], $client);
 
             return response()->json([
                 'result' => true,
-                'message' => __('messages.login_success'),
+                'message' => __('messages.otp_sent'),
+                'expiresAt' => $expiresAt,
+            ]);
+        } catch (Exception $e) {
+            $this->sessionService->logSessionActivity($request, 'client.otp.exception', ['error' => $e->getMessage()]);
+            return $this->errorResponse(__('messages.error_occurred'), $e);
+        }
+    }
+    public function verifyOtpRegister(Request $request)
+    {
+        $validation = $this->validateRequest($request, [
+            'name' => 'required|string|min:2|max:255',
+            'gender' => 'nullable|in:male,female,other',
+            'birthdate' => 'nullable|date',
+            'occupation_id' => 'required|exists:occupations,id',
+            'phone' => 'nullable|string|max:20',
+            'email' => 'required|email|unique:clients,email',
+            'otp' => 'required|numeric',
+        ], [
+            'name.required' => __('messages.validation.required', ['attribute' => __('messages.validation.attributes.name')]),
+            'email.required' => __('messages.validation.required', ['attribute' => __('messages.validation.attributes.email')]),
+            'email.unique' => __('messages.validation.unique', ['attribute' => __('messages.validation.attributes.email')]),
+            'otp.required' => __('messages.validation.required', ['attribute' => __('messages.validation.attributes.otp')]),
+        ]);
+
+        if ($validation) return $validation;
+
+        try {
+            if (!$this->otpService->verifyOtp($request->email, $request->otp)) {
+                return response()->json([
+                    'result' => false,
+                    'message' => __('messages.invalid_otp_or_expired'),
+                ]);
+            }
+
+            $client = Client::create([
+                'name' => $request->name,
+                'gender' => $request->gender,
+                'birthdate' => $request->birthdate,
+                'occupation_id' => $request->occupation_id,
+                'phone' => $request->phone,
+                'email' => $request->email,
+                'email_verified_at' => now(),
+                'last_login' => now(),
+            ]);
+
+            $token = $client->createToken('client_token')->plainTextToken;
+
+            $this->sessionService->logSessionActivity($request, 'client.register.success', [], $client);
+            $client->load('occupation');
+            return response()->json([
+                'result' => true,
+                'message' => __('messages.otp_verified'),
                 'client' => [
                     'token' => $token,
                     ...(new ClientResource($client))->toArray($request),
                 ],
             ]);
-        } catch (Exception $e) {
-            $this->sessionService->logSessionActivity($request, 'client.google.exception', ['error' => $e->getMessage()]);
-            return response()->json([
-                'result' => false,
-                'message' => __('messages.error_occurred'),
-                'error' => config('app.debug') ? $e->getMessage() : __('messages.general_error'),
-            ]);
+        } catch (\Exception $e) {
+            $this->sessionService->logSessionActivity($request, 'client.register.exception', ['error' => $e->getMessage()]);
+            return $this->errorResponse(__('messages.error_occurred'), $e);
         }
-    }
-
-    public function me(Request $request)
-    {
-        return response()->json([
-            'result' => true,
-            'client' => new ClientResource($request->user())
-        ]);
-    }
-
-    public function logout(Request $request)
-    {
-        $request->user()->currentAccessToken()->delete();
-
-        $this->sessionService->logSessionActivity($request, 'client.logout');
-
-        return response()->json(['result' => true, 'message' => __('messages.logout_success')]);
     }
 }

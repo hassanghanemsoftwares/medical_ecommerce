@@ -41,7 +41,7 @@ class Variant extends Model
     }
     public function stocks()
     {
-         return $this->hasMany(Stock::class, 'variant_id');
+        return $this->hasMany(Stock::class, 'variant_id');
     }
 
     public function getActivitylogOptions(): LogOptions
@@ -57,8 +57,10 @@ class Variant extends Model
     {
         return strtolower(class_basename($this)) . '.' . $eventName;
     }
-
-
+    public function getAvailableQuantityAttribute()
+    {
+        return $this->stocks->sum('quantity');
+    }
 
     public static function generateSku($product, $colorId = null, $sizeId = null): string
     {

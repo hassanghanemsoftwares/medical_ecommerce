@@ -31,4 +31,9 @@ class Brand extends Model
     {
         return strtolower(class_basename($this)) . '.' . $eventName;
     }
+    public function products()
+{
+    return $this->hasMany(Product::class);
+}
+
 }

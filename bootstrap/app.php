@@ -14,25 +14,26 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->web(prepend: [
-            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
-        ]);
+        // $middleware->web(prepend: [
+        //     \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+        // ]);
 
         $middleware->api(prepend: [
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             'throttle:api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-
         ]);
 
         $middleware->alias([
             'manage_auth_session' => \App\Http\Middleware\ManageAuthSession::class,
+            'checkt_token_expiry' => \App\Http\Middleware\CheckTokenExpiry::class,
             'app_auth' => \App\Http\Middleware\AppMiddleware::class,
             'recaptcha' => \App\Http\Middleware\VerifyRecaptcha::class,
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
             'auth.actions' => \App\Http\Middleware\AuthActionsMiddleware::class,
+            'manage_client_session' => \App\Http\Middleware\TrackClientSession::class,
         ]);
         $middleware->validateCsrfTokens(except: ['api/*', '/']);
     })

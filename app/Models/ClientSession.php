@@ -4,12 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
+
 
 class ClientSession extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory;
 
     protected $fillable = [
         'client_id',
@@ -32,14 +31,6 @@ class ClientSession extends Model
         return $this->belongsTo(Client::class);
     }
 
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults()
-            ->logOnly(['client_id', 'notification_token', 'device_id', 'ip_address', 'user_agent', 'is_active'])
-            ->logOnlyDirty()
-            ->dontSubmitEmptyLogs()
-            ->useLogName('ClientSession');
-    }
 
     public function getDescriptionForEvent(string $eventName): string
     {

@@ -27,6 +27,8 @@ class HomeBannerController extends Controller
 
             HomeBanner::rearrangeAfterDelete($homeBanner->arrangement);
             HomeBanner::deleteImage($homeBanner->getRawOriginal('image'));
+            HomeBanner::deleteImage($homeBanner->getRawOriginal('image480w'));
+            
             $homeBanner->delete();
 
             DB::commit();

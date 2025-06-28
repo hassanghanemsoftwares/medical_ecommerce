@@ -28,6 +28,7 @@ return [
         'in' => ':attribute المحدد غير صالح.',
         'date' => ':attribute ليس تاريخاً صالحاً.',
         'after_or_equal' => ':attribute يجب أن يكون تاريخاً بعد أو يساوي :date.',
+        'invalid_email' => 'البريد الإلكتروني غير صالح.',
         'attributes' => [
             'name' => 'الاسم',
             'email' => 'البريد الإلكتروني',
@@ -79,6 +80,9 @@ return [
             'coupon_type' => 'نوع القسيمة',
             'valid_from' => 'صالح من',
             'valid_to' => 'صالح إلى',
+            'variant_id' => 'نوع المنتج',
+            'quantity' => 'الكمية',
+            'occupation_id' => 'المهنة',
         ],
     ],
     'password_reset' => [
@@ -282,6 +286,7 @@ return [
         'failed_to_create_section' => 'فشل في إنشاء القسم الرئيسي.',
         'failed_to_update_section' => 'فشل في تحديث القسم الرئيسي.',
         'failed_to_delete_section' => 'فشل في حذف القسم الرئيسي.',
+        'failed_to_retrieve_data' => 'فشل في جلب البيانات.',
     ],
     'learning_video' => [
         'learning_videos_retrieved' => 'تم استرجاع مقاطع الفيديو التعليمية بنجاح.',
@@ -632,6 +637,13 @@ return [
         'failed_to_create_address' => 'فشل في إنشاء العنوان.',
         'failed_to_update_address' => 'فشل في تحديث العنوان.',
         'failed_to_delete_address' => 'فشل في حذف العنوان.',
+        'retrieved_successfully' => 'تم جلب العناوين بنجاح.',
+        'unauthorized_access' => 'دخول غير مصرح للعناوين.',
+        'found_successfully' => 'تم العثور على العنوان بنجاح.',
+        'no_default_address_found' => 'لم يتم العثور على عنوان افتراضي.',
+        'created_successfully' => 'تم إنشاء العنوان بنجاح.',
+        'updated_successfully' => 'تم تحديث العنوان بنجاح.',
+        'deleted_successfully' => 'تم حذف العنوان بنجاح.',
     ],
     'client' => [
         'clients_retrieved' => 'تم جلب العملاء بنجاح.',
@@ -734,6 +746,9 @@ return [
     'failed_to_retrieve_current_user' => 'فشل في جلب بيانات المستخدم الحالي.',
     'retrieved_successfully' => 'تم الجلب بنجاح.',
     'failed_to_retrieve_data' => 'فشل في جلب البيانات.',
+    'profile_fetched_successfully' => 'تم جلب الملف الشخصي بنجاح.',
+    'client_not_found' => 'لم يتم العثور على العميل.',
+    'profile_updated_successfully' => 'تم تحديث الملف الشخصي بنجاح.',
     'payment_status' => [
         'Pending' => 'قيد الانتظار',
         'Paid' => 'مدفوع',
@@ -746,5 +761,19 @@ return [
     ],
     'logs' => [
         'failed_to_retrieve' => 'فشل في جلب السجلات.',
+    ],
+    'cart' => [
+        'cart_retrieved' => 'تم جلب السلة بنجاح.',
+        'cannot_add_this_item_to_cart' => 'لا يمكن إضافة هذا العنصر إلى السلة.',
+        'coupon_min_order_amount_failed' => 'قيمة الطلب لا تحقق الحد الأدنى المطلوب لهذه القسيمة.',
+        'added' => 'تمت إضافة العنصر إلى السلة.',
+        'item_not_found' => 'العنصر غير موجود في السلة.',
+        'removed_and_cart_deleted' => 'تمت إزالة العنصر وحذف السلة.',
+        'removed' => 'تمت إزالة العنصر من السلة.',
+        'empty_cart' => 'سلتك فارغة.',
+        'not_found' => 'السلة غير موجودة.',
+        'coupon_applied' => 'تم تطبيق القسيمة بنجاح.',
+        'no_coupon_applied' => 'لم يتم تطبيق أي قسيمة.',
+        'coupon_removed' => 'تمت إزالة القسيمة بنجاح.',
     ],
 ];

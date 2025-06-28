@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('home_section_id')->constrained()->onDelete('cascade');
             $table->string('image');
+            $table->string('image480w');
             $table->string('link', 500)->nullable();
             $table->string('title')->nullable();
             $table->string('subtitle', 255)->nullable();

@@ -107,15 +107,13 @@ class PreOrderController extends Controller
             $order = Order::create($data);
 
             foreach ($validatedProducts as $item) {
-                $variant = $item['variant'];
-                $firstAdjustment = $variant->stockAdjustments()->first();
                 OrderDetail::create([
                     'order_id' => $order->id,
                     'variant_id' => $item['variant']->id,
                     'quantity' => $item['quantity'],
                     'price' => $item['price'],
                     'discount' => $item['variant']->product->discount,
-                    'cost' => $firstAdjustment->cost_per_item ?? 0,
+                   
 
                 ]);
             }

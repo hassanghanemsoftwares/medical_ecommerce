@@ -12,6 +12,7 @@ class HomeBannerResource extends JsonResource
             'id' => $this->id,
             'home_section_id' => $this->home_section_id,
             'image' => $this->image,
+            'image480w' => $this->image480w,
             'link' => $this->link,
             'title' => $this->getTranslations('title'),
             'subtitle' => $this->getTranslations('subtitle'),

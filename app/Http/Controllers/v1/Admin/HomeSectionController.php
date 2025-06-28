@@ -87,6 +87,11 @@ class HomeSectionController extends Controller
                         $imageFile = $request->file("banners.$index.image");
                         $banner->image = HomeBanner::storeImage($imageFile);
                     }
+                    if ($request->hasFile("banners.$index.image480w")) {
+                        $image480wFile = $request->file("banners.$index.image480w");
+                        $banner->image480w = HomeBanner::storeImage($image480wFile);
+                    }
+
 
                     $banner->save();
                 }
@@ -142,7 +147,11 @@ class HomeSectionController extends Controller
                                 $imageFile = $request->file("banners.$index.image");
                                 $banner->image = HomeBanner::storeImage($imageFile);
                             }
-
+                            if ($request->hasFile("banners.$index.image480w")) {
+                                HomeBanner::deleteImage($banner->getRawOriginal('image480w'));
+                                $image480wFile = $request->file("banners.$index.image480w");
+                                $banner->image480w = HomeBanner::storeImage($image480wFile);
+                            }
                             $banner->save();
                         }
                     } else {
@@ -156,6 +165,10 @@ class HomeSectionController extends Controller
                         if ($request->hasFile("banners.$index.image")) {
                             $imageFile = $request->file("banners.$index.image");
                             $banner->image = HomeBanner::storeImage($imageFile);
+                        }
+                        if ($request->hasFile("banners.$index.image480w")) {
+                            $image480wFile = $request->file("banners.$index.image480w");
+                            $banner->image480w = HomeBanner::storeImage($image480wFile);
                         }
                         $banner->save();
                     }
@@ -201,6 +214,7 @@ class HomeSectionController extends Controller
         try {
             foreach ($homeSection->banners as $banner) {
                 HomeBanner::deleteImage($banner->getRawOriginal('image'));
+                HomeBanner::deleteImage($banner->getRawOriginal('image480w'));
             }
 
             HomeSection::rearrangeAfterDelete($homeSection->arrangement);

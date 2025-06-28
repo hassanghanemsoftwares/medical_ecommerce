@@ -18,7 +18,7 @@ class Configuration extends Model
         'value',
     ];
     protected $casts = [
-         'value' => JsonOrScalarCast::class,
+        'value' => JsonOrScalarCast::class,
     ];
 
     public function getActivitylogOptions(): LogOptions
@@ -38,7 +38,7 @@ class Configuration extends Model
         return strtolower(class_basename($this)) . '.' . $eventName;
     }
 
-        public static function storeImage($imageFile)
+    public static function storeImage($imageFile)
     {
         return $imageFile->store('configurations', 'public');
     }
@@ -48,5 +48,9 @@ class Configuration extends Model
         if ($imagePath && Storage::disk('public')->exists($imagePath)) {
             Storage::disk('public')->delete($imagePath);
         }
+    }
+    public static function getValue(string $key, $default = null)
+    {
+        return self::where('key', $key)->value('value') ?? $default;
     }
 }

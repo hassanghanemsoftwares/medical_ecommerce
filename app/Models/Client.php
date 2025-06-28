@@ -2,16 +2,19 @@
 
 namespace App\Models;
 
+use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use Laravel\Sanctum\HasApiTokens;
 
 class Client extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasApiTokens, HasFactory, LogsActivity,Authenticatable;
 
     protected $fillable = [
+        'id',
         'name',
         'gender',
         'birthdate',

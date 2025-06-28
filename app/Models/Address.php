@@ -27,7 +27,10 @@ class Address extends Model
     protected $casts = [
         'latitude' => 'decimal:7',
         'longitude' => 'decimal:7',
+        'is_active' => 'boolean',
+        'is_default' => 'boolean',
     ];
+
 
     public function client()
     {

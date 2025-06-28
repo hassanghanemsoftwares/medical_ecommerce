@@ -20,6 +20,7 @@ return new class extends Migration
                 'coming_soon',        // Product is coming soon
                 'discontinued',       // Product is permanently no longer sold
                 'pre_order',          // Can be ordered before official release
+                'out_of_stock',
             ]);
             $table->unsignedBigInteger('category_id');
             $table->foreign('category_id')->references('id')->on('categories')->restrictOnDelete();

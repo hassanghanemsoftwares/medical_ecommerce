@@ -29,7 +29,6 @@ class StockAdjustment extends Model
         'parent_adjustment_id',
     ];
 
-    // Relationships
     public function variant()
     {
         return $this->belongsTo(Variant::class);
@@ -127,7 +126,7 @@ class StockAdjustment extends Model
             'quantity'              => $data['quantity'],
             'cost_per_item'         => $data['cost_per_item'] ?? null,
             'reason'                => $data['reason'] ?? null,
-            'adjusted_by'           => $data['adjusted_by'] ?? Auth::id(),
+            'adjusted_by'           => $data['adjusted_by'] ?? null,
             'reference_id'          => $data['reference_id'] ?? null,
             'reference_type'        => $data['reference_type'] ?? null,
             'parent_adjustment_id'  => $data['parent_adjustment_id'] ?? null,
@@ -166,15 +165,11 @@ class StockAdjustment extends Model
         $variant = Variant::findOrFail($variantId);
         $remaining = $quantity;
 
-        // Load all adjustments of this variant once
         $allAdjustments = self::where('variant_id', $variantId)->get();
 
-        // Positive adjustments = stock sources (manual and return)
         $positiveAdjustments = $allAdjustments
             ->whereIn('type', ['manual', 'return'])
-            ->sortBy('created_at'); // FIFO: oldest stock first
-
-        // Group sales by parent adjustment ID
+            ->sortBy('created_at');
         $salesGrouped = $allAdjustments
             ->where('type', 'sale')
             ->groupBy('parent_adjustment_id');
@@ -182,23 +177,17 @@ class StockAdjustment extends Model
         foreach ($positiveAdjustments as $adjustment) {
             if ($remaining <= 0) break;
 
-            // Calculate already deducted quantity (negative values)
             $alreadyDeducted = $salesGrouped
                 ->get($adjustment->id, collect())
-                ->sum('quantity'); // sum of negative sale adjustments
-
-            // Calculate available quantity in this batch (adjustment quantity + already deducted sales)
+                ->sum('quantity');
             $available = $adjustment->quantity + $alreadyDeducted;
 
             if ($available <= 0) {
-                // No stock left in this batch
                 continue;
             }
 
-            // Deduct as much as possible from this batch
             $deductQty = min($available, $remaining);
 
-            // Create a sale adjustment to reduce stock
             self::systemAdjust([
                 'variant_id'            => $variantId,
                 'warehouse_id'          => $adjustment->warehouse_id,
@@ -216,10 +205,48 @@ class StockAdjustment extends Model
         }
 
         if ($remaining > 0) {
-            // Not enough stock available across all batches
             throw new \Exception(__('messages.order.insufficient_stock', [
                 'sku'       => $variant->display_sku,
                 'available' => $quantity - $remaining,
+            ]));
+        }
+    }
+
+    public static function checkVariantQty(int $variantId, int $neededQty): void
+    {
+        $variant = Variant::findOrFail($variantId);
+        $remaining = $neededQty;
+
+        $allAdjustments = self::where('variant_id', $variantId)->get();
+
+        $positiveAdjustments = $allAdjustments
+            ->whereIn('type', ['manual', 'return'])
+            ->sortBy('created_at');
+        $salesGrouped = $allAdjustments
+            ->where('type', 'sale')
+            ->groupBy('parent_adjustment_id');
+
+        foreach ($positiveAdjustments as $adjustment) {
+            if ($remaining <= 0) break;
+
+            $alreadyDeducted = $salesGrouped
+                ->get($adjustment->id, collect())
+                ->sum('quantity');
+            $available = $adjustment->quantity + $alreadyDeducted;
+
+            if ($available <= 0) {
+                continue;
+            }
+
+            $deductQty = min($available, $remaining);
+
+            $remaining -= $deductQty;
+        }
+
+        if ($remaining > 0) {
+            throw new \Exception(__('messages.order.insufficient_stock', [
+                'sku'       => $variant->display_sku,
+                'available' => $neededQty - $remaining,
             ]));
         }
     }

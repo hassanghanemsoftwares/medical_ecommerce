@@ -34,6 +34,8 @@ class Product extends Model
         'short_description',
         'description',
     ];
+    protected $appends = ['final_price'];
+
 
     public function category()
     {
@@ -72,14 +74,26 @@ class Product extends Model
     {
         return $this->hasMany(ProductSpecification::class);
     }
+    public function homeProductSectionItems()
+    {
+        return $this->hasMany(HomeProductSectionItem::class, 'product_id');
+    }
 
+    public function getFinalPriceAttribute()
+    {
+        return $this->price - ($this->price * $this->discount / 100);
+    }
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
             ->generateSlugsFrom(function ($model) {
-                return $model->barcode . ' ' . $model->name;
+                return $model->name . ' ' . $model->barcode;
             })
-            ->saveSlugsTo('slug');
+            ->saveSlugsTo('slug')
+            ->slugsShouldBeNoLongerThan(80)
+            ->doNotGenerateSlugsOnUpdate()
+            ->usingSeparator('-')
+            ->preventOverwrite();
     }
 
     public function getActivitylogOptions(): LogOptions
@@ -125,5 +139,19 @@ class Product extends Model
         }
 
         return $prefix . str_pad($nextNumber, 6, '0', STR_PAD_LEFT);
+    }
+
+    public function updateAvailabilityStatus(): void
+    {
+        $totalQuantity = $this->variants()
+            ->with('stocks')
+            ->get()
+            ->flatMap->stocks
+            ->sum('quantity');
+
+        if ($totalQuantity <= 0) {
+            $this->availability_status = 'out_of_stock';
+            $this->saveQuietly();
+        }
     }
 }

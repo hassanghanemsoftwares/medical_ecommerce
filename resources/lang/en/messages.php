@@ -28,6 +28,7 @@ return [
         'in' => 'The selected :attribute is invalid.',
         'date' => 'The :attribute is not a valid date.',
         'after_or_equal' => 'The :attribute must be a date after or equal to :date.',
+          'invalid_email' => 'The provided email is invalid.',
         'attributes' => [
             'name' => 'Name',
             'email' => 'Email',
@@ -79,6 +80,9 @@ return [
             'coupon_type' => 'Coupon Type',
             'valid_from' => 'Valid From',
             'valid_to' => 'Valid To',
+            'variant_id' => 'Product variant',
+            'quantity' => 'Quantity',
+            'occupation_id' => 'Occupation',
         ],
     ],
     'password_reset' => [
@@ -282,6 +286,7 @@ return [
         'failed_to_create_section' => 'Failed to create home section.',
         'failed_to_update_section' => 'Failed to update home section.',
         'failed_to_delete_section' => 'Failed to delete home section.',
+        'failed_to_retrieve_data' => 'Failed to retrieve data.',
     ],
     'learning_video' => [
         'learning_videos_retrieved' => 'Learning videos retrieved successfully.',
@@ -632,6 +637,13 @@ return [
         'failed_to_create_address' => 'Failed to create address.',
         'failed_to_update_address' => 'Failed to update address.',
         'failed_to_delete_address' => 'Failed to delete address.',
+        'retrieved_successfully' => 'Addresses retrieved successfully.',
+        'unauthorized_access' => 'Unauthorized access to addresses.',
+        'found_successfully' => 'Address found successfully.',
+        'no_default_address_found' => 'No default address found.',
+        'created_successfully' => 'Address created successfully.',
+        'updated_successfully' => 'Address updated successfully.',
+        'deleted_successfully' => 'Address deleted successfully.',
     ],
     'client' => [
         'clients_retrieved' => 'Clients retrieved successfully.',
@@ -734,6 +746,9 @@ return [
     'failed_to_retrieve_current_user' => 'Failed to retrieve current user information.',
     'retrieved_successfully' => 'Retrieved successfully',
     'failed_to_retrieve_data' => 'Failed to retrieve data.',
+       'profile_fetched_successfully' => 'Profile fetched successfully.',
+    'client_not_found' => 'Client not found.',
+    'profile_updated_successfully' => 'Profile updated successfully.',
     'payment_status' => [
         'Pending' => 'Pending',
         'Paid' => 'Paid',
@@ -746,5 +761,19 @@ return [
     ],
     'logs' => [
         'failed_to_retrieve' => 'Failed to retrieve logs.',
+    ],
+    'cart' => [
+        'cart_retrieved' => 'Cart retrieved successfully.',
+        'cannot_add_this_item_to_cart' => 'Cannot add this item to cart.',
+        'coupon_min_order_amount_failed' => 'The order amount does not meet the minimum required for this coupon.',
+        'added' => 'Item added to cart.',
+        'item_not_found' => 'Item not found in the cart.',
+        'removed_and_cart_deleted' => 'Item removed and cart deleted.',
+        'removed' => 'Item removed from cart.',
+        'empty_cart' => 'Your cart is empty.',
+        'not_found' => 'Cart not found.',
+        'coupon_applied' => 'Coupon applied successfully.',
+        'no_coupon_applied' => 'No coupon was applied.',
+        'coupon_removed' => 'Coupon removed successfully.',
     ],
 ];

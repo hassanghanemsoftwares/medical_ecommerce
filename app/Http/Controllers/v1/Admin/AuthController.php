@@ -131,7 +131,7 @@ class AuthController extends Controller
                 Auth::login($user);
                 setPermissionsTeamId($user->teams()->first()?->id);
 
-                $expiresAt = now()->addMinutes(config('sanctum.expiration', 43200));
+                $expiresAt =  now()->addMinutes(120);
                 $accessToken = $user->createToken('authToken', ['*'], $expiresAt);
                 $token = $accessToken->plainTextToken;
 
