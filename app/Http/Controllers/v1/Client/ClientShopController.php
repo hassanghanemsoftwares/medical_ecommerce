@@ -106,10 +106,16 @@ class ClientShopController extends Controller
                 $column = $sortOption['column'];
                 if ($column === 'products.price') {
                     $query->orderByRaw('(price - (price * discount / 100)) ' . $sortOption['direction']);
+                } elseif ($column === 'products.name') {
+                    $currentLocale = app()->getLocale();
+                    $query->orderByRaw(
+                        "LOWER(JSON_UNQUOTE(JSON_EXTRACT(products.name, '$.$currentLocale'))) " . $sortOption['direction']
+                    );
                 } else {
                     $query->orderBy($column, $sortOption['direction']);
                 }
             }
+
 
             $perPage = $validated['per_page'] ?? 12;
             $products = $query->paginate($perPage);

@@ -40,13 +40,21 @@ use App\Http\Controllers\V1\Client\ClientAddressController;
 use App\Http\Controllers\V1\Client\ClientAuthController;
 use App\Http\Controllers\V1\Client\ClientCartController;
 use App\Http\Controllers\V1\Client\ClientCheckoutController;
+use App\Http\Controllers\V1\Client\ClientContactController;
 use App\Http\Controllers\V1\Client\ClientCouponController;
 use App\Http\Controllers\V1\Client\ClientHomeController;
+use App\Http\Controllers\V1\Client\ClientLearningVideoController;
 use App\Http\Controllers\V1\Client\ClientNewsletterController;
+use App\Http\Controllers\V1\Client\ClientOrdersController;
+use App\Http\Controllers\V1\Client\ClientPreOrdersController;
 use App\Http\Controllers\V1\Client\ClientProductController;
 use App\Http\Controllers\V1\Client\ClientProfileController;
+use App\Http\Controllers\V1\Client\ClientReturnOrdersController;
 use App\Http\Controllers\V1\Client\ClientSettingsController;
 use App\Http\Controllers\V1\Client\ClientShopController;
+use App\Http\Controllers\V1\Client\ClientSubscriptionPlanController;
+use App\Http\Controllers\V1\Client\ClientTeamMemberController;
+use App\Http\Controllers\V1\Client\ClientWishlistController;
 
 Route::prefix('v1')->group(function () {
     Route::prefix('admin')->group(function () {
@@ -302,6 +310,24 @@ Route::prefix('v1')->group(function () {
                 });
 
                 Route::post('placeOrder', [ClientCheckoutController::class, 'placeOrder']);
+
+
+                Route::get('orders', [ClientOrdersController::class, 'index']);
+                Route::get('return-orders', [ClientReturnOrdersController::class, 'index']);
+                Route::get('pre-orders', [ClientPreOrdersController::class, 'index']);
+
+                Route::prefix('wishlist')->controller(ClientWishlistController::class)->group(function () {
+                    Route::get('/', 'index');
+                    Route::post('addOrRemove', 'addOrRemove');
+                });
+
+                Route::post('contact', [ClientContactController::class, 'store']);
+                Route::get('team-members', [ClientTeamMemberController::class, 'index']);
+
+                Route::post('placeOrder', [ClientCheckoutController::class, 'placeOrder']);
+
+                Route::get('learning-videos', [ClientLearningVideoController::class, 'index']);
+                Route::get('subscription-plan', [ClientSubscriptionPlanController::class, 'index']);
             });
         });
     });

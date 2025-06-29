@@ -749,6 +749,7 @@ return [
     'profile_fetched_successfully' => 'تم جلب الملف الشخصي بنجاح.',
     'client_not_found' => 'لم يتم العثور على العميل.',
     'profile_updated_successfully' => 'تم تحديث الملف الشخصي بنجاح.',
+     'unauthorized_access' => 'دخول غير مصرح.',
     'payment_status' => [
         'Pending' => 'قيد الانتظار',
         'Paid' => 'مدفوع',

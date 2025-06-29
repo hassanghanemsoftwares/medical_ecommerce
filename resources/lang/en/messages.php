@@ -749,6 +749,7 @@ return [
        'profile_fetched_successfully' => 'Profile fetched successfully.',
     'client_not_found' => 'Client not found.',
     'profile_updated_successfully' => 'Profile updated successfully.',
+    'unauthorized_access' => 'Unauthorized access.',
     'payment_status' => [
         'Pending' => 'Pending',
         'Paid' => 'Paid',
