@@ -2,67 +2,68 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\Session;
+use App\Models\Session as UserSession;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use App\Services\UserSessionService;
 use Carbon\Carbon;
 use Laravel\Sanctum\PersonalAccessToken;
 
 class ManageAuthSession
 {
-    protected $sessionService;
-
-    public function __construct(UserSessionService $sessionService)
-    {
-        $this->sessionService = $sessionService;
-    }
-
     public function handle(Request $request, Closure $next): Response
     {
-        $sessionCheck = $this->sessionService->getSessionFromCookie();
+        $deviceId = $request->header('X-Device-ID') ?? $request->input('device_id');
 
-        if (!$sessionCheck['result']) {
+        if (!$deviceId) {
             return response()->json([
                 'result' => false,
-                'message' => $sessionCheck['message'],
-            ]);
+                'message' => __('messages.session.device_id_required'),
+            ], 400);
         }
 
-        $session = $sessionCheck['session'];
         $user = $request->user();
+        $userId = null;
+        $tokenId = null;
 
         if ($user) {
-            $token = $user->currentAccessToken();
-            $tokenId = $token instanceof PersonalAccessToken ? $token->id : null;
+            // Delete expired tokens
             $expiredTokens = PersonalAccessToken::where('tokenable_id', $user->id)
                 ->where('tokenable_type', get_class($user))
                 ->whereNotNull('expires_at')
                 ->where('expires_at', '<', Carbon::now())
-                ->get();
+                ->pluck('id');
 
             if ($expiredTokens->isNotEmpty()) {
-                $expiredTokenIds = $expiredTokens->pluck('id');
-
-                // Delete expired tokens
-                PersonalAccessToken::whereIn('id', $expiredTokenIds)->delete();
-
-                // Delete sessions that have these token_ids
-                Session::whereIn('token_id', $expiredTokenIds)->delete();
+                PersonalAccessToken::whereIn('id', $expiredTokens)->delete();
+                UserSession::whereIn('token_id', $expiredTokens)->delete();
             }
-            $session->update([
-                'user_id' => $user->id,
-                'token_id' => $tokenId,
-                'last_activity' => Carbon::now()->timestamp,
-            ]);
-        } else {
-            $session->update([
-                'user_id' => null,
-                'token_id' => null,
-                'last_activity' => Carbon::now()->timestamp,
-            ]);
+
+            // Refresh user and token ID
+            $user = $request->user();
+            $tokenId = $user?->currentAccessToken()?->id;
+
+            if (!$tokenId) {
+                return response()->json([
+                    'result' => false,
+                    'message' => __('messages.session.invalid_token'),
+                ], 401);
+            }
+
+            $userId = $user->id;
         }
+
+        UserSession::updateOrCreate(
+            ['id' => $deviceId],
+            [
+                'user_id'       => $userId,
+                'token_id'      => $tokenId,
+                'ip_address'    => $request->ip(),
+                'user_agent'    => $request->userAgent(),
+                'last_activity' => time(),
+                'payload'       => '',
+            ]
+        );
 
         return $next($request);
     }

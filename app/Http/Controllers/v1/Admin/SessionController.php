@@ -60,7 +60,7 @@ class SessionController extends Controller
                 ]);
             }
 
-            $sessionCheck = $this->sessionService->getSessionFromCookie();
+            $sessionCheck = $this->sessionService->getSessionFromDevice($request);
 
             if (!$sessionCheck['result']) {
                 return response()->json([

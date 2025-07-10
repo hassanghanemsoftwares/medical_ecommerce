@@ -14,6 +14,7 @@ class ReturnOrder extends Model
 
     protected $fillable = [
         'order_id',
+        'client_id',
         'return_order_number',
         'requested_at',
         'status',
@@ -137,7 +138,7 @@ class ReturnOrder extends Model
 
     public static function generateOrderNumber(): int
     {
-        $maxOrderNumber = Order::max('return_order_number');
+        $maxOrderNumber = ReturnOrder::max('return_order_number');
         return $maxOrderNumber ? $maxOrderNumber + 1 : 1;
     }
 }

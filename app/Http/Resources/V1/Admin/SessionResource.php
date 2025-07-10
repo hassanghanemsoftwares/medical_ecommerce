@@ -36,7 +36,7 @@ class SessionResource extends JsonResource
             'is_tablet' => $agent->isTablet(),
             'is_desktop' => $agent->isDesktop(),
             'is_robot' => $agent->isRobot(),
-            'is_current_device' => method_exists($this, 'isCurrentSession') ? $this->isCurrentSession() : false,
+            'is_current_device' => method_exists($this, 'isCurrentSession') ? $this->isCurrentSession($request) : false,
             'location' => ($location->countryName ?? 'Unknown') . ' - ' . ($location->cityName ?? 'Unknown'),
         ];
     }

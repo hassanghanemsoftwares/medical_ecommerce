@@ -23,7 +23,20 @@ class ClientReturnOrdersController extends Controller
                 'per_page' => 'nullable|integer|min:1|max:100',
             ]);
             $clientId = $request->user()->id;
-            $returns = ReturnOrder::with(['order', 'order.client'])
+            $returns = ReturnOrder::with(['order', 
+            
+                 'order.client',
+                'order.coupon',
+                'order.address',
+                'details.variant.product.category',
+                'details.variant.product.brand',
+                'details.variant.product.images',
+                'details.variant.size',
+                'details.variant.color',
+                'details.variant.product.tags',
+                'details.variant.product.specifications',
+            
+            ])
                 ->where('client_id', $clientId)->when($validated['search'] ?? null, function ($query, $search) {
                     $query->whereHas('order', function ($q) use ($search) {
                         $q->where('order_number', 'like', "%$search%");

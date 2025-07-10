@@ -13,13 +13,13 @@ class ConfigurationSeeder extends Seeder
     public function run(): void
     {
         $configurations = [
-            ['key' => 'theme_color1', 'value' => '#324057'],
-            ['key' => 'theme_color2', 'value' => '#EEABAD'],
+            ['key' => 'theme_color1', 'value' => '#a1b6d8'],
+            ['key' => 'theme_color2', 'value' => '#eeabad'],
             ['key' => 'delivery_charge', 'value' => '5.00'],
             ['key' => 'min_stock_alert', 'value' => '5'],
             ['key' => 'store_name', 'value' => 'jays'],
             ['key' => 'contact_email', 'value' => 'support@myawesomestore.com'],
-            ['key' => 'contact_phone', 'value' => '+1-555-1234'],
+            ['key' => 'contact_phone', 'value' => '70123456'],
             ['key' => 'store_address', 'value' => 'test'],
             [
                 'key' => 'about_us',

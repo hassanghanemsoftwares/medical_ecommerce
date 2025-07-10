@@ -21,7 +21,8 @@ class ClientOrdersController extends Controller
                 'per_page' => 'nullable|integer|min:1|max:100',
             ]);
             $clientId = $request->user()->id;
-            $orders = Order::with([         'client',
+            $orders = Order::with([
+                'client',
                 'coupon',
                 'address',
                 'orderDetails.variant.product.category',
@@ -30,7 +31,8 @@ class ClientOrdersController extends Controller
                 'orderDetails.variant.size',
                 'orderDetails.variant.color',
                 'orderDetails.variant.product.tags',
-                'orderDetails.variant.product.specifications',])->where('is_cart', false)->where('is_preorder', false)
+                'orderDetails.variant.product.specifications',
+            ])->where('is_cart', false)->where('is_preorder', false)
                 ->where('client_id', $clientId)->when($validated['search'] ?? null, function ($query, $search) {
                     $query->where('order_number', 'like', "%$search%");
                 })

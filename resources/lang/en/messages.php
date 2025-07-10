@@ -28,7 +28,7 @@ return [
         'in' => 'The selected :attribute is invalid.',
         'date' => 'The :attribute is not a valid date.',
         'after_or_equal' => 'The :attribute must be a date after or equal to :date.',
-          'invalid_email' => 'The provided email is invalid.',
+        'invalid_email' => 'The provided email is invalid.',
         'attributes' => [
             'name' => 'Name',
             'email' => 'Email',
@@ -83,6 +83,9 @@ return [
             'variant_id' => 'Product variant',
             'quantity' => 'Quantity',
             'occupation_id' => 'Occupation',
+            'subject' => 'Subject',
+            'message' => 'Message',
+            'is_view' => 'View status',
         ],
     ],
     'password_reset' => [
@@ -146,6 +149,8 @@ return [
         'session_update_failed' => 'Failed to update the session.',
         'no_active_token' => 'No active token found.',
         'failed_to_retrieve' => 'Failed to retrieve session data.',
+        'device_id_required' => 'Device ID is required.',
+        'invalid_token' => 'Invalid token provided.',
     ],
     'auth' => [
         'missing_user_or_team' => 'Unauthorized. Missing user or team ID.',
@@ -658,11 +663,17 @@ return [
     ],
     'contact' => [
         'contacts_retrieved' => 'Contacts retrieved successfully.',
+        'submited_successfully' => 'Your message has been submitted successfully.',
     ],
     'home_banner' => [
         'at_least_one_banner_required' => 'At least one banner is required.',
         'delete_success' => 'Banner deleted successfully.',
         'delete_error' => 'Failed to delete home banner.',
+    ],
+    'wishlist' => [
+        'retrieved' => 'Wishlist retrieved successfully.',
+        'removed' => 'Item removed from wishlist.',
+        'added' => 'Item added to wishlist.',
     ],
     'pre_order' => [
         'client_id_required' => 'Client ID is required.',
@@ -746,7 +757,7 @@ return [
     'failed_to_retrieve_current_user' => 'Failed to retrieve current user information.',
     'retrieved_successfully' => 'Retrieved successfully',
     'failed_to_retrieve_data' => 'Failed to retrieve data.',
-       'profile_fetched_successfully' => 'Profile fetched successfully.',
+    'profile_fetched_successfully' => 'Profile fetched successfully.',
     'client_not_found' => 'Client not found.',
     'profile_updated_successfully' => 'Profile updated successfully.',
     'unauthorized_access' => 'Unauthorized access.',

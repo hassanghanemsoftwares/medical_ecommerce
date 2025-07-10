@@ -3,48 +3,35 @@
 namespace App\Services;
 
 use App\Http\Resources\V1\Admin\SessionResource;
-use Illuminate\Support\Facades\Cookie;
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Contracts\Encryption\DecryptException;
 use App\Models\Session as UserSession;
 use Illuminate\Http\Request;
 
 class UserSessionService
 {
-    public function getSessionFromCookie(): array
+    /**
+     * Get the session by device_id instead of session cookie
+     */
+    public function getSessionFromDevice(Request $request): array
     {
         try {
-            $cookieName = config('session.cookie');
-            $cookieValue = Cookie::get($cookieName);
+            $deviceId = $request->header('X-Device-ID') ?? $request->input('device_id');
 
-            if (!$cookieValue) {
+            if (!$deviceId) {
                 return [
                     'result' => false,
-                    'message' => __('messages.session.session_required') . ' (cookie missing)',
+                    'message' => __('messages.session.device_id_required'),
                     'session' => null,
                 ];
             }
 
-            // Attempt to decrypt session ID (some Laravel setups don't encrypt this)
-            try {
-                $sessionId = Crypt::decryptString($cookieValue);
-            } catch (DecryptException) {
-                $sessionId = $cookieValue; // Use raw if not encrypted
-            }
-
-            if (str_contains($sessionId, '|')) {
-                $parts = explode('|', $sessionId);
-                $possibleSessionIds = array_filter([$parts[0] ?? null, $parts[1] ?? null]);
-                $session = UserSession::whereIn('id', $possibleSessionIds)->first();
-            } else {
-                $session = UserSession::where('id', $sessionId)->first();
-            }
-
+            $session = UserSession::where('device_id', $deviceId)
+                ->where('is_active', true)
+                ->first();
 
             if (!$session) {
                 return [
                     'result' => false,
-                    'message' => __('messages.session.session_required') . ' (session not found)' . $sessionId,
+                    'message' => __('messages.session.session_required') . ' (device_id not found)',
                     'session' => null,
                 ];
             }
@@ -63,12 +50,15 @@ class UserSessionService
         }
     }
 
+    /**
+     * log session activity
+     */
     public function logSessionActivity(Request $request, string $event, array $extra = [], $causer = null, $subject = null): void
     {
-        $sessionResult = $this->getSessionFromCookie();
+        $sessionResult = $this->getSessionFromDevice($request);
 
         if (!$sessionResult['result'] || !$sessionResult['session']) {
-            return; // Optionally, log failure
+            return; // optionally log failure
         }
 
         $session = $sessionResult['session'];

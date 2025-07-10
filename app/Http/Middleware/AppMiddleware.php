@@ -18,7 +18,7 @@ class AppMiddleware
     {
         $request->headers->set('Accept', 'application/json');
         $app_key = $request->header('App-key');
-        if ($app_key == env("FRONTEND_APP_KEY")) {
+        if ($app_key == config("app.frontend_app_key")) {
             $lang = $request->header('Accept-Language', 'en');
             App::setLocale($lang);
             $response = $next($request);

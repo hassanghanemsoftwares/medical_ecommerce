@@ -83,6 +83,9 @@ return [
             'variant_id' => 'نوع المنتج',
             'quantity' => 'الكمية',
             'occupation_id' => 'المهنة',
+            'subject' => 'الموضوع',
+            'message' => 'الرسالة',
+            'is_view' => 'حالة العرض',
         ],
     ],
     'password_reset' => [
@@ -146,6 +149,8 @@ return [
         'session_update_failed' => 'فشل في تحديث الجلسة.',
         'no_active_token' => 'لم يتم العثور على رمز نشط.',
         'failed_to_retrieve' => 'فشل في استرجاع بيانات الجلسة.',
+        'device_id_required' => 'معرّف الجهاز مطلوب.',
+        'invalid_token' => 'رمز غير صالح.',
     ],
     'auth' => [
         'missing_user_or_team' => 'غير مصرح. مفقود معرف المستخدم أو الفريق.',
@@ -658,11 +663,17 @@ return [
     ],
     'contact' => [
         'contacts_retrieved' => 'تم جلب جهات الاتصال بنجاح.',
+        'submited_successfully' => 'تم إرسال رسالتك بنجاح.',
     ],
     'home_banner' => [
         'at_least_one_banner_required' => 'مطلوب وجود إعلان واحد على الأقل.',
         'delete_success' => 'تم حذف الإعلان بنجاح.',
         'delete_error' => 'فشل في حذف البانر الرئيسي.',
+    ],
+    'wishlist' => [
+        'retrieved' => 'تم استرجاع قائمة الرغبات بنجاح.',
+        'removed' => 'تمت إزالة العنصر من قائمة الرغبات.',
+        'added' => 'تمت إضافة العنصر إلى قائمة الرغبات.',
     ],
     'pre_order' => [
         'client_id_required' => 'معرف العميل مطلوب.',
@@ -749,7 +760,7 @@ return [
     'profile_fetched_successfully' => 'تم جلب الملف الشخصي بنجاح.',
     'client_not_found' => 'لم يتم العثور على العميل.',
     'profile_updated_successfully' => 'تم تحديث الملف الشخصي بنجاح.',
-     'unauthorized_access' => 'دخول غير مصرح.',
+    'unauthorized_access' => 'دخول غير مصرح.',
     'payment_status' => [
         'Pending' => 'قيد الانتظار',
         'Paid' => 'مدفوع',

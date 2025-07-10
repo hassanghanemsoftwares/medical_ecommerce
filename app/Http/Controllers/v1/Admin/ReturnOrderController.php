@@ -128,11 +128,12 @@ class ReturnOrderController extends Controller
                 ];
             }
             $returnOrderData = [
-                'return_order_number' => Order::generateOrderNumber(),
+                'return_order_number' => ReturnOrder::generateOrderNumber(),
                 'created_by' => Auth::id(),
                 'requested_at' => now(),
                 'status' => 0,
                 'order_id' => $data['order_id'],
+                'client_id' => $order->client_id,
                 'reason' => $data['reason'] ?? '',
             ];
 

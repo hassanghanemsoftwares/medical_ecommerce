@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Services\UserSessionService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Http\Request;
 use Laravel\Sanctum\PersonalAccessToken;
 
 class Session extends Model
@@ -16,12 +17,14 @@ class Session extends Model
 
     protected $fillable = [
         'id',
+        'device_id',
         'user_id',
         'token_id',
         'ip_address',
         'user_agent',
         'payload',
-        'last_activity'
+        'last_activity',
+        'is_active',
     ];
 
     public function token()
@@ -34,10 +37,17 @@ class Session extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function isCurrentSession(): bool
+    /**
+     * Check if this session corresponds to the current device/session
+     *
+     * @param Request $request
+     * @return bool
+     */
+    public function isCurrentSession(Request $request): bool
     {
         $service = app(UserSessionService::class);
-        $result = $service->getSessionFromCookie();
+
+        $result = $service->getSessionFromDevice($request);
 
         if (!$result['result'] || !$result['session']) {
             return false;

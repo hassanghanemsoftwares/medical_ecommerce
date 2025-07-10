@@ -59,7 +59,12 @@ use App\Http\Controllers\V1\Client\ClientWishlistController;
 Route::prefix('v1')->group(function () {
     Route::prefix('admin')->group(function () {
         Route::middleware(['manage_auth_session', 'app_auth'])->group(function () {
-
+            Route::get('/app-launch', function () {
+                return response()->json([
+                    'result' => true,
+                    'message' => 'App launch successful and session managed.',
+                ]);
+            });
             Route::middleware(['guest', 'recaptcha'])->group(function () {
                 Route::post('login', [AuthController::class, 'login']);
                 Route::post('verify-otp', [AuthController::class, 'verifyOtp']);
@@ -67,7 +72,7 @@ Route::prefix('v1')->group(function () {
                 Route::post('reset-password', [AuthController::class, 'resetPassword']);
             });
 
-            Route::middleware(['auth:sanctum', 'check_token_expiry'])->group(function () {
+            Route::middleware(['auth:sanctum'])->group(function () {
                 Route::middleware('auth.actions')->group(function () {
                     Route::get('getCurrentUser', [ProfileController::class, 'getCurrentUser']);
                     Route::post('logout', [ProfileController::class, 'logout']);
@@ -274,21 +279,20 @@ Route::prefix('v1')->group(function () {
             Route::get('home', [ClientHomeController::class, 'index']);
             Route::get('product/{slug}', [ClientProductController::class, 'show']);
             Route::get('shop', [ClientShopController::class, 'index']);
-
+            Route::get('team-members', [ClientTeamMemberController::class, 'index']);
             Route::middleware(['recaptcha'])->group(function () {
                 Route::post('send-otp-login', [ClientAuthController::class, 'sendOtpLogin']);
                 Route::post('send-otp-register', [ClientAuthController::class, 'sendOtpRegister']);
                 Route::post('verify-otp-login', [ClientAuthController::class, 'verifyOtpLogin']);
                 Route::post('verify-otp-register', [ClientAuthController::class, 'verifyOtpRegister']);
+                Route::post('contact', [ClientContactController::class, 'store']);
+                Route::post('newsletterSubscribe', [ClientNewsletterController::class, 'subscribe']);
             });
 
             Route::middleware('auth:sanctum')->group(function () {
                 Route::get('getCurrentUser', [ClientProfileController::class, 'getCurrentUser']);
                 Route::post('logout', [ClientProfileController::class, 'logout']);
                 Route::post('updateProfile', [ClientProfileController::class, 'update']);
-
-                Route::post('newsletterSubscribe', [ClientNewsletterController::class, 'subscribe']);
-
 
                 Route::prefix('cart')->controller(ClientCartController::class)->group(function () {
                     Route::get('/', 'index');
@@ -321,8 +325,7 @@ Route::prefix('v1')->group(function () {
                     Route::post('addOrRemove', 'addOrRemove');
                 });
 
-                Route::post('contact', [ClientContactController::class, 'store']);
-                Route::get('team-members', [ClientTeamMemberController::class, 'index']);
+
 
                 Route::post('placeOrder', [ClientCheckoutController::class, 'placeOrder']);
 
