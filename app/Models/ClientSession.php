@@ -12,10 +12,16 @@ class ClientSession extends Model
 
     protected $fillable = [
         'client_id',
+        'token_id',
         'notification_token',
         'device_id',
         'ip_address',
         'user_agent',
+        'screen_resolution',
+        'language',
+        'referrer',
+        'current_page',
+        'timezone',
         'is_active',
         'last_activity',
         'latitude',

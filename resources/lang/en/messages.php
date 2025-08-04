@@ -11,6 +11,7 @@ return [
         'max' => [
             'string' => ':attribute must not be greater than :max characters.',
             'file' => 'The :attribute may not be greater than :max kilobytes.',
+            'numeric' => 'The :attribute may not be greater than :max.',
         ],
         'min' => [
             'string' => ':attribute must be at least :min characters.',
@@ -86,6 +87,9 @@ return [
             'subject' => 'Subject',
             'message' => 'Message',
             'is_view' => 'View status',
+            'product' => 'Product',
+            'rating' => 'Rating',
+            'comment' => 'Comment',
         ],
     ],
     'password_reset' => [
@@ -151,6 +155,7 @@ return [
         'failed_to_retrieve' => 'Failed to retrieve session data.',
         'device_id_required' => 'Device ID is required.',
         'invalid_token' => 'Invalid token provided.',
+        'invalid_tracking_data' => 'Invalid tracking data.',
     ],
     'auth' => [
         'missing_user_or_team' => 'Unauthorized. Missing user or team ID.',
@@ -199,6 +204,7 @@ return [
     'general' => [
         'failed_to_retrieve_data' => 'Failed to retrieve data.',
         'general_error' => 'An error occurred. Please try again later.',
+        'unknown_client' => 'Unknown client.',
     ],
     'common' => [
         'no_color' => 'No color',
@@ -567,12 +573,13 @@ return [
         'quantity_integer' => 'Quantity must be an integer.',
         'quantity_min' => 'Quantity must be at least 1.',
     ],
-    'notiifications' => [
+    'notifications' => [
         'new_order_msg' => ':name placed a new order',
         'new_preorder_msg' => ':name placed a new preorder',
         'return_order_msg' => ':name requested a return for order #:order_number',
         'new_contact_msg' => 'New contact message from :name regarding ":subject"',
         'failed_to_retrieve_notifications' => 'Failed to retrieve notifications.',
+        'new_review_msg' => 'You have a new review.',
     ],
     'return_order' => [
         'return_orders_retrieved' => 'Return orders retrieved successfully.',
@@ -787,5 +794,20 @@ return [
         'coupon_applied' => 'Coupon applied successfully.',
         'no_coupon_applied' => 'No coupon was applied.',
         'coupon_removed' => 'Coupon removed successfully.',
+        'cannot_mix_preorder_and_regular' => 'You cannot mix pre-order and regular items in the cart.',
+    ],
+    'dashboard' => [
+        'dashboard_retrieved' => 'Dashboard retrieved successfully.',
+        'failed_to_retrieve' => 'Failed to retrieve dashboard data.',
+    ],
+    'review' => [
+        'reviews_retrieved' => 'Reviews retrieved successfully.',
+        'failed_to_retrieve_data' => 'Failed to retrieve review data.',
+        'review_found' => 'Review found.',
+        'review_updated' => 'Review updated successfully.',
+        'failed_to_update_review' => 'Failed to update review.',
+        'created' => 'Review created successfully.',
+        'updated' => 'Review updated successfully.',
+        'deleted' => 'Review deleted successfully.',
     ],
 ];

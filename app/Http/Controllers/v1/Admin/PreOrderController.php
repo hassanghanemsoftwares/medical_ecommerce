@@ -24,7 +24,7 @@ class PreOrderController extends Controller
         try {
             $validated = $request->validate([
                 'search' => 'nullable|string|max:255',
-                'sort' => 'nullable|in:created_at,order_number,status',
+                'sort' => 'nullable|in:created_at,order_number,status,client_name,payment_method,payment_status',
                 'order' => 'nullable|in:asc,desc',
                 'per_page' => 'nullable|integer|min:1|max:100',
             ]);
@@ -35,7 +35,19 @@ class PreOrderController extends Controller
                 ->when($validated['search'] ?? null, function ($query, $search) {
                     $query->where('order_number', 'like', "%$search%");
                 })
-                ->orderBy($validated['sort'] ?? 'created_at', $validated['order'] ?? 'desc')
+                ->when($validated['sort'] ?? null, function ($query, $sort) use ($validated) {
+                    $order = $validated['order'] ?? 'desc';
+
+                    if ($sort === 'client_name') {
+                        $query->join('clients', 'orders.client_id', '=', 'clients.id')
+                            ->orderBy('clients.name', $order)
+                            ->select('orders.*');
+                    } else {
+                        $query->orderBy("orders.$sort", $order);
+                    }
+                }, function ($query) {
+                    $query->orderBy('orders.created_at', 'desc');
+                })
                 ->paginate($validated['per_page'] ?? 10);
 
             return response()->json([
@@ -45,13 +57,13 @@ class PreOrderController extends Controller
                 'pagination' => new PaginationResource($orders),
             ]);
         } catch (Exception $e) {
-            return $this->errorResponse( __('messages.order.failed_to_retrieve_data'), $e);
+            return $this->errorResponse(__('messages.order.failed_to_retrieve_data'), $e);
         }
     }
 
+
     public function show(Order $order)
     {
-
         $order->load([
             'client',
             'coupon',
@@ -113,7 +125,7 @@ class PreOrderController extends Controller
                     'quantity' => $item['quantity'],
                     'price' => $item['price'],
                     'discount' => $item['variant']->product->discount,
-                   
+
 
                 ]);
             }
@@ -131,7 +143,7 @@ class PreOrderController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse( __('messages.order.failed_to_create_order'), $e);
+            return $this->errorResponse(__('messages.order.failed_to_create_order'), $e);
         }
     }
 
@@ -150,11 +162,7 @@ class PreOrderController extends Controller
                 'orderDetails.variant.stocks',
                 'orderDetails.variant.product',
             ])->findOrFail($id);
-
-            // Apply updates except convert_to_order
             $order->update(Arr::except(array_filter($validated, fn($v) => !is_null($v)), ['convert_to_order']));
-
-            // Handle conversion from preorder to regular order
             if (!empty($validated['convert_to_order']) && $order->is_preorder) {
                 foreach ($order->orderDetails as $detail) {
                     $variant = $detail->variant;
@@ -194,7 +202,7 @@ class PreOrderController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse( __(__('messages.order.failed_to_update_order')), $e);
+            return $this->errorResponse(__(__('messages.order.failed_to_update_order')), $e);
         }
     }
 }

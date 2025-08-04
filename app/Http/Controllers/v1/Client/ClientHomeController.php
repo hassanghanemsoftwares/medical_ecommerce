@@ -23,11 +23,20 @@ class ClientHomeController extends Controller
                 'productSectionItems.product' => function ($query) {
                     $query->where('availability_status', '!=', 'discontinued');
                 },
+                'productSectionItems.product.images' => function ($query) {
+                    $query->orderBy('arrangement', 'asc');
+                },
                 'productSectionItems.product.category',
                 'productSectionItems.product.brand',
                 'productSectionItems.product.variants',
                 'productSectionItems.product.variants.color',
                 'productSectionItems.product.variants.size',
+                'productSectionItems.product.reviews'  => fn($q) => $q
+                    ->where('is_active', 1)
+                    ->orderBy('id', 'desc')
+                    ->take(5),
+
+
 
             ])->orderBy("arrangement", "asc")->get();
             foreach ($homeSections as $section) {

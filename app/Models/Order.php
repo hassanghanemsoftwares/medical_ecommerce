@@ -130,67 +130,67 @@ class Order extends Model
     public static function getAllOrderStatus()
     {
         return [
-            [
+            [ //0
                 'name' => __('messages.order_status.Pending'),
                 'description' => __('messages.order_status.Pending_description'),
                 'color' => '#ffc107',
                 'class' => 'warning',
             ],
-            [
+            [ //1
                 'name' => __('messages.order_status.Confirmed'),
                 'description' => __('messages.order_status.Confirmed_description'),
                 'color' => '#007bff',
                 'class' => 'primary',
             ],
-            [
+            [ //2
                 'name' => __('messages.order_status.Processing'),
                 'description' => __('messages.order_status.Processing_description'),
                 'color' => '#17a2b8',
                 'class' => 'info',
             ],
-            [
+            [ //3
                 'name' => __('messages.order_status.On Hold'),
                 'description' => __('messages.order_status.On Hold_description'),
                 'color' => '#6c757d',
                 'class' => 'secondary',
             ],
-            [
+            [ //4
                 'name' => __('messages.order_status.Shipped'),
                 'description' => __('messages.order_status.Shipped_description'),
                 'color' => '#6610f2',
                 'class' => 'primary',
             ],
-            [
+            [ //5
                 'name' => __('messages.order_status.Delivered'),
                 'description' => __('messages.order_status.Delivered_description'),
                 'color' => '#28a745',
                 'class' => 'success',
             ],
-            [
+            [ //6
                 'name' => __('messages.order_status.Failed'),
                 'description' => __('messages.order_status.Failed_description'),
                 'color' => '#dc3545',
                 'class' => 'danger',
             ],
-            [
+            [ //7
                 'name' => __('messages.order_status.Cancelled By Admin'),
                 'description' => __('messages.order_status.Cancelled By Admin_description'),
                 'color' => '#dc3545',
                 'class' => 'danger',
             ],
-            [
+            [ //8
                 'name' => __('messages.order_status.Cancelled By Customer'),
                 'description' => __('messages.order_status.Cancelled By Customer_description'),
                 'color' => '#dc3545',
                 'class' => 'danger',
             ],
-            [
+            [ //9
                 'name' => __('messages.order_status.Returned'),
                 'description' => __('messages.order_status.Returned_description'),
                 'color' => '#17a2b8',
                 'class' => 'info',
             ],
-            [
+            [ //10
                 'name' => __('messages.order_status.Completed'),
                 'description' => __('messages.order_status.Completed_description'),
                 'color' => '#28a745',

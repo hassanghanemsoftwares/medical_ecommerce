@@ -33,7 +33,7 @@ class Review extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['client_id', 'product_id', 'rating', 'comment', 'is_active', 'is_view'])
+            ->logOnly([ 'is_active', 'is_view'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('Review');

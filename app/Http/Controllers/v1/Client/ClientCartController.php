@@ -70,44 +70,57 @@ class ClientCartController extends Controller
     public function addOrUpdate(CartItemRequest $request)
     {
         try {
-
             $variant = Variant::with('product')->findOrFail($request->variant_id);
             $is_preorder = false;
+
             if ($variant->product->availability_status == "discontinued") {
                 return response()->json([
                     'result' => false,
                     'message' => __('messages.cart.cannot_add_this_item_to_cart'),
                 ]);
             }
+
             if ($variant->product->availability_status != "available") {
                 $is_preorder = true;
             } else {
                 StockAdjustment::checkVariantQty($request->variant_id, $request->quantity);
             }
 
-
-
             $cart = $this->getCart($request, true, $is_preorder);
-            $orderDetail = $cart->orderDetails()->where('variant_id', $request->variant_id)->first();
+
+            $existingOrderDetails = $cart->orderDetails;
+            $hasPreorderItem = $existingOrderDetails->contains(function ($detail) {
+                return $detail->variant->product->availability_status != 'available';
+            });
+
+            if (
+                ($hasPreorderItem && !$is_preorder) ||  (!$hasPreorderItem && $is_preorder)
+            ) {
+                return response()->json([
+                    'result' => false,
+                    'message' => __('messages.cart.cannot_mix_preorder_and_regular'),
+                ]);
+            }
+
+            $orderDetail = $existingOrderDetails->where('variant_id', $request->variant_id)->first();
+
             if ($orderDetail) {
                 $oldqty = $orderDetail->quantity;
-
                 $orderDetail->quantity = $request->quantity;
                 $orderDetail->save();
 
                 $cart->refresh();
+
                 if ($cart->coupon && $cart->coupon->min_order_amount > $cart->subtotal) {
                     $orderDetail->quantity = $oldqty;
                     $orderDetail->save();
+
                     return response()->json([
                         'result' => false,
                         'message' => __('messages.cart.coupon_min_order_amount_failed'),
                     ]);
                 }
             } else {
-
-
-
                 $cart->orderDetails()->create([
                     'variant_id' => $request->variant_id,
                     'quantity' => $request->quantity,
@@ -116,7 +129,6 @@ class ClientCartController extends Controller
                     'cost' => 0,
                 ]);
             }
-
 
             return response()->json([
                 'result' => true,
@@ -128,6 +140,7 @@ class ClientCartController extends Controller
             return $this->errorResponse(__('messages.error_occurred'), $e);
         }
     }
+
 
     public function remove(Request $request)
     {

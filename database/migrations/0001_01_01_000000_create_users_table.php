@@ -33,8 +33,16 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable()->constrained('users')->cascadeOnDelete();
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();
-            $table->longText('payload');
+            $table->boolean('is_active')->default(true);
             $table->integer('last_activity')->index();
+            $table->string('notification_token', 255)->nullable();
+            $table->string('screen_resolution', 32)->nullable();
+            $table->string('language', 10)->nullable();
+            $table->string('referrer', 2048)->nullable();
+            $table->string('current_page', 2048)->nullable();
+            $table->string('timezone', 64)->nullable();
+            $table->double('latitude', 10, 6)->nullable();
+            $table->double('longitude', 10, 6)->nullable();
             $table->timestamps();
         });
     }

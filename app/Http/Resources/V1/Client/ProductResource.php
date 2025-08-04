@@ -37,6 +37,9 @@ class ProductResource extends JsonResource
                 'description' => $spec->getTranslations('description'),
                 'id' => $spec->id,
             ]),
+            'reviews' => ReviewResource::collection($this->reviews),
+            'reviews_count' => $this->reviews->where('is_active', true)->count(),
+            'average_rating' => round($this->reviews->where('is_active', true)->avg('rating'), 2),
         ];
     }
 }

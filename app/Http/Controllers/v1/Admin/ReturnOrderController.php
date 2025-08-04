@@ -16,8 +16,6 @@ use Illuminate\Support\Facades\DB;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 
-
-
 class ReturnOrderController extends Controller
 {
     public function index(Request $request)
@@ -25,18 +23,45 @@ class ReturnOrderController extends Controller
         try {
             $validated = $request->validate([
                 'search' => 'nullable|string|max:255',
-                'sort' => 'nullable|in:requested_at,status',
+                'sort' => 'nullable|in:return_order_number,order_number,client_name,status,requested_at,reason',
                 'order' => 'nullable|in:asc,desc',
                 'per_page' => 'nullable|integer|min:1|max:100',
             ]);
 
-            $returns = ReturnOrder::with(['order', 'order.client'])
+            $returns = ReturnOrder::with([
+                'order.client',
+                'order',
+                'details.variant.product',
+                'details.variant.size',
+                'details.variant.color',
+            ])
                 ->when($validated['search'] ?? null, function ($query, $search) {
                     $query->whereHas('order', function ($q) use ($search) {
                         $q->where('order_number', 'like', "%$search%");
                     });
                 })
-                ->orderBy($validated['sort'] ?? 'requested_at', $validated['order'] ?? 'desc')
+                ->when($validated['sort'] ?? null, function ($query, $sort) use ($validated) {
+                    $order = $validated['order'] ?? 'desc';
+
+                    switch ($sort) {
+                        case 'order_number':
+                            $query->join('orders', 'return_orders.order_id', '=', 'orders.id')
+                                ->orderBy('orders.order_number', $order)
+                                ->select('return_orders.*'); // prevent column collision
+                            break;
+                        case 'client_name':
+                            $query->join('orders', 'return_orders.order_id', '=', 'orders.id')
+                                ->join('clients', 'orders.client_id', '=', 'clients.id')
+                                ->orderBy('clients.name', $order)
+                                ->select('return_orders.*');
+                            break;
+                        default:
+                            $query->orderBy("return_orders.$sort", $order);
+                            break;
+                    }
+                }, function ($query) {
+                    $query->orderBy('return_orders.requested_at', 'desc');
+                })
                 ->paginate($validated['per_page'] ?? 10);
 
             return response()->json([
@@ -58,6 +83,13 @@ class ReturnOrderController extends Controller
             'details.variant.product',
             'details.variant.size',
             'details.variant.color',
+            'details.stockAdjustments' => function ($query) use ($returnOrder) {
+                $query->where('reference_type', 'return_order')
+                    ->where('reference_id', $returnOrder->id)
+                    ->latest('created_at');
+            },
+            'details.stockAdjustments.warehouse',
+            'details.stockAdjustments.shelf',
         ]);
 
         return response()->json([

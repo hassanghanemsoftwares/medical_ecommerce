@@ -40,6 +40,10 @@ class ReturnOrder extends Model
     {
         return $this->hasMany(ReturnOrderDetail::class);
     }
+    public function getTotalRefundAmountAttribute()
+    {
+        return $this->details->sum('refund_amount');
+    }
 
     public function getActivitylogOptions(): LogOptions
     {

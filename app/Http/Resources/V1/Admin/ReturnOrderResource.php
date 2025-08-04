@@ -15,10 +15,10 @@ class ReturnOrderResource extends JsonResource
             'order_id' => $this->order_id,
             'requested_at' => $this->requested_at?->format('Y-m-d H:i:s'),
             'processed_at' => $this->processed_at,
-            'status' =>$this->getRawOriginal('status'),
+            'status' => $this->getRawOriginal('status'),
             'status_info' => $this->status,
             'reason' => $this->reason,
-            'refund_amount' => $this->refund_amount,
+            'refund_amount' => $this->total_refund_amount,
             'details' => ReturnOrderDetailResource::collection($this->whenLoaded('details')),
             'order' => new OrderResource($this->whenLoaded('order')),
         ];

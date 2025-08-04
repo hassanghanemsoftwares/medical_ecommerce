@@ -30,6 +30,7 @@ use App\Models\Occupation;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ReturnOrder;
+use App\Models\Review;
 use App\Models\Shelf;
 use App\Models\Size;
 use App\Models\Tag;
@@ -41,6 +42,7 @@ use Spatie\Permission\Models\Permission;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Gate;
 
 class SettingsController extends Controller
 {
@@ -49,7 +51,7 @@ class SettingsController extends Controller
     {
         try {
             $permissions = Permission::select('id', 'name')
-                ->whereNotIn('name', ['view-activity-logs'])
+                ->whereNotIn('name', ['view-activity_logs'])
                 ->orderBy('id', 'asc')
                 ->get();
 
@@ -421,97 +423,153 @@ class SettingsController extends Controller
     public function getNotifications()
     {
         try {
+            $notifications = collect();
+            $totalUnreadCount = 0;
+
             // Regular unread orders (non-preorder)
-            $unreadOrders = Order::where('is_view', false)
-                ->where('is_preorder', false)
-                ->with('client')
-                ->latest()
-                ->get();
+            if (Gate::allows('view-order')) {
+                $unreadOrders = Order::where('is_view', false)
+                    ->where('is_preorder', false)
+                    ->with('client')
+                    ->latest()
+                    ->get();
+
+                $notifications = $notifications->merge(
+                    $unreadOrders->map(function ($order) {
+                        return [
+                            'type' => 'order',
+                            'order_id' => $order->id,
+                            'message' => __('messages.notifications.new_order_msg', ['name' => $order->client->name]),
+                            'created_at' => optional($order->created_at)->toDateTimeString(),
+                        ];
+                    })
+                );
+
+                $unreadOrderCount = $unreadOrders->count();
+                $totalUnreadCount += $unreadOrderCount;
+            } else {
+                $unreadOrderCount = 0;
+            }
 
             // Unread preorders
-            $unreadPreorders = Order::where('is_view', false)
-                ->where('is_preorder', true)
-                ->with('client')
-                ->latest()
-                ->get();
+            if (Gate::allows('view-pre_order')) {
+                $unreadPreorders = Order::where('is_view', false)
+                    ->where('is_preorder', true)
+                    ->with('client')
+                    ->latest()
+                    ->get();
+
+                $notifications = $notifications->merge(
+                    $unreadPreorders->map(function ($order) {
+                        return [
+                            'type' => 'preorder',
+                            'order_id' => $order->id,
+                            'message' => __('messages.notifications.new_preorder_msg', ['name' => $order->client->name]),
+                            'created_at' => optional($order->created_at)->toDateTimeString(),
+                        ];
+                    })
+                );
+
+                $unreadPreorderCount = $unreadPreorders->count();
+                $totalUnreadCount += $unreadPreorderCount;
+            } else {
+                $unreadPreorderCount = 0;
+            }
 
             // Pending return orders
-            $returnOrders = ReturnOrder::where('status', 0)
-                ->with(['client', 'order'])
-                ->latest()
-                ->get();
+            if (Gate::allows('view-return_order')) {
+                $returnOrders = ReturnOrder::where('status', 0)
+                    ->with(['client', 'order'])
+                    ->latest()
+                    ->get();
+
+                $notifications = $notifications->merge(
+                    $returnOrders->map(function ($return) {
+                        return [
+                            'type' => 'return_order',
+                            'order_id' => $return->id,
+                            'message' => __('messages.notifications.return_order_msg', [
+                                'name' => $return->client->name,
+                                'order_number' => $return->order_number,
+                            ]),
+                            'created_at' => optional($return->requested_at)->toDateTimeString(),
+                        ];
+                    })
+                );
+
+                $pendingReturnCount = $returnOrders->count();
+                $totalUnreadCount += $pendingReturnCount;
+            } else {
+                $pendingReturnCount = 0;
+            }
 
             // Unread contact messages
-            $unreadContacts = Contact::where('is_view', false)
-                ->latest()
-                ->get();
+            if (Gate::allows('view-contacts')) {
+                $unreadContacts = Contact::where('is_view', false)
+                    ->latest()
+                    ->get();
 
-            // Map regular orders to notifications
-            $orderNotifications = $unreadOrders->map(function ($order) {
-                return [
-                    'type' => 'order',
-                    'order_id' => $order->id,
-                    'message' => __('messages.notiifications.new_order_msg', ['name' => $order->client->name]),
-                    'created_at' => optional($order->created_at)->toDateTimeString(),
-                ];
-            });
+                $notifications = $notifications->merge(
+                    $unreadContacts->map(function ($contact) {
+                        return [
+                            'type' => 'contact',
+                            'contact_id' => $contact->id,
+                            'message' => __('messages.notifications.new_contact_msg', [
+                                'name' => $contact->name,
+                                'subject' => $contact->subject,
+                            ]),
+                            'created_at' => optional($contact->created_at)->toDateTimeString(),
+                        ];
+                    })
+                );
 
-            // Map preorders to notifications
-            $preorderNotifications = $unreadPreorders->map(function ($order) {
-                return [
-                    'type' => 'preorder',
-                    'order_id' => $order->id,
-                    'message' => __('messages.notiifications.new_preorder_msg', ['name' => $order->client->name]),
-                    'created_at' => optional($order->created_at)->toDateTimeString(),
-                ];
-            });
+                $unreadContactCount = $unreadContacts->count();
+                $totalUnreadCount += $unreadContactCount;
+            } else {
+                $unreadContactCount = 0;
+            }
 
-            // Map return orders to notifications
-            $returnNotifications = $returnOrders->map(function ($return) {
-                return [
-                    'type' => 'return_order',
-                    'order_id' => $return->order_id,
-                    'message' => __('messages.notiifications.return_order_msg', [
-                        'name' => $return->client->name,
-                        'order_number' => $return->order_number,
-                    ]),
-                    'created_at' => optional($return->requested_at)->toDateTimeString(),
-                ];
-            });
+            // 🔔 Unread reviews
+            if (Gate::allows('view-review')) {
+                $unreadReviews = Review::where('is_view', false)
+                    ->with('client')
+                    ->latest()
+                    ->get();
 
-            // Map contacts to notifications
-            $contactNotifications = $unreadContacts->map(function ($contact) {
-                return [
-                    'type' => 'contact',
-                    'contact_id' => $contact->id,
-                    'message' => __('messages.notiifications.new_contact_msg', [
-                        'name' => $contact->name,
-                        'subject' => $contact->subject,
-                    ]),
-                    'created_at' => optional($contact->created_at)->toDateTimeString(),
-                ];
-            });
+                $notifications = $notifications->merge(
+                    $unreadReviews->map(function ($review) {
+                        return [
+                            'type' => 'review',
+                            'review_id' => $review->id,
+                            'message' => __('messages.notifications.new_review_msg', [
+                                'name' => $review->client->name ?? __('messages.general.unknown_client'),
+                            ]),
+                            'created_at' => optional($review->created_at)->toDateTimeString(),
+                        ];
+                    })
+                );
 
-            // Merge all notifications and sort by creation date descending
-            $notifications = collect()
-                ->merge($orderNotifications)
-                ->merge($preorderNotifications)
-                ->merge($returnNotifications)
-                ->merge($contactNotifications)
-                ->sortByDesc('created_at')
-                ->values();
+                $unreadReviewCount = $unreadReviews->count();
+                $totalUnreadCount += $unreadReviewCount;
+            } else {
+                $unreadReviewCount = 0;
+            }
+
+            // Sort all merged notifications by creation date
+            $notifications = $notifications->sortByDesc('created_at')->values();
 
             return response()->json([
                 'result' => true,
                 'notifications' => $notifications,
-                'unread_order_count' => $unreadOrders->count(),
-                'unread_preorder_count' => $unreadPreorders->count(),
-                'pending_return_count' => $returnOrders->count(),
-                'unread_contact_count' => $unreadContacts->count(),
-                'total_unread_count' => $unreadOrders->count() + $unreadPreorders->count() + $returnOrders->count() + $unreadContacts->count(),
+                'unread_order_count' => $unreadOrderCount,
+                'unread_preorder_count' => $unreadPreorderCount,
+                'pending_return_count' => $pendingReturnCount,
+                'unread_contact_count' => $unreadContactCount,
+                'unread_review_count' => $unreadReviewCount,
+                'total_unread_count' => $totalUnreadCount,
             ]);
         } catch (\Exception $e) {
-            return $this->errorResponse(__('messages.notiifications.failed_to_retrieve_notifications'), $e);
+            return $this->errorResponse(__('messages.notifications.failed_to_retrieve_notifications'), $e);
         }
     }
 }

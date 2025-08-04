@@ -9,6 +9,7 @@ class OrderDetailResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $stockAdjustment = $this->stockAdjustments->first();
         return [
             'id' => $this->id,
             'product_id' => $this->variant->product->id,
@@ -19,6 +20,9 @@ class OrderDetailResource extends JsonResource
             'total' => $this->getTotalAttribute(),
             'variant' => new VariantResource($this->whenLoaded('variant')),
             'product' => new ProductResource(optional($this->variant)->product),
+            'warehouse' => $stockAdjustment ? new WarehouseResource($stockAdjustment->warehouse) : null,
+            'shelf' => $stockAdjustment ? new ShelfResource($stockAdjustment->shelf) : null,
+            'available_stock' => $this->variant->available_quantity,
         ];
     }
 }

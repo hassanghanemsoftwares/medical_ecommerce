@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('device_id')->unique();
             $table->unsignedBigInteger('client_id')->nullable();
-            $table->foreign('client_id')->references('id')->on('clients')->cascadeOnDelete();
+            $table->unsignedBigInteger('token_id')->nullable();
             $table->string('notification_token', 255)->nullable();
             $table->string('ip_address')->nullable();
             $table->text('user_agent')->nullable();
@@ -23,7 +23,16 @@ return new class extends Migration
             $table->dateTime('last_activity');
             $table->double('latitude', 10, 6)->nullable();
             $table->double('longitude', 10, 6)->nullable();
+            $table->string('screen_resolution', 32)->nullable();
+            $table->string('language', 10)->nullable();
+            $table->string('referrer', 2048)->nullable();
+            $table->string('current_page', 2048)->nullable();
+            $table->string('timezone', 64)->nullable();
             $table->timestamps();
+
+            // Foreign keys
+            $table->foreign('client_id')->references('id')->on('clients')->cascadeOnDelete();
+            $table->foreign('token_id')->references('id')->on('personal_access_tokens')->cascadeOnDelete();
         });
     }
 

@@ -20,12 +20,20 @@ class Session extends Model
         'device_id',
         'user_id',
         'token_id',
+        'notification_token',
         'ip_address',
         'user_agent',
-        'payload',
+        'screen_resolution',
+        'timezone',
+        'language',
+        'referrer',
+        'current_page',
+        'latitude',
+        'longitude',
         'last_activity',
         'is_active',
     ];
+
 
     public function token()
     {
@@ -45,14 +53,7 @@ class Session extends Model
      */
     public function isCurrentSession(Request $request): bool
     {
-        $service = app(UserSessionService::class);
-
-        $result = $service->getSessionFromDevice($request);
-
-        if (!$result['result'] || !$result['session']) {
-            return false;
-        }
-
-        return $this->id === $result['session']->id;
+        $deviceId = $request->header('X-Device-ID') ?? $request->input('device_id');
+        return $this->id === $deviceId;
     }
 }

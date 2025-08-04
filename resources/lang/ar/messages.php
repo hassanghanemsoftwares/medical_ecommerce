@@ -11,6 +11,7 @@ return [
         'max' => [
             'string' => ':attribute يجب ألا يزيد عن :max حرفاً.',
             'file' => ':attribute لا يجب أن يزيد عن :max كيلوبايت.',
+            'numeric' => 'يجب ألا يكون :attribute أكبر من :max.',
         ],
         'min' => [
             'string' => ':attribute يجب ألا يقل عن :min حرفاً.',
@@ -86,6 +87,9 @@ return [
             'subject' => 'الموضوع',
             'message' => 'الرسالة',
             'is_view' => 'حالة العرض',
+            'product' => 'المنتج',
+            'rating' => 'التقييم',
+            'comment' => 'التعليق',
         ],
     ],
     'password_reset' => [
@@ -151,6 +155,7 @@ return [
         'failed_to_retrieve' => 'فشل في استرجاع بيانات الجلسة.',
         'device_id_required' => 'معرّف الجهاز مطلوب.',
         'invalid_token' => 'رمز غير صالح.',
+        'invalid_tracking_data' => 'بيانات تتبع غير صالحة.',
     ],
     'auth' => [
         'missing_user_or_team' => 'غير مصرح. مفقود معرف المستخدم أو الفريق.',
@@ -199,6 +204,7 @@ return [
     'general' => [
         'failed_to_retrieve_data' => 'فشل في استرجاع البيانات.',
         'general_error' => 'حدث خطأ. يرجى المحاولة لاحقاً.',
+        'unknown_client' => 'عميل غير معروف.',
     ],
     'common' => [
         'no_color' => 'لا يوجد لون',
@@ -567,12 +573,13 @@ return [
         'quantity_integer' => 'يجب أن تكون الكمية رقماً صحيحاً.',
         'quantity_min' => 'يجب أن تكون الكمية على الأقل 1.',
     ],
-    'notiifications' => [
+    'notifications' => [
         'new_order_msg' => ':name قام بإنشاء طلب جديد',
         'new_preorder_msg' => ':name قام بإنشاء طلب مسبق جديد',
         'return_order_msg' => ':name طلب إرجاع للطلب رقم #:order_number',
         'new_contact_msg' => 'رسالة جديدة من :name بخصوص ":subject"',
         'failed_to_retrieve_notifications' => 'فشل في جلب الإشعارات.',
+        'new_review_msg' => 'لديك تقييم جديد.',
     ],
     'return_order' => [
         'return_orders_retrieved' => 'تم جلب طلبات الإرجاع بنجاح.',
@@ -787,5 +794,20 @@ return [
         'coupon_applied' => 'تم تطبيق القسيمة بنجاح.',
         'no_coupon_applied' => 'لم يتم تطبيق أي قسيمة.',
         'coupon_removed' => 'تمت إزالة القسيمة بنجاح.',
+        'cannot_mix_preorder_and_regular' => 'لا يمكنك خلط الطلبات المسبقة والعادية في السلة.',
+    ],
+    'dashboard' => [
+        'dashboard_retrieved' => 'تم جلب لوحة التحكم بنجاح.',
+        'failed_to_retrieve' => 'فشل في جلب بيانات لوحة التحكم.',
+    ],
+    'review' => [
+        'reviews_retrieved' => 'تم جلب التقييمات بنجاح.',
+        'failed_to_retrieve_data' => 'فشل في جلب بيانات التقييم.',
+        'review_found' => 'تم العثور على التقييم.',
+        'review_updated' => 'تم تحديث التقييم بنجاح.',
+        'failed_to_update_review' => 'فشل في تحديث التقييم.',
+        'created' => 'تم إنشاء التقييم بنجاح.',
+        'updated' => 'تم تحديث التقييم بنجاح.',
+        'deleted' => 'تم حذف التقييم بنجاح.',
     ],
 ];

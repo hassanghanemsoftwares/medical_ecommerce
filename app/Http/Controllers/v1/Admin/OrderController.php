@@ -26,17 +26,40 @@ class OrderController extends Controller
         try {
             $validated = $request->validate([
                 'search' => 'nullable|string|max:255',
-                'sort' => 'nullable|in:created_at,order_number,status,delivery_amount',
+                'sort' => 'nullable|in:created_at,order_number,status,client_name,payment_method,payment_status',
                 'order' => 'nullable|in:asc,desc',
                 'per_page' => 'nullable|integer|min:1|max:100',
             ]);
 
-            $orders = Order::with(['client', 'coupon', 'address'])->where('is_cart', false)->where('is_preorder', false)
+            $sort = $validated['sort'] ?? 'created_at';
+            $order = $validated['order'] ?? 'desc';
+
+            $query = Order::query()
+                ->with([
+                    'client',
+                    'coupon',
+                    'address',
+                    'orderDetails.variant.product',
+                    'orderDetails.variant.size',
+                    'orderDetails.variant.color',
+                
+              
+                ])
+                ->where('is_cart', false)
+                ->where('is_preorder', false)
                 ->when($validated['search'] ?? null, function ($query, $search) {
                     $query->where('order_number', 'like', "%$search%");
-                })
-                ->orderBy($validated['sort'] ?? 'created_at', $validated['order'] ?? 'desc')
-                ->paginate($validated['per_page'] ?? 10);
+                });
+
+            if ($sort === 'client_name') {
+                $query->join('clients', 'orders.client_id', '=', 'clients.id')
+                    ->orderBy('clients.name', $order)
+                    ->select('orders.*');
+            } else {
+                $query->orderBy("orders.$sort", $order);
+            }
+
+            $orders = $query->paginate($validated['per_page'] ?? 10);
 
             return response()->json([
                 'result' => true,
@@ -45,7 +68,7 @@ class OrderController extends Controller
                 'pagination' => new PaginationResource($orders),
             ]);
         } catch (Exception $e) {
-            return $this->errorResponse( __('messages.order.failed_to_retrieve_data'), $e);
+            return $this->errorResponse(__('messages.order.failed_to_retrieve_data'), $e);
         }
     }
 
@@ -58,6 +81,13 @@ class OrderController extends Controller
             'orderDetails.variant.product',
             'orderDetails.variant.size',
             'orderDetails.variant.color',
+            'orderDetails.stockAdjustments' => function ($query) use ($order) {
+                $query->where('reference_type', 'order')
+                    ->where('reference_id', $order->id)
+                    ->latest('created_at');
+            },
+            'orderDetails.stockAdjustments.warehouse',
+            'orderDetails.stockAdjustments.shelf',
         ]);
 
         if (!$order->is_view) {
@@ -164,7 +194,7 @@ class OrderController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse( __(__('messages.order.failed_to_create_order')), $e);
+            return $this->errorResponse(__(__('messages.order.failed_to_create_order')), $e);
         }
     }
 
@@ -236,11 +266,18 @@ class OrderController extends Controller
                     'orderDetails.variant.product',
                     'orderDetails.variant.size',
                     'orderDetails.variant.color',
+                    'orderDetails.stockAdjustments' => function ($query) use ($order) {
+                        $query->where('reference_type', 'order')
+                            ->where('reference_id', $order->id)
+                            ->latest('created_at');
+                    },
+                    'orderDetails.stockAdjustments.warehouse',
+                    'orderDetails.stockAdjustments.shelf',
                 ])),
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse( __(__('messages.order.failed_to_update_order')), $e);
+            return $this->errorResponse(__(__('messages.order.failed_to_update_order')), $e);
         }
     }
 }

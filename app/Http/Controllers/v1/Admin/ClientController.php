@@ -13,37 +13,49 @@ use Exception;
 
 class ClientController extends Controller
 {
-    public function index(Request $request)
-    {
-        try {
-            $validated = $request->validate([
-                'search' => 'nullable|string|max:255',
-                'sort' => 'nullable|in:created_at,name,email',
-                'order' => 'nullable|in:asc,desc',
-                'per_page' => 'nullable|integer|min:1|max:100',
-            ]);
+public function index(Request $request)
+{
+    try {
+        $validated = $request->validate([
+            'search' => 'nullable|string|max:255',
+            'sort' => 'nullable|in:created_at,name,email,gender,birthdate,occupation,phone,is_active',
+            'order' => 'nullable|in:asc,desc',
+            'per_page' => 'nullable|integer|min:1|max:100',
+        ]);
 
-            $clients = Client::with('occupation')
-                ->when(
-                    $validated['search'] ?? null,
-                    fn($q, $search) =>
-                    $q->where('name', 'like', "%$search%")
-                        ->orWhere('email', 'like', "%$search%")
-                        ->orWhere('phone', 'like', "%$search%")
-                )
-                ->orderBy($validated['sort'] ?? 'created_at', $validated['order'] ?? 'desc')
-                ->paginate($validated['per_page'] ?? 10);
+        $sort = $validated['sort'] ?? 'created_at';
+        $order = $validated['order'] ?? 'desc';
+        $search = $validated['search'] ?? null;
+        $perPage = $validated['per_page'] ?? 10;
 
-            return response()->json([
-                'result' => true,
-                'message' => __('messages.client.clients_retrieved'),
-                'clients' => ClientResource::collection($clients),
-                'pagination' => new PaginationResource($clients),
-            ]);
-        } catch (Exception $e) {
-            return $this->errorResponse( __('messages.client.failed_to_retrieve_data'), $e);
-        }
+        $clients = Client::query()
+            ->select('clients.*') // important if joining
+            ->with('occupation')
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('clients.name', 'like', "%$search%")
+                        ->orWhere('clients.email', 'like', "%$search%")
+                        ->orWhere('clients.phone', 'like', "%$search%");
+                });
+            })
+            ->when($sort === 'occupation', function ($query) use ($order) {
+                $query->leftJoin('occupations', 'clients.occupation_id', '=', 'occupations.id')
+                    ->orderBy('occupations.name', $order);
+            }, function ($query) use ($sort, $order) {
+                $query->orderBy("clients.$sort", $order);
+            })
+            ->paginate($perPage);
+
+        return response()->json([
+            'result' => true,
+            'message' => __('messages.client.clients_retrieved'),
+            'clients' => ClientResource::collection($clients),
+            'pagination' => new PaginationResource($clients),
+        ]);
+    } catch (Exception $e) {
+        return $this->errorResponse(__('messages.client.failed_to_retrieve_data'), $e);
     }
+}
 
     public function show(Client $client)
     {
@@ -72,7 +84,7 @@ class ClientController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse( __('messages.client.failed_to_create_client'), $e);
+            return $this->errorResponse(__('messages.client.failed_to_create_client'), $e);
         }
     }
 
@@ -105,7 +117,7 @@ class ClientController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse( __('messages.client.failed_to_update_client'), $e);
+            return $this->errorResponse(__('messages.client.failed_to_update_client'), $e);
         }
     }
 
@@ -125,7 +137,7 @@ class ClientController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->errorResponse( __('messages.client.failed_to_delete_client'), $e);
+            return $this->errorResponse(__('messages.client.failed_to_delete_client'), $e);
         }
     }
 }

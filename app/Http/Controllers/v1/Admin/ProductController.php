@@ -184,7 +184,6 @@ class ProductController extends Controller
             $product = Product::findOrFail($id);
 
             $product->fill($request->except(['tags', 'images', 'variants', 'specifications']));
-            $product->slug = null;
             $product->save();
 
             ProductTag::where("product_id", $product->id)->delete();

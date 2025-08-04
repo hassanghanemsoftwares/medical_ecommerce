@@ -78,7 +78,10 @@ class Product extends Model
     {
         return $this->hasMany(HomeProductSectionItem::class, 'product_id');
     }
-
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
     public function getFinalPriceAttribute()
     {
         return $this->price - ($this->price * $this->discount / 100);

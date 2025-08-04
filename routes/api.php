@@ -20,8 +20,8 @@ use App\Http\Controllers\V1\Admin\TagController;
 use App\Http\Controllers\V1\Admin\ConfigurationController;
 use App\Http\Controllers\V1\Admin\ContactController;
 use App\Http\Controllers\V1\Admin\CouponController;
+use App\Http\Controllers\V1\Admin\DashboardController;
 use App\Http\Controllers\V1\Admin\HomeBannerController;
-use App\Http\Controllers\V1\Admin\HomeProductSectionItemController;
 use App\Http\Controllers\V1\Admin\HomeSectionController;
 use App\Http\Controllers\V1\Admin\LearningVideoController;
 use App\Http\Controllers\V1\Admin\OccupationController;
@@ -31,6 +31,7 @@ use App\Http\Controllers\V1\Admin\ProductController;
 use App\Http\Controllers\V1\Admin\ProductImageController;
 use App\Http\Controllers\V1\Admin\ProductVariantController;
 use App\Http\Controllers\V1\Admin\ReturnOrderController;
+use App\Http\Controllers\V1\Admin\ReviewController;
 use App\Http\Controllers\V1\Admin\StockAdjustmentController;
 use App\Http\Controllers\V1\Admin\StockController;
 use App\Http\Controllers\V1\Admin\SubscriptionController;
@@ -50,6 +51,7 @@ use App\Http\Controllers\V1\Client\ClientPreOrdersController;
 use App\Http\Controllers\V1\Client\ClientProductController;
 use App\Http\Controllers\V1\Client\ClientProfileController;
 use App\Http\Controllers\V1\Client\ClientReturnOrdersController;
+use App\Http\Controllers\V1\Client\ClientReviewController;
 use App\Http\Controllers\V1\Client\ClientSettingsController;
 use App\Http\Controllers\V1\Client\ClientShopController;
 use App\Http\Controllers\V1\Client\ClientSubscriptionPlanController;
@@ -90,6 +92,8 @@ Route::prefix('v1')->group(function () {
                     Route::get('getAllProductsVariantsCanBePreOrder', [SettingsController::class, 'getAllProductsVariantsCanBePreOrder']);
                     Route::get('getAllProducts', [SettingsController::class, 'getAllProducts']);
 
+                    Route::get('/dashboard', [DashboardController::class, 'index']);
+
 
                     Route::middleware('can:view-profile')->post('changePassword', [ProfileController::class, 'changePassword']);
                     Route::middleware('can:view-profile')->get('sessions', [SessionController::class, 'getAllSessions']);
@@ -109,7 +113,7 @@ Route::prefix('v1')->group(function () {
                     Route::middleware('can:delete-category')->delete('categories/{category}', [CategoryController::class, 'destroy']);
 
                     //product Routes
-                    Route::middleware('can:edit-product')->get('products/generate-barcode', [ProductController::class, 'generateBarcode']);
+                    Route::middleware('can:create-product')->get('products/generate-barcode', [ProductController::class, 'generateBarcode']);
                     Route::middleware('can:view-product')->get('products', [ProductController::class, 'index']);
                     Route::middleware('can:view-product')->get('products/{product}', [ProductController::class, 'show']);
                     Route::middleware('can:create-product')->post('products', [ProductController::class, 'store']);
@@ -120,6 +124,9 @@ Route::prefix('v1')->group(function () {
                         Route::delete('product_image/{product_image}', [ProductImageController::class, 'destroy']);
                         Route::delete('product_variant/{product_variant}', [ProductVariantController::class, 'destroy']);
                     });
+                    Route::middleware('can:view-review')->get('reviews', [ReviewController::class, 'index']);
+                    Route::middleware('can:edit-review')->put('reviews/{review}', [ReviewController::class, 'update']);
+
                     Route::get('/stocks', [StockController::class, 'index'])
                         ->middleware('can:view-stock');
 
@@ -170,6 +177,7 @@ Route::prefix('v1')->group(function () {
                     Route::middleware('can:edit-pre_order')->put('pre-orders/{order}', [PreOrderController::class, 'update']);
 
                     Route::middleware('can:view-contacts')->get('contacts', [ContactController::class, 'index']);
+
 
                     // Learning Video Routes
                     Route::middleware('can:view-learning_video')->get('learning-videos', [LearningVideoController::class, 'index']);
@@ -324,13 +332,16 @@ Route::prefix('v1')->group(function () {
                     Route::get('/', 'index');
                     Route::post('addOrRemove', 'addOrRemove');
                 });
-
-
-
                 Route::post('placeOrder', [ClientCheckoutController::class, 'placeOrder']);
-
                 Route::get('learning-videos', [ClientLearningVideoController::class, 'index']);
                 Route::get('subscription-plan', [ClientSubscriptionPlanController::class, 'index']);
+
+                Route::prefix('reviews')->controller(ClientReviewController::class)->group(function () {
+
+                    Route::post('/', 'store');
+                    Route::put('{id}', 'update');
+                    Route::delete('{review}', 'destroy');
+                });
             });
         });
     });

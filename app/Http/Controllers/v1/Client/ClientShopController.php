@@ -40,11 +40,15 @@ class ClientShopController extends Controller
                 'category',
                 'brand',
                 'images' => fn($q) => $q->orderBy('arrangement', 'asc'),
-                'variants' => fn($q) => $q->where(function ($q) {
-                    $q->whereNotNull('size_id')->orWhereNotNull('color_id');
-                })->with(['size', 'color']),
+                'variants.size',
+                'variants.color',
                 'tags',
                 'specifications',
+                'reviews' => fn($q) => $q
+                    ->where('is_active', 1)
+                    ->orderBy('id', 'desc')
+                    ->take(5),
+
                 'homeProductSectionItems' => fn($q) => $q->where('is_active', true),
             ]);
 

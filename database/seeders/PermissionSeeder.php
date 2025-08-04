@@ -99,6 +99,12 @@ class PermissionSeeder extends Seeder
             'create-team_member',
             'edit-team_member',
             'delete-team_member',
+
+            // review Permissions
+            'view-review',
+            'edit-review',
+
+
         ];
 
         foreach ($permissions as $permission) {

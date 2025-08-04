@@ -28,6 +28,12 @@ class ReturnOrderDetail extends Model
     {
         return $this->belongsTo(Variant::class);
     }
+    public function stockAdjustments()
+    {
+        return $this->hasMany(StockAdjustment::class, 'variant_id', 'variant_id')
+            ->where('reference_type', 'return_order');
+    }
+
 
     public function getActivitylogOptions(): LogOptions
     {

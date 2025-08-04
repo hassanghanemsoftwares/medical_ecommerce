@@ -11,6 +11,7 @@ class VariantResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'sku' => $this->sku,
             'product_id' => $this->product_id,
             'product_info' => $variant?->display_sku ?? '',
             'size' => new SizeResource($this->whenLoaded('size')),

@@ -10,15 +10,15 @@ class ProductClick extends Model
     use HasFactory;
 
     protected $fillable = [
-        'device_id',
+        'client_session_id',
         'product_id',
     ];
 
-    public function client_sessions()
+    public function clientSession()
     {
-        return $this->hasMany(ClientSession::class);
+        return $this->belongsTo(ClientSession::class);
     }
-
+    
     public function product()
     {
         return $this->belongsTo(Product::class);

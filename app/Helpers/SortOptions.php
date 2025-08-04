@@ -8,20 +8,6 @@ class SortOptions
     {
         return [
             [
-                'key' => 'price_htl',
-                'en' => 'Price: High to Low',
-                'ar' => 'السعر: من الأعلى إلى الأدنى',
-                'column' => 'products.price',
-                'direction' => 'desc',
-            ],
-            [
-                'key' => 'price_lth',
-                'en' => 'Price: Low to High',
-                'ar' => 'السعر: من الأدنى إلى الأعلى',
-                'column' => 'products.price',
-                'direction' => 'asc',
-            ],
-            [
                 'key' => 'newest',
                 'en' => 'Newest First',
                 'ar' => 'الأحدث أولاً',
@@ -35,6 +21,21 @@ class SortOptions
                 'column' => 'products.created_at',
                 'direction' => 'asc',
             ],
+            [
+                'key' => 'price_htl',
+                'en' => 'Price: High to Low',
+                'ar' => 'السعر: من الأعلى إلى الأدنى',
+                'column' => 'products.price',
+                'direction' => 'desc',
+            ],
+            [
+                'key' => 'price_lth',
+                'en' => 'Price: Low to High',
+                'ar' => 'السعر: من الأدنى إلى الأعلى',
+                'column' => 'products.price',
+                'direction' => 'asc',
+            ],
+
             [
                 'key' => 'name_asc',
                 'en' => 'Name: A to Z',

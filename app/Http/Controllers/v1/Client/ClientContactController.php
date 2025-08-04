@@ -4,9 +4,11 @@ namespace App\Http\Controllers\V1\Client;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\V1\Client\ContactRequest;
+use App\Mail\ContactMail;
 use App\Models\Contact;
 use Illuminate\Support\Facades\DB;
 use Exception;
+use Illuminate\Support\Facades\Mail;
 
 class ClientContactController extends Controller
 {
@@ -17,6 +19,7 @@ class ClientContactController extends Controller
             DB::beginTransaction();
 
             Contact::create($request->validated());
+            Mail::to(config('mail.mailers.smtp.username'))->send(new ContactMail($request->validated()));
             DB::commit();
 
             return response()->json([
